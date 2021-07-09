@@ -1,0 +1,128 @@
+disabled_rules:
+  - identifier_name             # Does not make sense to lint for the length of identifiers.
+  - type_name                   # Same as above.
+  - empty_enum_arguments        # It warns about an explicit pattern we use.
+  - superfluous_disable_command # Disabled since we disable some rules pre-emptively to avoid issues in the future
+  - todo                        # Temporarily disabled. We have too many right now hiding real issues :(
+  - nesting                     # Does not make sense anymore since Swift 4 uses nested `CodingKeys` enums for example
+
+opt_in_rules:
+  - anyobject_protocol
+  - attributes
+  - closure_end_indentation
+  - closure_spacing
+  - collection_alignment
+  - colon
+  - contains_over_filter_count
+  - contains_over_filter_is_empty
+  - contains_over_first_not_nil
+  - discouraged_object_literal
+  - empty_collection_literal
+  - empty_count
+  - empty_string
+  - explicit_init
+  - extension_access_modifier
+  - fatal_error_message
+  - file_header
+  - first_where
+  - identical_operands
+  - implicit_return
+  - inert_defer
+  - joined_default_parameter
+  - literal_expression_end_indentation
+  - legacy_hashing
+  - legacy_random
+  - multiline_arguments
+  - multiline_literal_brackets
+  - multiline_parameters
+  - multiline_parameters_brackets
+  - notification_center_detachment
+  - number_separator
+  - operator_usage_whitespace
+  - overridden_super_call
+  - private_action
+  - prohibited_interface_builder
+  - prohibited_super_call
+  - redundant_nil_coalescing
+  - redundant_objc_attribute
+  - single_test_class
+  - sorted_imports
+  - static_operator
+  - toggle_bool
+  - trailing_comma
+  - trailing_whitespace
+  - unneeded_parentheses_in_closure_argument
+  - vertical_parameter_alignment_on_call
+  - yoda_condition
+
+excluded:
+  - .github/
+  - .build/
+  - build/
+  - Carthage/
+  - docs/
+  - fastlane/
+  - DerivedData/
+
+attributes:
+  always_on_same_line:
+    - "@IBAction"
+    - "@NSManaged"
+    - "@objc"
+closure_spacing: warning
+empty_count: 
+  severity: warning
+implicit_return:
+  included:
+    - closure
+explicit_init: warning
+fatal_error_message: warning
+file_header:
+  severity: warning
+  forbidden_pattern: |
+                     \/\/
+                     \/\/  .*?\..*
+                     \/\/  .*
+                     \/\/
+                     \/\/  Created by .*? on .*\.
+                     \/\/  Copyright © \d{4} .*\. All rights reserved\.
+                     \/\/
+force_cast: warning
+force_try: warning
+implicit_getter: warning
+indentation: 4 # 4 spaces
+line_length:
+  warning: 120
+  error: 200
+  ignores_function_declarations: true
+multiline_arguments:
+  first_argument_location: next_line
+number_separator:
+  minimum_length: 5 # number of digits, i.e. >= 10_000
+redundant_nil_coalescing: warning
+shorthand_operator: warning
+trailing_comma:
+  mandatory_comma: true
+vertical_whitespace:
+  max_empty_lines: 2
+weak_delegate: warning
+cyclomatic_complexity:
+  warning: 12
+function_parameter_count:
+  warning: 7
+
+reporter:
+  - "xcode"
+  - "junit"
+
+custom_rules:
+  associated_values_unwrapping:
+    name: "Associated Value Unwrapping"
+    regex: "case let [a-zA-Z0-9]*.[a-zA-Z0-9]+\\([a-zA-Z0-9 ,]+"
+    message: "Each associated value should be defined as a separate constant (i.e: .enumCase(let val1, let val2))"
+    severity: warning
+  trailing_dot_in_comments:
+    name: "Trailing dot in comments"
+    regex: '^[ ]*///?[^\n]*\.\n'
+    message: "There shouldn't be trailing dot in comments"
+    severity: warning

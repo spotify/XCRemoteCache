@@ -1,0 +1,45 @@
+# Rule configurations
+--allman false
+--binarygrouping 4,8
+--commas always
+--comments indent
+--decimalgrouping 3,5
+--elseposition same-line
+--empty void
+--exponentcase lowercase
+--exponentgrouping disabled
+--fractiongrouping enabled
+--header strip
+--hexgrouping none
+--hexliteralcase lowercase
+--ifdef noindent
+--indent 4
+--indentcase false
+--xcodeindentation enabled
+--linebreaks lf
+--octalgrouping 4,8
+--patternlet inline
+--self remove
+--semicolons inline
+--stripunusedargs closure-only
+--trimwhitespace always
+--wraparguments beforefirst
+--wrapcollections beforefirst
+--closingparen balanced
+--xcodeindentation enabled
+
+# Disabled rules
+--disable numberFormatting
+--disable consecutiveBlankLines
+--disable andOperator
+--disable spaceAroundOperators
+--disable redundantReturn
+--disable blankLinesAtStartOfScope
+
+# Enabled rules
+
+# Tool options
+--symlinks ignore
+
+# Excluded directories
+--exclude Carthage,.build,DerivedData

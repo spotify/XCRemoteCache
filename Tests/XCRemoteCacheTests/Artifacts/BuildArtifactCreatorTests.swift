@@ -1,0 +1,115 @@
+@testable import XCRemoteCache
+
+import XCTest
+import Zip
+
+class BuildArtifactCreatorTests: FileXCTestCase {
+    private var workDirectory: URL!
+    private let sampleMeta = MainArtifactSampleMeta.defaults
+    private var buildDir: URL!
+    private var tempDir: URL!
+    private var headerURL: URL!
+    private var swiftmoduleURL: URL!
+    private var swiftdocURL: URL!
+    private var swiftSourceInfoURL: URL!
+    private var executablePath: String!
+    private var executableURL: URL!
+    private var creator: BuildArtifactCreator!
+    private var dSYM: URL!
+
+
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        workDirectory = try prepareTempDir()
+
+        buildDir = workDirectory.appendingPathComponent("Build")
+        tempDir = workDirectory.appendingPathComponent("Temp")
+        headerURL = workDirectory.appendingPathComponent("Target-Swift.h")
+        swiftmoduleURL = workDirectory.appendingPathComponent("Objects-normal")
+            .appendingPathComponent("Target.swiftmodule")
+        swiftdocURL = workDirectory.appendingPathComponent("Objects-normal")
+            .appendingPathComponent("Target.swiftdoc")
+        swiftSourceInfoURL = workDirectory.appendingPathComponent("Objects-normal")
+            .appendingPathComponent("Target.swiftsourceinfo")
+        executablePath = "libTarget.a"
+        executableURL = buildDir.appendingPathComponent(executablePath)
+        dSYM = executableURL.deletingPathExtension().appendingPathExtension(".dSYM")
+        try fileManager.spt_createEmptyFile(executableURL)
+        try fileManager.spt_createEmptyFile(headerURL)
+
+        creator = BuildArtifactCreator(
+            buildDir: buildDir,
+            tempDir: tempDir,
+            executablePath: executablePath,
+            moduleName: "Target",
+            modulesFolderPath: "",
+            dSYMPath: dSYM,
+            fileManager: fileManager
+        )
+    }
+
+    func testPackagesExecutableAndMeta() throws {
+        let artifact = try creator.createArtifact(artifactKey: "key", meta: sampleMeta)
+
+        let unzippedURL = workDirectory.appendingPathComponent(UUID().uuidString)
+        try Zip.unzipFile(artifact.package, destination: unzippedURL, overwrite: true, password: nil, progress: nil)
+        let allFiles = try fileManager.spt_allFilesRecusively(unzippedURL)
+        XCTAssertEqual(Set(allFiles), [
+            unzippedURL.appendingPathComponent("libTarget.a"),
+            unzippedURL.appendingPathComponent("fileKey.json"),
+        ])
+    }
+
+    func testPackagesObjCHeader() throws {
+        try creator.includeObjCHeaderToTheArtifact(arch: "arch", headerURL: headerURL)
+        let artifact = try creator.createArtifact(artifactKey: "key", meta: sampleMeta)
+
+        let unzippedURL = workDirectory.appendingPathComponent(UUID().uuidString)
+        try Zip.unzipFile(artifact.package, destination: unzippedURL, overwrite: true, password: nil, progress: nil)
+        let allFiles = try fileManager.spt_allFilesRecusively(unzippedURL)
+        XCTAssertEqual(Set(allFiles), [
+            unzippedURL.appendingPathComponent("include/arch/Target/Target-Swift.h"),
+            unzippedURL.appendingPathComponent("libTarget.a"),
+            unzippedURL.appendingPathComponent("fileKey.json"),
+        ])
+    }
+
+    func testPackagesSwiftmoduleFiles() throws {
+        try fileManager.spt_createEmptyFile(swiftmoduleURL)
+        try fileManager.spt_createEmptyFile(swiftdocURL)
+        try fileManager.spt_createEmptyFile(swiftSourceInfoURL)
+
+        try creator.includeModuleDefinitionsToTheArtifact(arch: "arch", moduleURL: swiftmoduleURL)
+        let artifact = try creator.createArtifact(artifactKey: "key", meta: sampleMeta)
+
+        let unzippedURL = workDirectory.appendingPathComponent(UUID().uuidString)
+        try Zip.unzipFile(artifact.package, destination: unzippedURL, overwrite: true, password: nil, progress: nil)
+        let allFiles = try fileManager.spt_allFilesRecusively(unzippedURL)
+        XCTAssertEqual(Set(allFiles), [
+            unzippedURL.appendingPathComponent("libTarget.a"),
+            unzippedURL.appendingPathComponent("fileKey.json"),
+            unzippedURL.appendingPathComponent("swiftmodule/arch/Target.swiftmodule"),
+            unzippedURL.appendingPathComponent("swiftmodule/arch/Target.swiftdoc"),
+            unzippedURL.appendingPathComponent("swiftmodule/arch/Target.swiftsourceinfo"),
+        ])
+    }
+
+    func testFailsPackageWhenSwiftmoduleRelatedFilesAreMissing() throws {
+        // Creating only `Target.swiftmodule`, without `.swiftdoc`
+        try fileManager.spt_createEmptyFile(swiftmoduleURL)
+
+        XCTAssertThrowsError(try creator.includeModuleDefinitionsToTheArtifact(arch: "arch", moduleURL: swiftmoduleURL))
+    }
+
+    func testIncludesAlreadyExistingDynamicLibrary() throws {
+        let dirToUnzip = workDirectory.appendingPathComponent("unzip")
+        let unzippedDSym = dirToUnzip.appendingPathComponent(dSYM.lastPathComponent)
+        try fileManager.createDirectory(at: dirToUnzip, withIntermediateDirectories: true, attributes: nil)
+        fileManager.createFile(atPath: dSYM.path, contents: nil, attributes: nil)
+
+        let artifact = try creator.createArtifact(artifactKey: "1", meta: sampleMeta)
+
+        try Zip.unzipFile(artifact.package, destination: dirToUnzip, overwrite: true, password: nil)
+        XCTAssertTrue(fileManager.fileExists(atPath: unzippedDSym.path))
+    }
+}

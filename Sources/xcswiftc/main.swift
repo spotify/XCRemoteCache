@@ -1,0 +1,3 @@
+import XCRemoteCache
+
+XCSwiftcMain().main()

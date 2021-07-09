@@ -1,0 +1,3 @@
+import XCRemoteCache
+
+XCLibtoolMain().main()
