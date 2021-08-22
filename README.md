@@ -309,6 +309,10 @@ aws_service: s3
 
 Retention Policy: Buckets usually have a retention policy option which ensures objects are retained for a certain amount of time and won't be modified or deleted. Keep this option short or disable it to avoid errors in case multiple builds are done consecutively on the producer side for the same configuration.
 
+## CocoaPods plugin
+
+Head over to our [cocoapods-plugin](cocoapods-plugin/README.md) docs to see how to integrate XCRemoteCache in your CocoaPods project.
+
 ## Requirements
 
 * The repo under `git` version control
