@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.description   = %q{CocoaPods plugin that enables XCRemoteCache with the project.}
   spec.summary       = %q{A simple plugin that attaches to the post_install hook and modifies the generated project to use XCRemoteCache. Supports both producing anc consuming parts.}
   spec.homepage      = 'https://github.com/spotify/XCRemoteCache'
-  spec.license       = 'MIT'
+  spec.license       = 'Apache-2.0'
 
   spec.files         = `git ls-files`.split($/)
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
