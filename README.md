@@ -2,6 +2,8 @@
 
 XCRemoteCache is a remote cache tool for Xcode projects. It reuses target artifacts generated on a remote machine, served from a simple REST server. 
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
 ## How and Why?
 
 The caching mechanism is based on remote artifacts that should be generated and uploaded to the cache server for each commit on a `master` branch, preferably as a part of CI/CD step. Xcode products are not portable between different Xcode versions, each XCRemoteCache artifact is linked with a specific Xcode build number that generated it. To support multiple Xcode versions, artifacts generation should happen for each Xcode version.
@@ -347,6 +349,12 @@ CONFIG=Release rake build
 
 The zip package will be generated at `releases/XCRemoteCache.zip`.
 
+## Contributing
+
+We feel that a welcoming community is important and we ask that you follow Spotify's 
+[Open Source Code of Conduct](https://github.com/spotify/code-of-conduct/blob/master/code-of-conduct.md)
+in all interactions with the community.
+
 ## Code of conduct
 
 This project adheres to the [Open Code of Conduct](https://github.com/spotify/code-of-conduct/blob/master/code-of-conduct.md). By participating, you are expected to honor this code.
@@ -368,3 +376,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
+
+## Security Issues?
+
+Please report sensitive security issues via Spotify's bug-bounty program (https://hackerone.com/spotify) rather than GitHub.
