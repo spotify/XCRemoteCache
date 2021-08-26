@@ -28,9 +28,10 @@ class LowestLatencyNetworkServerProbeTests: XCTestCase {
         let urlSlow = try URL(string: "http://slow.com").unwrap()
         let delays: [String: TimeInterval] = ["fast.com": 0.01, "slow.com": 0.1]
         let networkClient = DelayEmulatedNetworkClientFake(hostsDelays: delays, fileManager: FileManager.default)
-        let probe = LowestLatencyNetworkServerProbe(
+        let probe = try LowestLatencyNetworkServerProbe(
             servers: [urlFast, urlSlow],
             healthPath: "health",
+            probes: 1,
             fallbackServer: nil,
             networkClient: networkClient
         )
@@ -38,6 +39,29 @@ class LowestLatencyNetworkServerProbeTests: XCTestCase {
         let serverToUse = try probe.determineRemoteServer()
 
         XCTAssertEqual(serverToUse, urlFast)
+    }
+
+    func testFailsToInitializeWithNonPositiveProbes() {
+        XCTAssertThrowsError(try LowestLatencyNetworkServerProbe(
+            servers: [],
+            healthPath: "health",
+            probes: 0,
+            fallbackServer: nil,
+            networkClient: NetworkClientFake(fileManager: FileManager.default)
+        ))
+    }
+
+    func testFailsIfRemotesAreUnreachable() throws {
+        let url = try URL(string: "http://fast.com").unwrap()
+        let probe = try LowestLatencyNetworkServerProbe(
+            servers: [url],
+            healthPath: "",
+            probes: 1,
+            fallbackServer: nil,
+            networkClient: TimeoutingNetworkClient()
+        )
+
+        XCTAssertThrowsError(try probe.determineRemoteServer())
     }
 }
 

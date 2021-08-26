@@ -90,9 +90,10 @@ public class XCPrepare {
                 fileManager: fileManager,
                 awsV4Signature: awsV4Signature
             )
-            let serverProbe = LowestLatencyNetworkServerProbe(
+            let serverProbe = try LowestLatencyNetworkServerProbe(
                 servers: context.cacheAddresses,
                 healthPath: context.cacheHealthPath,
+                probes: context.cacheHealthPathProbeCount,
                 fallbackServer: context.recommendedCacheAddress,
                 networkClient: networkClient
             )

@@ -39,6 +39,8 @@ public struct XCRemoteCacheConfig: Encodable {
     /// Probe request path to the `cacheAddresses` (relative to `cacheAddresses`)
     /// that determines the best cache to use (with the lowest latency)
     var cacheHealthPath: String = "nginx-health"
+    /// Number of `cacheAddresses` probe requests
+    var cacheHealthPathProbeCount: Int = 3
     /// Filepath to the file to the remote commit sha
     var remoteCommitFile: String = "build/remote-cache/arc.rc"
     /// Filepath to create xccc wrapper (that value should be equal to Xcode's CC BuildSetting)
@@ -128,6 +130,7 @@ extension XCRemoteCacheConfig {
         merge.recommendedCacheAddress = scheme.recommendedCacheAddress ?? recommendedCacheAddress
         merge.cacheAddresses = scheme.cacheAddresses ?? cacheAddresses
         merge.cacheHealthPath = scheme.cacheHealthPath ?? cacheHealthPath
+        merge.cacheHealthPathProbeCount = scheme.cacheHealthPathProbeCount ?? cacheHealthPathProbeCount
         merge.remoteCommitFile = scheme.remoteCommitFile ?? remoteCommitFile
         merge.xcccFile = scheme.xcccFile ?? xcccFile
         merge.prebuildDiscoveryPath = scheme.prebuildDiscoveryPath ?? prebuildDiscoveryPath
@@ -188,6 +191,7 @@ struct ConfigFileScheme: Decodable {
     let recommendedCacheAddress: String?
     let cacheAddresses: [String]?
     let cacheHealthPath: String?
+    let cacheHealthPathProbeCount: Int?
     let remoteCommitFile: String?
     let xcccFile: String?
     let prebuildDiscoveryPath: String?
@@ -228,6 +232,7 @@ struct ConfigFileScheme: Decodable {
         case recommendedCacheAddress = "recommended_cache_address"
         case cacheAddresses = "cache_addresses"
         case cacheHealthPath = "cache_health_path"
+        case cacheHealthPathProbeCount = "cache_health_path_probe_count"
         case remoteCommitFile = "remote_commit_file"
         case xcccFile = "xccc_file"
         case prebuildDiscoveryPath = "prebuild_discovery_path"

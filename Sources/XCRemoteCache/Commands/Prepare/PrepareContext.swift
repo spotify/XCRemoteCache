@@ -48,6 +48,8 @@ public struct PrepareContext {
     let cacheAddresses: [URL]
     /// Health path (relative to cacheAddresses) that determines request latency
     let cacheHealthPath: String
+    /// Number of times to probe health path
+    let cacheHealthPathProbeCount: Int
     /// clang wrapper output file
     let xcccCommand: URL
 }
@@ -74,5 +76,6 @@ extension PrepareContext {
         xcccCommand = URL(fileURLWithPath: config.xcccFile, relativeTo: repoRoot)
         cacheAddresses = try config.cacheAddresses.map(URL.build)
         cacheHealthPath = config.cacheHealthPath
+        cacheHealthPathProbeCount = config.cacheHealthPathProbeCount
     }
 }

@@ -225,6 +225,7 @@ _Note that for the `producer` mode, the prebuild build phase and `xccc`, `xcld`,
 | `cache_addresses` | Addresses of all remote cache replicas. _Required to be a non-empty array of strings_ | N/A | ✅ |
 | `recommended_cache_address` | Address of the best remote cache to use in the consumer mode. If not specified, the first item in `cache_addresses` will be used | N/A | ⬜️ |
 | `cache_health_path` | Probe request path to the `cache_addresses` (relative to a path in `cache_addresses`) that determines the best cache to use | `nginx-health` | ⬜️ |
+| `cache_health_path_probe_count` | Number of `cacheAddresses` probe requests | `3` | ⬜️ |
 | `remote_commit_file` | Filepath to the file with the remote commit sha | `build/remote-cache/arc.rc` | ⬜️ |
 | `xccc_file` | Path to the xccc wrapper | `build/bin/xccc` | ⬜️ |
 | `prebuild_discovery_path` | Path, relative to `$TARGET_TEMP_DIR`, that specifies prebuild discovery .d file | `prebuild.d` | ⬜️ |
