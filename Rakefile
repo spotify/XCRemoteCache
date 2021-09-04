@@ -39,7 +39,7 @@ task :autocorrect => [:prepare]  do
 end
 
 desc 'build package artifacts'
-task :build, [:configuration, :sdks] do |task, args|
+task :build, [:configuration, :arch, :sdks, :is_archive] do |task, args|
   # Set task defaults
   args.with_defaults(:configuration => 'debug', :sdks => ['macos'])
 
@@ -54,7 +54,7 @@ task :build, [:configuration, :sdks] do |task, args|
   # Build
   build_paths = []
   args.sdks.each do |sdk|
-    spm_build(args.configuration)
+    spm_build(args.configuration, args.arch)
 
     # Path of the executable looks like: `.build/(debug|release)/XCRemoteCache`
     build_path_base = File.join(DERIVED_DATA_DIR, args.configuration)
@@ -67,7 +67,7 @@ task :build, [:configuration, :sdks] do |task, args|
 
   if args.configuration == 'Release'.downcase
     puts "Creating release zip"
-    package = create_release_zip(build_paths[0])
+    create_release_zip(build_paths[0])
   end
 end
 
@@ -81,9 +81,12 @@ end
 # Helper functions
 ################################
 
-def spm_build(configuration)
+def spm_build(configuration, arch)
   spm_cmd = "swift build "\
               "-c #{configuration}"
+              "#{arch.nil? ? "" : "--triple #{arch}"} "\
+              "--disable-sandbox"
+  p spm_cmd
   system(spm_cmd) or abort "Build failure"
 end
 
@@ -102,14 +105,19 @@ end
 
 def create_release_zip(build_paths)
   release_dir = RELEASES_ROOT_DIR
-  output_artifact_basename = "#{PROJECT_NAME}.zip"
-  library_file = File.join(release_dir, output_artifact_basename)
-
+  
   # Create and move files into the release directory
   mkdir_p release_dir
   build_paths.each {|p|
     cp_r p, release_dir
   }
+  
+  # Get the current version from the Swift Version file
+  version = get_version
+  unless version
+    fail("Version not found")
+  end
+  output_artifact_basename = "#{PROJECT_NAME}-#{version}.zip"
 
   Dir.chdir(release_dir) do
     # -X: no extras (uid, gid, file times, ...)
@@ -118,5 +126,8 @@ def create_release_zip(build_paths)
     # List contents of zip file
     system("unzip -l #{output_artifact_basename}") or abort "unzip failure"
   end
-  library_file
+end
+
+def get_version
+  "0.2.26"
 end
