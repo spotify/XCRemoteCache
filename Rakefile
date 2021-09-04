@@ -1,23 +1,8 @@
 # encoding: utf-8
-require 'open-uri'
-require 'shellwords'
 
 ################################
 # Rake configuration
 ################################
-
-# Make sure environment is UTF-8 (CI sometimes thinks it's ASCII)
-ENV['LANG'] = 'en_US.UTF-8'
-ENV['LANGUAGE'] = 'en_US.UTF-8'
-ENV['LC_ALL'] = 'en_US.UTF-8'
-Encoding.default_external = Encoding::UTF_8
-Encoding.default_internal = Encoding::UTF_8
-
-# Environment variables (you can override those by adding parameters
-# to task definitions in buildconf/tasks)
-CONFIG = ENV['CONFIG'] || 'debug'
-CI = !!ENV['TEAMCITY_VERSION']
-GIT_REF = ENV['GITHUB_REF']
 
 # Paths
 DERIVED_DATA_DIR = File.join('.build').freeze
@@ -25,8 +10,6 @@ RELEASES_ROOT_DIR = File.join('releases').freeze
 
 EXECUTABLE_NAME = 'XCRemoteCache'
 EXECUTABLE_NAMES = ['xclibtool', 'xcpostbuild', 'xcprebuild', 'xcprepare', 'xcswiftc', 'xcld'] 
-SCHEME = 'XCRemoteCacheApp'
-TEST_SCHEME = 'XCRemoteCacheTests'
 PROJECT_NAME = 'XCRemoteCache'
 
 SWIFTLINT_ENABLED = true
@@ -58,7 +41,7 @@ end
 desc 'build package artifacts'
 task :build, [:configuration, :sdks] do |task, args|
   # Set task defaults
-  args.with_defaults(:configuration => CONFIG.downcase, :sdks => ['macos'])
+  args.with_defaults(:configuration => 'debug', :sdks => ['macos'])
 
   unless args.configuration == 'Debug'.downcase || args.configuration == 'Release'.downcase
     fail("Unsupported configuration. Valid values: ['Debug', 'Release']. Found '#{args.configuration}''")
