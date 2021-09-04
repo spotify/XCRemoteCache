@@ -88,8 +88,7 @@ def spm_build(configuration)
 end
 
 def bash(command)
-  escaped_command = Shellwords.escape(command)
-  system "bash -c #{escaped_command}"
+  system "bash -c \"#{command}\""
 end
 
 def spm_test()
