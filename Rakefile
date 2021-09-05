@@ -83,7 +83,7 @@ end
 
 def spm_build(configuration, arch)
   spm_cmd = "swift build "\
-              "-c #{configuration}"
+              "-c #{configuration} "\
               "#{arch.nil? ? "" : "--triple #{arch}"} "\
               "--disable-sandbox"
   p spm_cmd
@@ -112,22 +112,14 @@ def create_release_zip(build_paths)
     cp_r p, release_dir
   }
   
-  # Get the current version from the Swift Version file
-  version = get_version
-  unless version
-    fail("Version not found")
-  end
-  output_artifact_basename = "#{PROJECT_NAME}-#{version}.zip"
+  output_artifact_basename = "#{PROJECT_NAME}.zip"
 
   Dir.chdir(release_dir) do
     # -X: no extras (uid, gid, file times, ...)
+    # -x: exclude .DS_Store
     # -r: recursive
-    system("zip -X -r #{output_artifact_basename} .") or abort "zip failure"
+    system("zip -X -x '*.DS_Store' -r #{output_artifact_basename} .") or abort "zip failure"
     # List contents of zip file
     system("unzip -l #{output_artifact_basename}") or abort "unzip failure"
   end
-end
-
-def get_version
-  "0.2.26"
 end
