@@ -84,8 +84,7 @@ end
 def spm_build(configuration, arch)
   spm_cmd = "swift build "\
               "-c #{configuration} "\
-              "#{arch.nil? ? "" : "--triple #{arch}"} "\
-              "--disable-sandbox"
+              "#{arch.nil? ? "" : "--triple #{arch}"} "
   p spm_cmd
   system(spm_cmd) or abort "Build failure"
 end
