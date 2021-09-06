@@ -1,23 +1,8 @@
 # encoding: utf-8
-require 'open-uri'
-require 'shellwords'
 
 ################################
 # Rake configuration
 ################################
-
-# Make sure environment is UTF-8 (CI sometimes thinks it's ASCII)
-ENV['LANG'] = 'en_US.UTF-8'
-ENV['LANGUAGE'] = 'en_US.UTF-8'
-ENV['LC_ALL'] = 'en_US.UTF-8'
-Encoding.default_external = Encoding::UTF_8
-Encoding.default_internal = Encoding::UTF_8
-
-# Environment variables (you can override those by adding parameters
-# to task definitions in buildconf/tasks)
-CONFIG = ENV['CONFIG'] || 'debug'
-CI = !!ENV['TEAMCITY_VERSION']
-GIT_REF = ENV['GITHUB_REF']
 
 # Paths
 DERIVED_DATA_DIR = File.join('.build').freeze
@@ -25,8 +10,6 @@ RELEASES_ROOT_DIR = File.join('releases').freeze
 
 EXECUTABLE_NAME = 'XCRemoteCache'
 EXECUTABLE_NAMES = ['xclibtool', 'xcpostbuild', 'xcprebuild', 'xcprepare', 'xcswiftc', 'xcld'] 
-SCHEME = 'XCRemoteCacheApp'
-TEST_SCHEME = 'XCRemoteCacheTests'
 PROJECT_NAME = 'XCRemoteCache'
 
 SWIFTLINT_ENABLED = true
@@ -56,9 +39,9 @@ task :autocorrect => [:prepare]  do
 end
 
 desc 'build package artifacts'
-task :build, [:configuration, :sdks] do |task, args|
+task :build, [:configuration, :arch, :sdks, :is_archive] do |task, args|
   # Set task defaults
-  args.with_defaults(:configuration => CONFIG.downcase, :sdks => ['macos'])
+  args.with_defaults(:configuration => 'debug', :sdks => ['macos'])
 
   unless args.configuration == 'Debug'.downcase || args.configuration == 'Release'.downcase
     fail("Unsupported configuration. Valid values: ['Debug', 'Release']. Found '#{args.configuration}''")
@@ -71,7 +54,7 @@ task :build, [:configuration, :sdks] do |task, args|
   # Build
   build_paths = []
   args.sdks.each do |sdk|
-    spm_build(args.configuration)
+    spm_build(args.configuration, args.arch)
 
     # Path of the executable looks like: `.build/(debug|release)/XCRemoteCache`
     build_path_base = File.join(DERIVED_DATA_DIR, args.configuration)
@@ -84,7 +67,7 @@ task :build, [:configuration, :sdks] do |task, args|
 
   if args.configuration == 'Release'.downcase
     puts "Creating release zip"
-    package = create_release_zip(build_paths[0])
+    create_release_zip(build_paths[0])
   end
 end
 
@@ -98,15 +81,15 @@ end
 # Helper functions
 ################################
 
-def spm_build(configuration)
+def spm_build(configuration, arch)
   spm_cmd = "swift build "\
-              "-c #{configuration}"
+              "-c #{configuration} "\
+              "#{arch.nil? ? "" : "--triple #{arch}"} "
   system(spm_cmd) or abort "Build failure"
 end
 
 def bash(command)
-  escaped_command = Shellwords.escape(command)
-  system "bash -c #{escaped_command}"
+  system "bash -c \"#{command}\""
 end
 
 def spm_test()
@@ -120,21 +103,21 @@ end
 
 def create_release_zip(build_paths)
   release_dir = RELEASES_ROOT_DIR
-  output_artifact_basename = "#{PROJECT_NAME}.zip"
-  library_file = File.join(release_dir, output_artifact_basename)
-
+  
   # Create and move files into the release directory
   mkdir_p release_dir
   build_paths.each {|p|
     cp_r p, release_dir
   }
+  
+  output_artifact_basename = "#{PROJECT_NAME}.zip"
 
   Dir.chdir(release_dir) do
     # -X: no extras (uid, gid, file times, ...)
+    # -x: exclude .DS_Store
     # -r: recursive
-    system("zip -X -r #{output_artifact_basename} .") or abort "zip failure"
+    system("zip -X -x '*.DS_Store' -r #{output_artifact_basename} .") or abort "zip failure"
     # List contents of zip file
     system("unzip -l #{output_artifact_basename}") or abort "unzip failure"
   end
-  library_file
 end
