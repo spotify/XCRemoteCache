@@ -29,13 +29,13 @@ jobs:
       - name: Clean releases dir to not conflict with other files to attach
         run: "rm -rf releases"
       - name: Zip x86_64-apple-macosx release
-        run: "mkdir -p releases && zip -j releases/XCRemoteCache-macOS-x86_64-$TAG_NAME.zip LICENSE README.md tmp/xcremotecache-x86_64/*"
+        run: "mkdir -p releases && zip -jr releases/XCRemoteCache-macOS-x86_64-$TAG_NAME.zip LICENSE README.md tmp/xcremotecache-x86_64"
       - name: Zip arm64-apple-macosx release
-        run: "zip -j releases/XCRemoteCache-macOS-arm64-$TAG_NAME.zip LICENSE README.md tmp/xcremotecache-arm64/*"
+        run: "zip -jr releases/XCRemoteCache-macOS-arm64-$TAG_NAME.zip LICENSE README.md tmp/xcremotecache-arm64"
       - name: Lipo macOS executables
         run: "mkdir -p tmp/xcremotecache && ls tmp/xcremotecache-x86_64 | xargs -I {} lipo -create -output tmp/xcremotecache/{} tmp/xcremotecache-x86_64/{} tmp/xcremotecache-arm64/{}"
       - name: Zip x86_64-arm64-apple-macosx release
-        run: "zip -j releases/XCRemoteCache-macOS-arm64-x86_64-$TAG_NAME.zip LICENSE README.md tmp/xcremotecache/*"
+        run: "zip -jr releases/XCRemoteCache-macOS-arm64-x86_64-$TAG_NAME.zip LICENSE README.md tmp/xcremotecache"
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v1-release
         with:
