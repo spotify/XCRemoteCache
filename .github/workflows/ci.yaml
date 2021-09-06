@@ -34,10 +34,12 @@ jobs:
         run: "sudo xcode-select -s /Applications/Xcode_$XCODE_VERSION.app"
       - name: Checkout
         uses: actions/checkout@v1
-      - name: Print GITHUB_REF
-        run: echo "$GITHUB_REF"
       - name: Set tag name
         run: echo "TAG_NAME=$(echo $GITHUB_REF | cut -c 11-)" >> $GITHUB_ENV
+      - name: Print GITHUB_REF
+        run: echo "$GITHUB_REF"
+      - name: Verride TAG_NAME
+        run: echo "TAG_NAME=0.0.0" >> $GITHUB_ENV
       - name: Build x86_64-apple-macosx
         run: "rake 'build[release, x86_64-apple-macosx]'"
       - name: Save x86_64 executable to be lipo'd later
