@@ -24,6 +24,12 @@ enum PrebuildContextError: Error {
     case invalidAddress(String)
 }
 
+enum PrebuildActionType: String, Codable {
+    case build
+    case index = "indexbuild"
+    case unknown
+}
+
 public struct PrebuildContext {
     let targetTempDir: URL
     let productsDir: URL
@@ -43,6 +49,8 @@ public struct PrebuildContext {
     let targetName: String
     /// List of all targets to downloaded from the thinning aggregation target
     var thinnedTargets: [String]?
+    /// Action type: build, indexbuild etc.
+    var action: PrebuildActionType = .unknown
 }
 
 extension PrebuildContext {
@@ -64,5 +72,10 @@ extension PrebuildContext {
         self.targetName = targetName
         let thinFocusedTargetsString: String? = env.readEnv(key: "SPT_XCREMOTE_CACHE_THINNED_TARGETS")
         thinnedTargets = thinFocusedTargetsString?.split(separator: ",").map(String.init)
+        if let rawAction = env.readEnv(key: "ACTION") {
+            action = PrebuildActionType(rawValue: rawAction) ?? .unknown
+        } else {
+            action = .unknown
+        }
     }
 }
