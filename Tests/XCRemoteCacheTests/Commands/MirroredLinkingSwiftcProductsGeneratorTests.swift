@@ -66,7 +66,7 @@ class MirroredLinkingSwiftcProductsGeneratorTests: FileXCTestCase {
         XCTAssertEqual(fileManager.contents(atPath: expectedHeaderFile.path), "header".data(using: .utf8))
     }
 
-    func testLinksSwiftSourceInfoToLocationDir() throws {
+    func testLinksSwiftSourceInfoToProductsDir() throws {
         let workingDir = try prepareTempDir()
         let moduleFile = try fileManager.spt_createFile(
             workingDir.appendingPathComponent("MyModule.swiftmodule"),
@@ -93,6 +93,7 @@ class MirroredLinkingSwiftcProductsGeneratorTests: FileXCTestCase {
         let headersDir = workingDir.appendingPathComponent("headers")
         let expectedSwiftSourceInfoFile = buildDir
             .appendingPathComponent("MyModule.swiftmodule")
+            .appendingPathComponent("Project")
             .appendingPathComponent("arm64.swiftsourceinfo")
         let generator = MirroredLinkingSwiftcProductsGenerator(
             arch: "arm64",

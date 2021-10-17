@@ -50,11 +50,22 @@ class DiskSwiftcProductsGenerator: SwiftcProductsGenerator {
     ) {
         self.modulePathOutput = modulePathOutput
         let modulePathBasename = modulePathOutput.deletingPathExtension()
+        let modulePathDir = modulePathOutput.deletingLastPathComponent()
+        let moduleName = modulePathBasename.lastPathComponent
         // all swiftmodule-related should be located next to the ".swiftmodule"
+        // except of '.swiftsourceinfo', which should be placed in 'Project' dir
         destinationSwiftmodulePaths = Dictionary(
             uniqueKeysWithValues: SwiftmoduleFileExtension.SwiftmoduleExtensions
                 .map { ext, _ in
-                    (ext, modulePathBasename.appendingPathExtension(ext.rawValue))
+                    switch (ext) {
+                    case .swiftsourceinfo:
+                        let dest = modulePathDir.appendingPathComponent("Project")
+                            .appendingPathComponent(moduleName)
+                            .appendingPathExtension(ext.rawValue)
+                        return (ext, dest)
+                    default:
+                        return (ext, modulePathBasename.appendingPathExtension(ext.rawValue))
+                    }
                 }
         )
         self.objcHeaderOutput = objcHeaderOutput
