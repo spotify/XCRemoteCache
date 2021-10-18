@@ -71,6 +71,8 @@ public struct PostbuildContext {
     let derivedSourcesDir: URL
     /// List of all targets to downloaded from the thinning aggregation target
     var thinnedTargets: [String]
+    /// Action type: build, indexbuild etc.
+    var action: BuildActionType
 }
 
 extension PostbuildContext {
@@ -112,5 +114,6 @@ extension PostbuildContext {
         derivedSourcesDir = try env.readEnv(key: "DERIVED_SOURCES_DIR")
         let thinFocusedTargetsString: String = env.readEnv(key: "SPT_XCREMOTE_CACHE_THINNED_TARGETS") ?? ""
         thinnedTargets = thinFocusedTargetsString.split(separator: ",").map(String.init)
+        action = BuildActionType(rawValue: try env.readEnv(key: "ACTION")) ?? .unknown
     }
 }

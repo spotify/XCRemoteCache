@@ -49,7 +49,8 @@ class PostbuildTests: FileXCTestCase {
         builtProductsDir: "",
         bundleDir: nil,
         derivedSourcesDir: "",
-        thinnedTargets: []
+        thinnedTargets: [],
+        action: .build
     )
     private var network = RemoteNetworkClientImpl(
         NetworkClientFake(fileManager: .default),

@@ -31,18 +31,19 @@ public class XCPostbuild {
         let fileManager = FileManager.default
         let config: XCRemoteCacheConfig
         let context: PostbuildContext
-        let statsLogger: StatsLogger
+        let cacheHitLogger: CacheHitLogger
         do {
             config = try XCRemoteCacheConfigReader(env: env, fileManager: fileManager).readConfiguration()
             context = try PostbuildContext(config, env: env)
             let counterFactory: FileStatsCoordinator.CountersFactory = { file, count in
                 ExclusiveFileCounter(ExclusiveFile(file, mode: .override), countersCount: count)
             }
-            statsLogger = try FileStatsLogger(
+            let statsLogger = try FileStatsLogger(
                 statsLocation: context.statsLocation,
                 counterFactory: counterFactory,
                 fileManager: fileManager
             )
+            cacheHitLogger = ActionSpecificCacheHitLogger(action: context.action, statsLogger: statsLogger)
         } catch {
             exit(1, "FATAL: Postbuild initialization failed with error: \(error)")
         }
@@ -255,11 +256,11 @@ public class XCPostbuild {
             // Populate stats event for a final RC state
             // Doing it in a postmerge, as xcswiftc (and xccc) has a right to disable RC
             if try modeController.isEnabled() {
-                try statsLogger.log(.targetCacheHit)
+                try cacheHitLogger.logHit()
                 printToUser("Cached build for \(context.targetName) target")
             } else {
                 try postbuildAction.performBuildCleanup()
-                try statsLogger.log(.targetCacheMiss)
+                try cacheHitLogger.logMiss()
                 // Producer mode doesn't use cached artifacts so modeController is not enabled. If producer
                 // reaches this point, there were no issues with publishing
                 let actionName = context.mode == .producer ? "Published" : "Disabled"
@@ -277,7 +278,7 @@ public class XCPostbuild {
             do {
                 try modeController.disable()
                 // TODO: consider tracking errors in stats
-                try statsLogger.log(.targetCacheMiss)
+                try cacheHitLogger.logMiss()
                 printToUser("Disabled remote cache for \(context.targetName)")
             } catch {
                 exit(1, "FATAL: Postbuild finishing failed with error: \(error)")

@@ -75,7 +75,9 @@ class FileStatsCoordinator: FileStatsLogger, StatsCoordinator {
         return try XCRemoteCacheStatistics(
             hitCount: counters[XCRemoteCacheStatistics.Counter.targetCacheHit.rawValue],
             missCount: counters[XCRemoteCacheStatistics.Counter.targetCacheMiss.rawValue],
-            localCacheBytes: countLocalCacheSize()
+            localCacheBytes: countLocalCacheSize(),
+            indexingHitCount: counters[XCRemoteCacheStatistics.Counter.indexingTargetHitCount.rawValue],
+            indexingMissCount: counters[XCRemoteCacheStatistics.Counter.indexingTargetMissCount.rawValue]
         )
     }
 
