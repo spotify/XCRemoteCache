@@ -20,11 +20,6 @@
 import Foundation
 
 public class XCPrebuild {
-    private enum DisabledRCMessage {
-        case error(message: String)
-        case info(message: String)
-    }
-
     public init() {}
 
     // swiftlint:disable:next function_body_length
@@ -39,6 +34,11 @@ public class XCPrebuild {
         } catch {
             // Fatal error:
             exit(1, "FATAL: Prebuild initialization failed with error: \(error)")
+        }
+
+        guard context.action != .index else {
+            printToUser("Indexbuild. Skip remote cache")
+            exit(0)
         }
 
         // Xcode may call xcprebuild phase even none of compilation files has changed (e.g. when switching between
@@ -62,21 +62,12 @@ public class XCPrebuild {
             fileManager: fileManager
         )
 
-        guard context.action != .index else {
-            // Always fallback to local build for a build used for indexing
-            disableRemoteCache(
-                modeController: modeController,
-                message: .info(message: "Prebuild step disabled, indexbuild mode discovered")
-            )
-            exit(0)
-        }
-
         guard config.mode != .producer else {
             // Prebuild phase for a producer is noop
             // TODO: Consider a note to not adding that prebuildstep to the Xcode target
             disableRemoteCache(
                 modeController: modeController,
-                message: .error(message: "Prebuild step disabled, selected mode: \(config.mode)")
+                errorMessage: "Prebuild step disabled, selected mode: \(config.mode)"
             )
             exit(0)
         }
@@ -86,7 +77,7 @@ public class XCPrebuild {
             // Short-circut early all `xc*` apps until remote commit change
             disableRemoteCache(
                 modeController: modeController,
-                message: .error(message: "Prebuild step was disabled for current commit: \(context.remoteCommit)")
+                errorMessage: "Prebuild step was disabled for current commit: \(context.remoteCommit)"
             )
             exit(0)
         }
@@ -186,21 +177,15 @@ public class XCPrebuild {
         } catch {
             disableRemoteCache(
                 modeController: modeController,
-                message: .error(message: "Prebuild step failed with error: \(error)")
+                errorMessage: "Prebuild step failed with error: \(error)"
             )
         }
     }
 
-    private func disableRemoteCache(modeController: PhaseCacheModeController, message: DisabledRCMessage?) {
-        switch message {
-        case .error(message: let errorMessage):
-            errorLog(errorMessage)
-        case .info(message: let infoMessage):
-            infoLog(infoMessage)
-        default:
-            break
+    private func disableRemoteCache(modeController: PhaseCacheModeController, errorMessage: String?) {
+        if let message = errorMessage {
+            errorLog(message)
         }
-
         do {
             try modeController.disable()
         } catch {
