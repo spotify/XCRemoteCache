@@ -349,10 +349,10 @@ Packages with binaries will be automatically uploaded to the GitHub [Releases](h
 
 ### Building release package
 
-To build a release zip package, call:
+To build a release zip package for a single platform (e.g. `x86_64-apple-macosx`, `arm64-apple-macosx`), call:
 
 ```shell
-CONFIG=Release rake build
+rake 'build[release, x86_64-apple-macosx]'
 ```
 
 The zip package will be generated at `releases/XCRemoteCache.zip`.
