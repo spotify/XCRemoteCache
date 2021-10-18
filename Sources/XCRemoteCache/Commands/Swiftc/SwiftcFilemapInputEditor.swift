@@ -52,7 +52,8 @@ struct SwiftFileCompilationInfo: Encodable, Equatable {
     let file: URL
     // not present for WMO builds
     let dependencies: URL?
-    let object: URL
+    // not present for 'indexbuild' builds
+    let object: URL?
     // not present for WMO builds
     let swiftDependencies: URL?
 }
@@ -129,14 +130,14 @@ extension SwiftFileCompilationInfo {
         }
         file = URL(fileURLWithPath: name)
         dependencies = dict.readURL(key: "dependencies")
-        object = try dict.readURL(key: "object")
+        object = dict.readURL(key: "object")
         swiftDependencies = dict.readURL(key: "swift-dependencies")
     }
 
     func dump() -> [String: String] {
         return [
             "dependencies": dependencies?.path,
-            "object": object.path,
+            "object": object?.path,
             "swift-dependencies": swiftDependencies?.path,
         ].compactMapValues { $0 }
     }
