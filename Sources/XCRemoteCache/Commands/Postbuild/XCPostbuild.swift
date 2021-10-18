@@ -47,11 +47,6 @@ public class XCPostbuild {
             exit(1, "FATAL: Postbuild initialization failed with error: \(error)")
         }
 
-        guard context.action != .index else {
-            printToUser("Indexbuild. Skip remote cache")
-            exit(0)
-        }
-
         // Postbuild cannot disable marker, so NoopMarkerWriter used instead of a real file writer
         let modeController = PhaseCacheModeController(
             tempDir: context.targetTempDir,

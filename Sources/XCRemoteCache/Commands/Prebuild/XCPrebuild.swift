@@ -36,11 +36,6 @@ public class XCPrebuild {
             exit(1, "FATAL: Prebuild initialization failed with error: \(error)")
         }
 
-        guard context.action != .index else {
-            printToUser("Indexbuild. Skip remote cache")
-            exit(0)
-        }
-
         // Xcode may call xcprebuild phase even none of compilation files has changed (e.g. when switching between
         // simulator versions) and modifying 'mdate' of a marker file unnecessary invalidates compilation steps
         // that have to repeat their "use-from-cache" flow
