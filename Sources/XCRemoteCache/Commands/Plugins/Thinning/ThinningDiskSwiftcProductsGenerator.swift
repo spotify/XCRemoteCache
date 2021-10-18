@@ -19,25 +19,8 @@
 
 import Foundation
 
-enum DiskSwiftcProductsGeneratorError: Error {
-    /// When a generator was asked to generate unknown swiftmodule extension file.
-    /// Probably a programmer error: asking to generate excessive extensions, not listed in
-    /// `SwiftmoduleFileExtension.SwiftmoduleExtensions`
-    case unknownSwiftmoduleFile
-}
-
-/// Generates swiftc product to the expected location
-protocol SwiftcProductsGenerator {
-    /// Generates products from given files
-    /// - Returns: location dir where .swiftmodule files have been placed
-    func generateFrom(
-        artifactSwiftModuleFiles: [SwiftmoduleFileExtension: URL],
-        artifactSwiftModuleObjCFile: URL
-    ) throws -> URL
-}
-
-/// Generator that produces all products in the locations where Xcode expects it, using provided disk copier
-class DiskSwiftcProductsGenerator: SwiftcProductsGenerator {
+/// Generator that produces all products in the DerivedData's Products locations, using provided disk copier
+class ThinningDiskSwiftcProductsGenerator: SwiftcProductsGenerator {
     private let destinationSwiftmodulePaths: [SwiftmoduleFileExtension: URL]
     private let modulePathOutput: URL
     private let objcHeaderOutput: URL
@@ -50,11 +33,22 @@ class DiskSwiftcProductsGenerator: SwiftcProductsGenerator {
     ) {
         self.modulePathOutput = modulePathOutput
         let modulePathBasename = modulePathOutput.deletingPathExtension()
+        let modulePathDir = modulePathOutput.deletingLastPathComponent()
+        let moduleName = modulePathBasename.lastPathComponent
         // all swiftmodule-related should be located next to the ".swiftmodule"
+        // except of '.swiftsourceinfo', which should be placed in 'Project' dir
         destinationSwiftmodulePaths = Dictionary(
             uniqueKeysWithValues: SwiftmoduleFileExtension.SwiftmoduleExtensions
                 .map { ext, _ in
-                    (ext, modulePathBasename.appendingPathExtension(ext.rawValue))
+                    switch (ext) {
+                    case .swiftsourceinfo:
+                        let dest = modulePathDir.appendingPathComponent("Project")
+                            .appendingPathComponent(moduleName)
+                            .appendingPathExtension(ext.rawValue)
+                        return (ext, dest)
+                    default:
+                        return (ext, modulePathBasename.appendingPathExtension(ext.rawValue))
+                    }
                 }
         )
         self.objcHeaderOutput = objcHeaderOutput
