@@ -114,6 +114,6 @@ extension PostbuildContext {
         derivedSourcesDir = try env.readEnv(key: "DERIVED_SOURCES_DIR")
         let thinFocusedTargetsString: String = env.readEnv(key: "SPT_XCREMOTE_CACHE_THINNED_TARGETS") ?? ""
         thinnedTargets = thinFocusedTargetsString.split(separator: ",").map(String.init)
-        action = BuildActionType(rawValue: try env.readEnv(key: "ACTION")) ?? .unknown
+        action = (try? BuildActionType(rawValue: env.readEnv(key: "ACTION"))) ?? .unknown
     }
 }
