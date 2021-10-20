@@ -84,4 +84,18 @@ class DefaultSwiftProductsArchitecturesRecognizerTests: FileXCTestCase {
 
         XCTAssertEqual(architectures, ["x86"])
     }
+
+    func testRecognizesArchitectureFromFilesOnly() throws {
+        let swiftmodule = swiftmoduleDir.appendingPathComponent("x86.swiftmodule")
+        let swiftmoduleExtraDir = swiftmoduleDir.appendingPathComponent("Dir")
+        try fileManager.spt_createEmptyFile(swiftmodule)
+        try fileManager.spt_createEmptyDir(swiftmoduleExtraDir)
+
+        let architectures = try recognizer.recognizeArchitectures(
+            builtProductsDir: builtProductsDir,
+            moduleName: "MyModule"
+        )
+
+        XCTAssertEqual(architectures, ["x86"])
+    }
 }

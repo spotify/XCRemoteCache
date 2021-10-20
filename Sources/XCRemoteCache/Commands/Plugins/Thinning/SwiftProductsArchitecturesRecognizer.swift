@@ -44,7 +44,10 @@ class DefaultSwiftProductsArchitecturesRecognizer: SwiftProductsArchitecturesRec
         let moduleDirectory = builtProductsDir
             .appendingPathComponent(moduleName)
             .appendingPathExtension(Self.SwiftmoduleDirExtension)
-        let productFiles = try dirAccessor.items(at: moduleDirectory)
+        // Skip folders (e.g. 'Project' dir that stores .sourceinfo, introduced in Xcode13)
+        let productFiles = try dirAccessor.items(at: moduleDirectory).filter { url in
+            try dirAccessor.itemType(atPath: url.path) == .file
+        }
         /// files in a moduleDirectory have basename corresponding to the
         /// architecture (e.g. 'x86_64-apple-ios-simulator.swiftmodule', 'x86_64.swiftmodule' ...)
         let architectures = productFiles.map { file -> String in
@@ -55,7 +58,7 @@ class DefaultSwiftProductsArchitecturesRecognizer: SwiftProductsArchitecturesRec
             }
             return basenameFile.lastPathComponent
         }
-        // remove duplicates comming from files with different extensions (swiftmodule, swiftdoc etc.)
+        // remove duplicates coming from files with different extensions (swiftmodule, swiftdoc etc.)
         return Set(architectures).sorted()
     }
 }

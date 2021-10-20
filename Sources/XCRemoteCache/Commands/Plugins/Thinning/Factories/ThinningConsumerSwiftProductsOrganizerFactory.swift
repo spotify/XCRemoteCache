@@ -80,7 +80,7 @@ class ThinningConsumerUnzippedArtifactSwiftProductsOrganizerFactory: ThinningCon
             moduleName: moduleName
         )
 
-        return DiskSwiftcProductsGenerator(
+        return ThinningDiskSwiftcProductsGenerator(
             modulePathOutput: modulePathOutput,
             objcHeaderOutput: objcHeaderOutput,
             diskCopier: diskCopier
