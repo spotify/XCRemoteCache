@@ -29,12 +29,6 @@ enum MachOType: String, Codable {
     case unknown
 }
 
-enum PostbuildActionType: String, Codable {
-    case build
-    case index = "indexbuild"
-    case unknown
-}
-
 enum PostbuildContextError: Error {
     /// URL address is not a valid URL
     case invalidAddress(String)
@@ -78,7 +72,7 @@ public struct PostbuildContext {
     /// List of all targets to downloaded from the thinning aggregation target
     var thinnedTargets: [String]
     /// Action type: build, indexbuild etc.
-    var action: PostbuildActionType = .unknown
+    var action: BuildActionType
 }
 
 extension PostbuildContext {
@@ -120,10 +114,6 @@ extension PostbuildContext {
         derivedSourcesDir = try env.readEnv(key: "DERIVED_SOURCES_DIR")
         let thinFocusedTargetsString: String = env.readEnv(key: "SPT_XCREMOTE_CACHE_THINNED_TARGETS") ?? ""
         thinnedTargets = thinFocusedTargetsString.split(separator: ",").map(String.init)
-        if let rawAction = env.readEnv(key: "ACTION") {
-            action = PostbuildActionType(rawValue: rawAction) ?? .unknown
-        } else {
-            action = .unknown
-        }
+        action = (try? BuildActionType(rawValue: env.readEnv(key: "ACTION"))) ?? .unknown
     }
 }

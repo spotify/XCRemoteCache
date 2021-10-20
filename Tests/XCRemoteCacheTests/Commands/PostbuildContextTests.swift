@@ -73,4 +73,18 @@ class PostbuildContextTests: FileXCTestCase {
 
         XCTAssertEqual(context.remoteCommit, .unavailable)
     }
+
+    func testFallbacksActionToUnknown() throws {
+        let context = try PostbuildContext(config, env: Self.SampleEnvs)
+
+        XCTAssertEqual(context.action, .unknown)
+    }
+
+    func testReadsActionFromEnv() throws {
+        var envs = Self.SampleEnvs
+        envs["ACTION"] = "indexbuild"
+        let context = try PostbuildContext(config, env: envs)
+
+        XCTAssertEqual(context.action, .index)
+    }
 }

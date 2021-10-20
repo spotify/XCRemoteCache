@@ -18,45 +18,63 @@
 // under the License.
 
 /// Representation of all statistics related to XCRemoteCache
-struct XCRemoteCacheStatistics: Encodable {
+struct XCRemoteCacheStatistics: Encodable, Equatable {
     // Yams library doesn't support encoding strategy, see https://github.com/jpsim/Yams/issues/84
     enum CodingKeys: String, CodingKey {
         case hitCount = "hit_count"
         case missCount = "miss_count"
         case localCacheBytes = "local_cache_bytes"
+        case indexingHitCount = "indexing_hit_count"
+        case indexingMissCount = "indexing_miss_count"
     }
 
     /// Counters fields position: rawValue defines the index of the counter
     /// that backs up the statistic metric
     enum Counter: Int, CaseIterable {
-        // Warning! Do not add between existing fieds, only add new one at the bottom
+        // Warning! Do not add between existing fields, only add new one at the bottom
         // rawValue represents the counter position
         // e.g. '0' means that 'hitCount' metric will
         // be stored in a first counter (in a file)
         case targetCacheHit = 0
         case targetCacheMiss
+        case indexingTargetHitCount
+        case indexingTargetMissCount
     }
 
     /// Number of cache hits
     let hitCount: Int
-    /// Number of cache mises
+    /// Number of cache misses
     let missCount: Int
     /// Size of a local cache in bytes
     let localCacheBytes: Int
+    /// Number of cache hits for 'indexbuild' actions
+    let indexingHitCount: Int
+    /// Number of cache misses for 'indexbuild' actions
+    let indexingMissCount: Int
 
-    static let initial = XCRemoteCacheStatistics(hitCount: 0, missCount: 0, localCacheBytes: 0)
+    static let initial = XCRemoteCacheStatistics(
+        hitCount: 0,
+        missCount: 0,
+        localCacheBytes: 0,
+        indexingHitCount: 0,
+        indexingMissCount: 0
+    )
 }
 
 extension XCRemoteCacheStatistics {
     func with(
         hitCount: Int? = nil,
         missCount: Int? = nil,
-        localCacheBytes: Int? = nil
+        localCacheBytes: Int? = nil,
+        indexingHitCount: Int? = nil,
+        indexingMissCount: Int? = nil
     ) -> XCRemoteCacheStatistics {
         return XCRemoteCacheStatistics(
             hitCount: hitCount ?? self.hitCount,
             missCount: missCount ?? self.missCount,
-            localCacheBytes: localCacheBytes ?? self.localCacheBytes
+            localCacheBytes: localCacheBytes ?? self.localCacheBytes,
+            indexingHitCount: indexingHitCount ?? self.indexingHitCount,
+            indexingMissCount: indexingMissCount ?? self.indexingMissCount
         )
     }
 }
