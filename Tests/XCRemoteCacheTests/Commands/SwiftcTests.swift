@@ -422,4 +422,40 @@ class SwiftcTests: FileXCTestCase {
 
         XCTAssertNoThrow(try swiftc.mockCompilation())
     }
+
+    func testSkipsGeneratingObjectFileWhenNotProvidedInCompilationInfo() throws {
+        let outputFilesDir = workingDir.appendingPathComponent("outputFiles")
+        try fileManager.spt_createEmptyDir(outputFilesDir)
+        let input = SwiftCompilationInfo(
+            info: SwiftModuleCompilationInfo(
+                dependencies: nil,
+                swiftDependencies: outputFilesDir.appendingPathComponent("master.swiftdeps")
+            ),
+            files: [
+                SwiftFileCompilationInfo(
+                    file: "/file1.swift",
+                    dependencies: nil,
+                    object: nil,
+                    swiftDependencies: nil
+                ),
+            ]
+        )
+        swiftcInputReader = SwiftcInputReaderStub(info: input)
+        let swiftc = Swiftc(
+            inputFileListReader: inputFileListReader,
+            markerReader: markerReader,
+            allowedFilesListScanner: allowedFilesListScanner,
+            artifactOrganizer: artifactOrganizer,
+            inputReader: swiftcInputReader,
+            context: context,
+            markerWriter: markerWriter,
+            productsGenerator: productsGenerator,
+            fileManager: FileManager.default,
+            dependenciesWriterFactory: FileDependenciesWriter.init,
+            touchFactory: touchFactory,
+            plugins: []
+        )
+
+        XCTAssertNoThrow(try swiftc.mockCompilation())
+    }
 }

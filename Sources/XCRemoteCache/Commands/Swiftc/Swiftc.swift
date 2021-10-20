@@ -166,9 +166,11 @@ class Swiftc: SwiftcProtocol {
 
         // Save individual .d and touch .o for each .swift file
         for compilation in allCompilations.files {
-            // Touching .o is required to invalidate already existing .a or linked library
-            let touch = touchFactory(compilation.object, fileManager)
-            try touch.touch()
+            if let object = compilation.object {
+                // Touching .o is required to invalidate already existing .a or linked library
+                let touch = touchFactory(object, fileManager)
+                try touch.touch()
+            }
             if let individualDeps = compilation.dependencies {
                 // swiftc product should be invalidated if any of dependencies file has changed
                 try cachedDependenciesWriterFactory.generate(output: individualDeps)
