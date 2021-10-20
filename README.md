@@ -344,7 +344,7 @@ Follow the [Development](docs/Development.md) guide. It has all the information 
 
 ## Release 
 
-To release a version, in [Releases](https://github.com/spotify/XCRemoteCache/releases) draft a new release with `v0.3.0{-rc0}` version format. 
+To release a version, in [Releases](https://github.com/spotify/XCRemoteCache/releases) draft a new release with `v0.3.0{-rc0}` tag format. 
 Packages with binaries will be automatically uploaded to the GitHub [Releases](https://github.com/spotify/XCRemoteCache/releases) page.
 
 ### Building release package
