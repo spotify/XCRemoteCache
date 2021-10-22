@@ -330,6 +330,7 @@ Head over to our [cocoapods-plugin](cocoapods-plugin/README.md) docs to see how 
 
 ## Limitations
 
+* Swift Package Manager (SPM) projects are not supported
 * Filenames with `_vers.c` suffix are reserved and cannot be used as a source file
 * All compilation files should be referenced via the git repo root. Referencing `/AbsolutePath/someOther.swift` or `../../someOther.swift` that resolve to the location outside of the git repo root is prohibited.
 
@@ -343,10 +344,15 @@ Follow the [Development](docs/Development.md) guide. It has all the information 
 
 ## Release 
 
-To build a release zip package, call:
+To release a version, in [Releases](https://github.com/spotify/XCRemoteCache/releases) draft a new release with `v0.3.0{-rc0}` tag format. 
+Packages with binaries will be automatically uploaded to the GitHub [Releases](https://github.com/spotify/XCRemoteCache/releases) page.
+
+### Building release package
+
+To build a release zip package for a single platform (e.g. `x86_64-apple-macosx`, `arm64-apple-macosx`), call:
 
 ```shell
-CONFIG=Release rake build
+rake 'build[release, x86_64-apple-macosx]'
 ```
 
 The zip package will be generated at `releases/XCRemoteCache.zip`.
