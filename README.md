@@ -2,10 +2,49 @@
     <img src="docs/img/logo.png" width="75%">
 </p>
 
-XCRemoteCache is a remote cache tool for Xcode projects. It reuses target artifacts generated on a remote machine, served from a simple REST server. 
+_XCRemoteCache is a remote cache tool for Xcode projects. It reuses target artifacts generated on a remote machine, served from a simple REST server._
 
 [![Build Status](https://github.com/spotify/XCRemoteCache/workflows/CI/badge.svg)](https://github.com/spotify/XCRemoteCache/workflows/CI/badge.svg)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
+- [How and Why?](#how-and-why-)
+  * [Accurate target input files](#accurate-target-input-files)
+    + [New file added to the target](#new-file-added-to-the-target)
+  * [Debug symbols](#debug-symbols)
+  * [Performance optimizations](#performance-optimizations)
+  * [Focused targets](#focused-targets)
+- [How to integrate XCRemoteCache with your Xcode project?](#how-to-integrate-xcremotecache-with-your-xcode-project)
+  * [1. Download XCRemoteCache](#1-download-xcremotecache)
+  * [A. Automatic integration](#a-automatic-integration)
+    + [2. Create a minimal XCRemoteCache configuration](#2-create-a-minimal-xcremotecache-configuration)
+    + [3. Run automatic integration script](#3-run-automatic-integration-script)
+      - [3a. Producer side](#3a-producer-side)
+      - [3b. Consumer side](#3b-consumer-side)
+        * [A full list of `xcprepare integrate` supported options](#a-full-list-of-xcprepare-integrate-supported-options)
+  * [B. Manual integration](#b-manual-integration)
+    + [2. Configure XCRemoteCache](#2-configure-xcremotecache)
+    + [3. Call xcprepare](#3-call-xcprepare)
+    + [4. Integrate with the Xcode project](#4-integrate-with-the-xcode-project)
+    + [5. Configure LLDB source-map (Optional)](#5-configure-lldb-source-map-optional)
+    + [6. Producer mode - Artifacts generation](#6-producer-mode---artifacts-generation)
+      - [6a. Configure producer mode](#6a-configure-producer-mode)
+      - [6b. Fill the cache](#6b-fill-the-cache)
+      - [6c. Mark commit sha](#6c-mark-commit-sha)
+- [A full list of configuration parameters:](#a-full-list-of-configuration-parameters)
+- [Backend cache server](#backend-cache-server)
+  * [Sample REST cache server from a docker image](#sample-rest-cache-server-from-a-docker-image)
+  * [Amazon S3 and Google Cloud Storage](#amazon-s3-and-google-cloud-storage)
+- [CocoaPods plugin](#cocoapods-plugin)
+- [Requirements](#requirements)
+- [Limitations](#limitations)
+- [FAQ](#faq)
+- [Development](#development)
+- [Release](#release)
+  * [Building release package](#building-release-package)
+- [Contributing](#contributing)
+- [Code of conduct](#code-of-conduct)
+- [License](#license)
+- [Security Issues?](#security-issues)
 
 ## How and Why?
 
