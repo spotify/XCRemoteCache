@@ -1,4 +1,6 @@
-# XCRemoteCache
+<p align="center">
+    <img src="docs/img/logo.png" width="75%">
+</p>
 
 XCRemoteCache is a remote cache tool for Xcode projects. It reuses target artifacts generated on a remote machine, served from a simple REST server. 
 
