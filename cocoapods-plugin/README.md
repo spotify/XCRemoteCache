@@ -4,6 +4,14 @@ The CocoaPods plugin that integrates XCRemoteCache with the project.
 
 ## Installation
 
+### Using RubyGems
+
+```bash
+gem install cocoapods-xcremotecache
+```
+
+### From sources
+
 Build & install the plugin
 
 ```bash
