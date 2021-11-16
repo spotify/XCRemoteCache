@@ -6,6 +6,7 @@ _XCRemoteCache is a remote cache tool for Xcode projects. It reuses target artif
 
 [![Build Status](https://github.com/spotify/XCRemoteCache/workflows/CI/badge.svg)](https://github.com/spotify/XCRemoteCache/workflows/CI/badge.svg)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Slack](https://slackin.spotify.com/badge.svg)](https://slackin.spotify.com)
 
 - [How and Why?](#how-and-why-)
   * [Accurate target input files](#accurate-target-input-files)
@@ -397,6 +398,12 @@ rake 'build[release, x86_64-apple-macosx]'
 ```
 
 The zip package will be generated at `releases/XCRemoteCache.zip`.
+
+## Support
+
+Create a [new issue](https://github.com/spotify/XCRemoteCache/issues/new) with as many details as possible.
+
+Reach us at the `#xcremotecache` channel in [Slack](https://slackin.spotify.com/).
 
 ## Contributing
 
