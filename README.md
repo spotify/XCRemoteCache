@@ -50,7 +50,7 @@ _XCRemoteCache is a remote cache tool for Xcode projects. It reuses target artif
 
 The caching mechanism is based on remote artifacts that should be generated and uploaded to the cache server for each commit on a `master` branch, preferably as a part of CI/CD step. Xcode products are not portable between different Xcode versions, each XCRemoteCache artifact is linked with a specific Xcode build number that generated it. To support multiple Xcode versions, artifacts generation should happen for each Xcode version.
 
-The artifact resue flow is as follows: XCRemoteCache performs a target precheck (aka prebuild) and if a fingerprint for local sources matches the one computed on a generation side, several compilation steps wrappers (e.g. `xcswiftc`, `xccc`, `xclibtool`) mock corresponding compilation step(s) and linking (or archiving) moves the cached build artifact to the expected location.
+The artifact reuse flow is as follows: XCRemoteCache performs a target precheck (aka prebuild) and if a fingerprint for local sources matches the one computed on a generation side, several compilation steps wrappers (e.g. `xcswiftc`, `xccc`, `xclibtool`) mock corresponding compilation step(s) and linking (or archiving) moves the cached build artifact to the expected location.
 
 > Multiple commits that have the same target sources reuse artifact package on a remote server.
 
