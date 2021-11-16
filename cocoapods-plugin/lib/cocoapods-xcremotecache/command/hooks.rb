@@ -26,6 +26,7 @@ module CocoapodsXCRemoteCacheModifier
     FAKE_SRCROOT = "/#{'x' * 10 }"
     LLDB_INIT_COMMENT="#RemoteCacheCustomSourceMap"
     LLDB_INIT_PATH = "#{ENV['HOME']}/.lldbinit"
+    FAT_ARCHIVE_NAME_INFIX = 'arm64-x86_64'
 
     CUSTOM_CONFIGURATION_KEYS = [
       'enabled', 
@@ -196,15 +197,18 @@ module CocoapodsXCRemoteCacheModifier
         release_url = 'https://api.github.com/repos/spotify/XCRemoteCache/releases/latest'
         asset_url = nil
         
-        open(release_url, :http_basic_authentication => credentials) do |f|          
-          asset_url = JSON.parse(f.read)['assets'][0]['url']
+        URI.open(release_url) do |f|
+          assets_array = JSON.parse(f.read)['assets']
+          # Pick fat archive
+          asset_array = assets_array.detect{|arr| arr['name'].include?(FAT_ARCHIVE_NAME_INFIX)}
+          asset_url = asset_array['url']
         end
 
         if asset_url.nil? 
           throw "Downloading XCRemoteCache failed"
         end
 
-        open(asset_url, :http_basic_authentication => credentials, "accept" => 'application/octet-stream') do |f|
+        URI.open(asset_url, "accept" => 'application/octet-stream') do |f|
           File.open(local_package_location, "wb") do |file|
             file.puts f.read
           end
