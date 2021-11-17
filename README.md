@@ -8,7 +8,7 @@ _XCRemoteCache is a remote cache tool for Xcode projects. It reuses target artif
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Slack](https://slackin.spotify.com/badge.svg)](https://slackin.spotify.com)
 
-- [How and Why?](#how-and-why-)
+- [How and Why?](#how-and-why)
   * [Accurate target input files](#accurate-target-input-files)
     + [New file added to the target](#new-file-added-to-the-target)
   * [Debug symbols](#debug-symbols)
