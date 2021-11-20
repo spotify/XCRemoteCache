@@ -6,3 +6,4 @@ DerivedData
 /.swiftpm/
 releases
 tmp/
+.idea/
