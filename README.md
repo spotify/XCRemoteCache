@@ -372,7 +372,7 @@ Head over to our [cocoapods-plugin](cocoapods-plugin/README.md) docs to see how 
 
 ## Limitations
 
-* Swift Package Manager (SPM) projects are not supported
+* Swift Package Manager (SPM) dependencies are not supported. _Because SPM does not allow customizing Build Settings, XCRemoteCache cannot specify `clang` and `swiftc` wrappers that control if the local compilation should be skipped (cache hit) or not (cache miss)_
 * Filenames with `_vers.c` suffix are reserved and cannot be used as a source file
 * All compilation files should be referenced via the git repo root. Referencing `/AbsolutePath/someOther.swift` or `../../someOther.swift` that resolve to the location outside of the git repo root is prohibited.
 
