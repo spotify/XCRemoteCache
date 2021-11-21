@@ -60,3 +60,7 @@ To fully uninstall the plugin, call:
 ```bash
 gem uninstall cocoapods-xcremotecache
 ```
+
+## Limitations
+
+* When `generate_multiple_pod_projects` mode is enabled, only first-party targets are cached by XCRemoteCache (all dependencies are compiled locally).
