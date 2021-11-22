@@ -17,8 +17,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public enum Mode: String, Codable, CaseIterable {
-    case consumer
-    case producer
-    case producerFast = "producer-fast"
+@testable import XCRemoteCache
+import XCTest
+import Yams
+
+class ModeTests: XCTestCase {
+
+    func testProducerFast() throws {
+        let yaml = "producer-fast"
+        let decoder = YAMLDecoder(encoding: .utf8)
+        let mode: Mode = try decoder.decode(from: yaml)
+
+        XCTAssertEqual(mode, .producerFast)
+    }
 }
