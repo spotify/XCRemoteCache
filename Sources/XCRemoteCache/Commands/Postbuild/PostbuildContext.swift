@@ -73,6 +73,7 @@ public struct PostbuildContext {
     var thinnedTargets: [String]
     /// Action type: build, indexbuild etc.
     var action: BuildActionType
+    let modeMarkerPath: String
 }
 
 extension PostbuildContext {
@@ -115,5 +116,6 @@ extension PostbuildContext {
         let thinFocusedTargetsString: String = env.readEnv(key: "SPT_XCREMOTE_CACHE_THINNED_TARGETS") ?? ""
         thinnedTargets = thinFocusedTargetsString.split(separator: ",").map(String.init)
         action = (try? BuildActionType(rawValue: env.readEnv(key: "ACTION"))) ?? .unknown
+        modeMarkerPath = config.modeMarkerPath
     }
 }

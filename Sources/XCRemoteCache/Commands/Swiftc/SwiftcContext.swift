@@ -24,6 +24,8 @@ public struct SwiftcContext {
         case producer
         /// Commit sha of the commit to use during remote cache
         case consumer(commit: RemoteCommitInfo)
+        /// Remote artifact exists and can be optimistically used in lieu of a local compilation
+        case producerFast
     }
 
     let objcHeaderOutput: URL
@@ -74,6 +76,14 @@ public struct SwiftcContext {
             mode = .consumer(commit: remoteCommit)
         case .producer:
             mode = .producer
+        case .producerFast:
+            let remoteCommit = RemoteCommitInfo(try? String(contentsOf: remoteCommitLocation).trim())
+            switch remoteCommit {
+            case .unavailable:
+                mode = .producer
+            case .available:
+                mode = .producerFast
+            }
         }
         invocationHistoryFile = URL(fileURLWithPath: config.compilationHistoryFile, relativeTo: tempDir)
     }

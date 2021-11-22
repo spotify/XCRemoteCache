@@ -33,7 +33,10 @@ class ThinningCreatorPluginTests: FileXCTestCase {
         targetTempDirRoot = workingDir.appendingPathComponent("Root")
         currentTargetTempDir = targetTempDirRoot.appendingPathComponent("Current.build")
         try fileManager.spt_createEmptyDir(currentTargetTempDir)
-        plugin = ThinningCreatorPlugin(targetTempDir: currentTargetTempDir, dirScanner: FileManager.default)
+        plugin = ThinningCreatorPlugin(
+            targetTempDir: currentTargetTempDir,
+            modeMarkerPath: "rc.enabled",
+            dirScanner: FileManager.default)
     }
 
     func testReturnsEmptyExtraKeysForNoArtifacts() throws {

@@ -44,7 +44,7 @@ class RemoteNetworkClientAbstractFactory {
             return RemoteNetworkClientImpl(networkClient, downloadURLBuilder)
         }
         switch mode {
-        case .producer:
+        case .producer, .producerFast:
             let upstreamBuilders = try upstreamStreamURL.map(urlBuilderFactory)
             return ReplicatedRemotesNetworkClient(
                 networkClient,

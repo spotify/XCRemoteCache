@@ -205,9 +205,10 @@ public class XCPostbuild {
                             worker: DispatchGroupParallelizationWorker(qos: .userInitiated)
                         )
                         consumerPlugins.append(thinningPlugin)
-                    case .producer:
+                    case .producer, .producerFast:
                         let thinningPlugin = ThinningCreatorPlugin(
                             targetTempDir: context.targetTempDir,
+                            modeMarkerPath: context.modeMarkerPath,
                             dirScanner: fileManager
                         )
                         creatorPlugins.append(thinningPlugin)
