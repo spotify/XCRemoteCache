@@ -123,6 +123,13 @@ module CocoapodsXCRemoteCacheModifier
 
           # Move prebuild (last element) to the first position (to make it real 'prebuild')
           target.build_phases.rotate!(-1) if existing_prebuild_script.nil?
+        elsif mode == 'producer'
+          # Delete existing prebuild build phase (to support switching between modes)
+          target.build_phases.delete_if do |phase|
+            if phase.respond_to?(:name)
+              phase.name != nil && phase.name.start_with?("[XCRC] Prebuild")
+            end
+          end
         end
 
         # Postbuild
@@ -150,6 +157,13 @@ module CocoapodsXCRemoteCacheModifier
           mark_script = existing_mark_script || target.new_shell_script_build_phase("[XCRC] Mark")
           mark_script.shell_script = "\"$SCRIPT_INPUT_FILE_0\" mark --configuration $CONFIGURATION --platform $PLATFORM_NAME"
           mark_script.input_paths = ["$SRCROOT/#{xc_location}/xcprepare"]
+        else
+          # Delete existing mark build phase (to support switching between modes or changing the final target)
+          target.build_phases.delete_if do |phase|
+            if phase.respond_to?(:name)
+              phase.name != nil && phase.name.start_with?("[XCRC] Mark")
+            end
+          end
         end
       end
 
