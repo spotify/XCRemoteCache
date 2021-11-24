@@ -56,7 +56,7 @@ class FileLLDBInitPatcher: LLDBInitPatcher {
     }
 
     private func findIndices(in collection: [String], value: String) -> [Int] {
-        collection.enumerated().reduce([]) { (result, line) -> [Int] in
+        collection.enumerated().reduce([]) { result, line -> [Int] in
             if line.element == Self.preambleString {
                 return result + [line.offset]
             }
@@ -75,7 +75,7 @@ class FileLLDBInitPatcher: LLDBInitPatcher {
             var contentLines = originalContentLines
             let preambleIndices = findIndices(in: contentLines, value: Self.preambleString)
 
-            if preambleIndices.count > 0 {
+            if !preambleIndices.isEmpty {
                 let firstLLDBCommandIndex = preambleIndices[0] + 1
                 if firstLLDBCommandIndex >= contentLines.count {
                     // corrupted file, append the script line at the bottom
