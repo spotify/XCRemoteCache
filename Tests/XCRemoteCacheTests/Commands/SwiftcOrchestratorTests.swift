@@ -211,7 +211,7 @@ class SwiftcOrchestratorTests: XCTestCase {
         XCTAssertEqual(artifactBuilder.addedObjCHeaders, ["archTest": [objcHeaderURL]])
     }
 
-    func testSuccessedMockInProducerFastModeModeDoesntFillObjCHeader() throws {
+    func testSuccessedMockInProducerFastModeDoesntFillObjCHeader() throws {
         let swiftc = SwiftcMock(mockingResult: .success)
         let orchestrator = SwiftcOrchestrator(
             mode: .producerFast,

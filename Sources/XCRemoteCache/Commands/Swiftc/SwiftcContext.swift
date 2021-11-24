@@ -24,7 +24,7 @@ public struct SwiftcContext {
         case producer
         /// Commit sha of the commit to use during remote cache
         case consumer(commit: RemoteCommitInfo)
-        /// Remote artifact exists and can be optimistically used in lieu of a local compilation
+        /// Remote artifact exists and can be optimistically used in place of a local compilation
         case producerFast
     }
 
