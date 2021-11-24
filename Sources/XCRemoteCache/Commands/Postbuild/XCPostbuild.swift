@@ -249,6 +249,12 @@ public class XCPostbuild {
                 // Generate artifacts and upload to the remote server for a reference sha
                 let referenceCommit = try config.publishingSha ?? gitClient.getCurrentSha()
                 try postbuildAction.performBuildUpload(for: referenceCommit)
+            } else if try context.mode == .producerFast && !modeController.isEnabled() {
+                // Generate artifacts and upload to the remote server for a reference sha
+                let referenceCommit = try config.publishingSha ?? gitClient.getCurrentSha()
+                let metaData = try remoteNetworkClient.fetch(.meta(commit: referenceCommit))
+                let meta = try metaReader.read(data: metaData)
+                try postbuildAction.performMetaUpload(meta: meta, for: referenceCommit)
             }
 
             let executableURL = context.productsDir.appendingPathComponent(context.executablePath)

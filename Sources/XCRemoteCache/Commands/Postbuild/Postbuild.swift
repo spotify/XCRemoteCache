@@ -126,6 +126,22 @@ class Postbuild {
     }
 
     /// Builds an artifact package and uploads it to the remote server
+    public func performMetaUpload(meta: MainArtifactMeta, for commit: String) throws {
+        // Reset plugins keys as these are unique to each
+        var meta = meta
+        meta.pluginsKeys = [:]
+        meta = try creatorPlugins.reduce(meta) { prevMeta, plugin in
+            var meta = prevMeta
+            // add extra keys from the plugin. A plugin overrides previously defined keys in case of duplication
+            meta.pluginsKeys = try meta.pluginsKeys.merging(plugin.extraMetaKeys(prevMeta), uniquingKeysWith: { $1 })
+            return meta
+        }
+        // Create "lightweight" artifact to cherry-pick a meta file
+        let creator = try artifactCreator.createArtifact(artifactKey: "lightweight", meta: meta)
+        try networkClient.uploadSynchronously(creator.meta, as: .meta(commit: commit))
+    }
+
+    /// Builds an artifact package and uploads it to the remote server
     public func performBuildUpload(for commit: String) throws {
         let dependencies = try generateDependencies()
         let localFingerprint = try generateFingerprint(dependencies)
