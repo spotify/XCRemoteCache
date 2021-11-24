@@ -101,8 +101,8 @@ module CocoapodsXCRemoteCacheModifier
           config.build_settings['LD'] = ["$SRCROOT/#{xc_location}/xcld"]
 
           config.build_settings['XCREMOTE_CACHE_FAKE_SRCROOT'] = FAKE_SRCROOT
-          add_cflags!(config.build_settings, '-fdebug-prefix-map', "$SRCROOT=$(XCREMOTE_CACHE_FAKE_SRCROOT)")
-          add_swiftflags!(config.build_settings, '-debug-prefix-map', "$SRCROOT=$(XCREMOTE_CACHE_FAKE_SRCROOT)")
+          add_cflags!(config.build_settings, '-fdebug-prefix-map', "$(SRCROOT:dir:standardizepath)=$(XCREMOTE_CACHE_FAKE_SRCROOT)")
+          add_swiftflags!(config.build_settings, '-debug-prefix-map', "$(SRCROOT:dir:standardizepath)=$(XCREMOTE_CACHE_FAKE_SRCROOT)")
         end
 
         # Prebuild
