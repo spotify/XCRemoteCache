@@ -40,7 +40,7 @@ class ThinningDiskSwiftcProductsGenerator: SwiftcProductsGenerator {
         destinationSwiftmodulePaths = Dictionary(
             uniqueKeysWithValues: SwiftmoduleFileExtension.SwiftmoduleExtensions
                 .map { ext, _ in
-                    switch (ext) {
+                    switch ext {
                     case .swiftsourceinfo:
                         let dest = modulePathDir.appendingPathComponent("Project")
                             .appendingPathComponent(moduleName)

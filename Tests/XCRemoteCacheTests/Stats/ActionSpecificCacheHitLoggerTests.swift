@@ -25,6 +25,7 @@ class ActionSpecificCacheHitLoggerTests: FileXCTestCase {
     private var coordinator: StatsCoordinator!
 
     override func setUp() {
+        super.setUp()
         coordinator = InMemoryStatsCoordinator()
     }
 

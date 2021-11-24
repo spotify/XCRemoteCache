@@ -35,9 +35,22 @@ struct AWSV4Signature {
         request.setValue((request.httpBody ?? Data()).sha256(), forHTTPHeaderField: "x-amz-content-sha256")
 
         let canonicalRequest = CanonicalRequest(request: request)
-        let stringToSign = StringToSign(region: region, service: service, canonicalRequestHash: canonicalRequest.hash, date: date)
-        let awsV4SigningKey = AWSV4SigningKey(secretAccessKey: secretKey, region: region, service: service, date: date)
-        let signature = HMAC.calcHMAC(keyArray: awsV4SigningKey.value, value: stringToSign.value).map { String(format: "%02hhx", $0) }.joined()
+        let stringToSign = StringToSign(
+            region: region,
+            service: service,
+            canonicalRequestHash: canonicalRequest.hash,
+            date: date
+        )
+        let awsV4SigningKey = AWSV4SigningKey(
+            secretAccessKey: secretKey,
+            region: region,
+            service: service,
+            date: date
+        )
+        let signature = HMAC.calcHMAC(
+            keyArray: awsV4SigningKey.value,
+            value: stringToSign.value
+        ).map { String(format: "%02hhx", $0) }.joined()
 
         let authValue =
             "AWS4-HMAC-SHA256 " +

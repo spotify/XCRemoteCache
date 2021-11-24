@@ -28,8 +28,8 @@ protocol CacheHitLogger {
 /// Logs target hit or miss, based on an action of a build
 class ActionSpecificCacheHitLogger: CacheHitLogger {
     private let statsLogger: StatsLogger
-    private let hitCounter: XCRemoteCacheStatistics.Counter
-    private let missCounter: XCRemoteCacheStatistics.Counter
+    private let hitCounter: XCRemoteCacheStatistics.Counter?
+    private let missCounter: XCRemoteCacheStatistics.Counter?
 
     init(action: BuildActionType, statsLogger: StatsLogger) {
         self.statsLogger = statsLogger
@@ -37,19 +37,24 @@ class ActionSpecificCacheHitLogger: CacheHitLogger {
         case .index:
             hitCounter = .indexingTargetHitCount
             missCounter = .indexingTargetMissCount
-        case .unknown:
-            fallthrough
         case .build:
             hitCounter = .targetCacheHit
             missCounter = .targetCacheMiss
+        case .unknown:
+            hitCounter = nil
+            missCounter = nil
         }
     }
 
     func logHit() throws {
-        try statsLogger.log(hitCounter)
+        if let hitCounter = hitCounter {
+            try statsLogger.log(hitCounter)
+        }
     }
 
     func logMiss() throws {
-        try statsLogger.log(missCounter)
+        if let missCounter = missCounter {
+            try statsLogger.log(missCounter)
+        }
     }
 }

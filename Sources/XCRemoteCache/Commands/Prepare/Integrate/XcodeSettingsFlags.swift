@@ -100,7 +100,7 @@ struct XcodeSettingsCFlags: XcodeSettingsFlags {
         case (.some(let existing), _):
             var flagsComponents: [String] = existing.split(separator: " ").map(String.init)
             // remove (if exists)
-            let existingFlagIndex = flagsComponents.firstIndex { (component) -> Bool in
+            let existingFlagIndex = flagsComponents.firstIndex { component -> Bool in
                 component.hasPrefix("\(Self.prefix)\(key)=")
             }
             if let index = existingFlagIndex {

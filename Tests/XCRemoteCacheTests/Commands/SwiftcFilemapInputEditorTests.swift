@@ -21,8 +21,8 @@
 import XCTest
 
 class SwiftcFilemapInputEditorTests: FileXCTestCase {
-
-    private let sampleInfo = SwiftCompilationInfo(info: SwiftModuleCompilationInfo(
+    private let sampleInfo = SwiftCompilationInfo(
+        info: SwiftModuleCompilationInfo(
         dependencies: nil,
         swiftDependencies: "/"
     ), files: [])
@@ -65,17 +65,19 @@ class SwiftcFilemapInputEditorTests: FileXCTestCase {
            }
         }
         """#.data(using: .utf8)!
-        let expectedInfo = SwiftCompilationInfo(info: SwiftModuleCompilationInfo(
-            dependencies: "/master.d",
-            swiftDependencies: "/master.swiftdeps"
-        ), files: [
-            SwiftFileCompilationInfo(
-                file: "/file1.swift",
-                dependencies: "/file1.d",
-                object: "/file1.o",
-                swiftDependencies: "/file1.swiftdeps"
+        let expectedInfo = SwiftCompilationInfo(
+            info: SwiftModuleCompilationInfo(
+                dependencies: "/master.d",
+                swiftDependencies: "/master.swiftdeps"
             ),
-        ])
+            files: [
+                SwiftFileCompilationInfo(
+                    file: "/file1.swift",
+                    dependencies: "/file1.d",
+                    object: "/file1.o",
+                    swiftDependencies: "/file1.swiftdeps"
+                ),
+            ])
         try fileManager.spt_writeToFile(atPath: inputFile.path, contents: infoContentData)
 
         let readInfo = try editor.read()
@@ -93,17 +95,18 @@ class SwiftcFilemapInputEditorTests: FileXCTestCase {
     }
 
     func testWritingSavesContentWithOptionalParameters() throws {
-        let extendedInfo = SwiftCompilationInfo(info: SwiftModuleCompilationInfo(
-            dependencies: "/master.d",
-            swiftDependencies: "/master.swiftdeps"
-        ), files: [
-            SwiftFileCompilationInfo(
-                file: "/file1.swift",
-                dependencies: "/file1.d",
-                object: "/file1.o",
-                swiftDependencies: "/file1.swiftdeps"
-            ),
-        ])
+        let extendedInfo = SwiftCompilationInfo(
+            info: SwiftModuleCompilationInfo(
+                dependencies: "/master.d",
+                swiftDependencies: "/master.swiftdeps"
+            ), files: [
+                SwiftFileCompilationInfo(
+                    file: "/file1.swift",
+                    dependencies: "/file1.d",
+                    object: "/file1.o",
+                    swiftDependencies: "/file1.swiftdeps"
+                ),
+            ])
 
         try editor.write(extendedInfo)
 

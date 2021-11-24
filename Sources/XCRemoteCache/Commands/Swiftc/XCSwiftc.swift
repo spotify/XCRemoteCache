@@ -101,7 +101,10 @@ public class XCSwiftc {
             objcHeaderOutput: context.objcHeaderOutput,
             diskCopier: HardLinkDiskCopier(fileManager: fileManager)
         )
-        let allInvocationsStorage = ExistingFileStorage(storageFile: context.invocationHistoryFile, command: swiftcCommand)
+        let allInvocationsStorage = ExistingFileStorage(
+            storageFile: context.invocationHistoryFile,
+            command: swiftcCommand
+        )
         // When fallbacking to local compilation do not call historical `swiftc` invocations
         // The current fallback invocation already compiles all files in a target
         let invocationStorage = FilteredInvocationStorage(

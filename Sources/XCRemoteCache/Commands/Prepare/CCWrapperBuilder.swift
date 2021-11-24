@@ -79,6 +79,7 @@ class TemplateBasedCCWrapperBuilder: CCWrapperBuilder {
 
 
     /// Generates source of the cc wrapper
+    // swiftlint:disable line_length
     // swiftlint:disable:next function_body_length
     private func buildWrapperSource(clangCommand: String, markerFilename: String, commitSha: String) -> String {
         return """
@@ -516,5 +517,5 @@ class TemplateBasedCCWrapperBuilder: CCWrapperBuilder {
            #pragma GCC diagnostic pop
         }
         """
-    } // swiftlint:disable:next file_length
-}
+    } // swiftlint:disable:next file_length line_length
+} // swiftlint:enable line_length

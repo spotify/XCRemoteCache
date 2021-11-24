@@ -64,6 +64,7 @@ public class XCIntegrate {
         self.output = output
     }
 
+    // swiftlint:disable:next function_body_length
     public func main() {
         do {
             let env = ProcessInfo.processInfo.environment
@@ -114,7 +115,7 @@ public class XCIntegrate {
 
             let integrator = XcodeProjIntegrate(
                 project: context.projectPath,
-                mode:context.mode,
+                mode: context.mode,
                 binaries: context.binaries,
                 configurationIncludeOracle: configurationOracle,
                 targetIncludeOracle: targetOracle,
