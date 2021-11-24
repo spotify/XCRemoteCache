@@ -46,17 +46,17 @@ module CocoapodsXCRemoteCacheModifier
         @@configuration = c
       end
 
-      def self.set_configuration_default_values(user_proj_directory)
+      def self.set_configuration_default_values
         default_values = {
           'mode' => 'consumer',
           'enabled' => true, 
-          'xcrc_location' => "#{user_proj_directory}/XCRC", 
+          'xcrc_location' => "XCRC",
           'exclude_build_configurations' => [],
           'check_build_configuration' => 'Debug',
           'check_platform' => 'iphonesimulator', 
           'modify_lldb_init' => true, 
-          'xccc_file' => "#{user_proj_directory}/#{BIN_DIR}/xccc",
-          'remote_commit_file' => "#{user_proj_directory}/#{BIN_DIR}/arc.rc",
+          'xccc_file' => "#{BIN_DIR}/xccc",
+          'remote_commit_file' => "#{BIN_DIR}/arc.rc",
           'exclude_targets' => [],
         }
         @@configuration.merge! default_values.select { |k, v| !@@configuration.key?(k) }
@@ -89,61 +89,81 @@ module CocoapodsXCRemoteCacheModifier
         @@configuration.select { |key, value| !CUSTOM_CONFIGURATION_KEYS.include?(key) }
       end
 
-      def self.enable_xcremotecache(target, user_proj_directory, xc_location, xc_cc_path, mode, exclude_build_configurations, check_build_configuration, check_platform, final_target)
-          target.build_configurations.each do |config| 
-            # apply only for relevant Configurations
-            next if exclude_build_configurations.include?(config.name)
-            if mode == 'consumer'
-              config.build_settings['CC'] = [xc_cc_path]
-            end
-            config.build_settings['SWIFT_EXEC'] = ["#{xc_location}/xcswiftc"]
-            config.build_settings['LIBTOOL'] = ["#{xc_location}/xclibtool"]
-            config.build_settings['LD'] = ["#{xc_location}/xcld"]
-
-            config.build_settings['XCREMOTE_CACHE_FAKE_SRCROOT'] = FAKE_SRCROOT
-            add_cflags!(config.build_settings, '-fdebug-prefix-map', "#{user_proj_directory}=$(XCREMOTE_CACHE_FAKE_SRCROOT)")
-            add_swiftflags!(config.build_settings, '-debug-prefix-map', "#{user_proj_directory}=$(XCREMOTE_CACHE_FAKE_SRCROOT)")
+      def self.enable_xcremotecache(target, xc_location, xc_cc_path, mode, exclude_build_configurations, final_target)
+        target.build_configurations.each do |config|
+          # apply only for relevant Configurations
+          next if exclude_build_configurations.include?(config.name)
+          if mode == 'consumer'
+            config.build_settings['CC'] = ["$SRCROOT/#{xc_cc_path}"]
           end
-        
+          config.build_settings['SWIFT_EXEC'] = ["$SRCROOT/#{xc_location}/xcswiftc"]
+          config.build_settings['LIBTOOL'] = ["$SRCROOT/#{xc_location}/xclibtool"]
+          config.build_settings['LD'] = ["$SRCROOT/#{xc_location}/xcld"]
 
-        # User project is not generated from scratch (contrary to `Pods`), delete all previous XCRemoteCache phases
-        target.build_phases.delete_if {|phase| 
-          # Some phases (e.g. PBXSourcesBuildPhase) don't have strict name check respond_to?
-          if phase.respond_to?(:name) 
-              phase.name != nil && phase.name.start_with?("[XCRC]")
-          end
-        }
+          config.build_settings['XCREMOTE_CACHE_FAKE_SRCROOT'] = FAKE_SRCROOT
+          add_cflags!(config.build_settings, '-fdebug-prefix-map', "$(SRCROOT:dir:standardizepath)=$(XCREMOTE_CACHE_FAKE_SRCROOT)")
+          add_swiftflags!(config.build_settings, '-debug-prefix-map', "$(SRCROOT:dir:standardizepath)=$(XCREMOTE_CACHE_FAKE_SRCROOT)")
+        end
 
         # Prebuild
         if mode == 'consumer'
-          prebuild_script = target.new_shell_script_build_phase("[XCRC] Prebuild")
+          existing_prebuild_script = target.build_phases.detect do |phase|
+            if phase.respond_to?(:name)
+              phase.name != nil && phase.name.start_with?("[XCRC] Prebuild")
+            end
+          end
+          prebuild_script = existing_prebuild_script || target.new_shell_script_build_phase("[XCRC] Prebuild")
           prebuild_script.shell_script = "\"$SCRIPT_INPUT_FILE_0\""
-          prebuild_script.input_paths = ["#{xc_location}/xcprebuild"]
+          prebuild_script.input_paths = ["$SRCROOT/#{xc_location}/xcprebuild"]
           prebuild_script.output_paths = [
-            "$(TARGET_TEMP_DIR)/rc.enabled", 
+            "$(TARGET_TEMP_DIR)/rc.enabled",
             "$(DWARF_DSYM_FOLDER_PATH)/$(DWARF_DSYM_FILE_NAME)"
           ]
           prebuild_script.dependency_file = "$(TARGET_TEMP_DIR)/prebuild.d"
 
           # Move prebuild (last element) to the first position (to make it real 'prebuild')
-          target.build_phases.rotate!(-1)
+          target.build_phases.rotate!(-1) if existing_prebuild_script.nil?
+        elsif mode == 'producer'
+          # Delete existing prebuild build phase (to support switching between modes)
+          target.build_phases.delete_if do |phase|
+            if phase.respond_to?(:name)
+              phase.name != nil && phase.name.start_with?("[XCRC] Prebuild")
+            end
+          end
         end
 
         # Postbuild
-        postbuild_script = target.new_shell_script_build_phase("[XCRC] Postbuild")
+        existing_postbuild_script = target.build_phases.detect do |phase|
+          if phase.respond_to?(:name)
+            phase.name != nil && phase.name.start_with?("[XCRC] Postbuild")
+          end
+        end
+        postbuild_script = existing_postbuild_script || target.new_shell_script_build_phase("[XCRC] Postbuild")
         postbuild_script.shell_script = "\"$SCRIPT_INPUT_FILE_0\""
-        postbuild_script.input_paths = ["#{xc_location}/xcpostbuild"]
+        postbuild_script.input_paths = ["$SRCROOT/#{xc_location}/xcpostbuild"]
         postbuild_script.output_paths = [
-          "$(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/$(PLATFORM_PREFERRED_ARCH).swiftmodule.md5", 
+          "$(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/$(PLATFORM_PREFERRED_ARCH).swiftmodule.md5",
           "$(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/$(PLATFORM_PREFERRED_ARCH)-$(LLVM_TARGET_TRIPLE_VENDOR)-$(SWIFT_PLATFORM_TARGET_PREFIX)$(LLVM_TARGET_TRIPLE_SUFFIX).swiftmodule.md5"
         ]
         postbuild_script.dependency_file = "$(TARGET_TEMP_DIR)/postbuild.d"
 
         # Mark a sha as ready for a given platform and configuration when building the final_target
         if mode == 'producer' && target.name == final_target
-          mark_script = target.new_shell_script_build_phase("[XCRC] Mark")
+          existing_mark_script = target.build_phases.detect do |phase|
+            if phase.respond_to?(:name)
+              phase.name != nil && phase.name.start_with?("[XCRC] Mark")
+            end
+          end
+          mark_script = existing_mark_script || target.new_shell_script_build_phase("[XCRC] Mark")
           mark_script.shell_script = "\"$SCRIPT_INPUT_FILE_0\" mark --configuration $CONFIGURATION --platform $PLATFORM_NAME"
-          mark_script.input_paths = ["#{xc_location}/xcprepare"]
+          mark_script.input_paths = ["$SRCROOT/#{xc_location}/xcprepare"]
+        else
+          # Delete existing mark build phase (to support switching between modes or changing the final target)
+          target.build_phases.delete_if do |phase|
+            if phase.respond_to?(:name)
+              phase.name != nil && phase.name.start_with?("[XCRC] Mark")
+            end
+          end
         end
       end
 
@@ -251,6 +271,7 @@ module CocoapodsXCRemoteCacheModifier
       # Returns the content (array of lines) of the lldbinit with stripped XCRemoteCache rewrite
       def self.clean_lldbinit_content(lldbinit_path)
         all_lines = []
+        return all_lines unless File.exist?(lldbinit_path)
         File.open(lldbinit_path) { |file|
           while(line = file.gets) != nil
             line = line.strip
@@ -290,7 +311,7 @@ module CocoapodsXCRemoteCacheModifier
 
         begin    
           user_proj_directory = File.dirname(user_project.path)
-          set_configuration_default_values(user_proj_directory)
+          set_configuration_default_values
 
           unless @@configuration['enabled']
             Pod::UI.puts "[XCRC] XCRemoteCache disabled"
@@ -310,8 +331,12 @@ module CocoapodsXCRemoteCacheModifier
           check_build_configuration = @@configuration['check_build_configuration']
           check_platform = @@configuration['check_platform']
 
+          xccc_location_absolute = "#{user_proj_directory}/#{xccc_location}"
+          xcrc_location_absolute = "#{user_proj_directory}/#{xcrc_location}"
+          remote_commit_file_absolute = "#{user_proj_directory}/#{remote_commit_file}"
+
           # Download XCRC
-          download_xcrc_if_needed(xcrc_location)
+          download_xcrc_if_needed(xcrc_location_absolute)
 
           # Save .rcinfo
           save_rcinfo(generate_rcinfo(), user_proj_directory)
@@ -320,12 +345,12 @@ module CocoapodsXCRemoteCacheModifier
           Dir.mkdir(BIN_DIR) unless File.exist?(BIN_DIR)
 
           # Remove previous xccc & arc.rc
-          File.delete(remote_commit_file) if File.exist?(remote_commit_file)
-          File.delete(xccc_location) if File.exist?(xccc_location)
+          File.delete(remote_commit_file_absolute) if File.exist?(remote_commit_file_absolute)
+          File.delete(xccc_location_absolute) if File.exist?(xccc_location_absolute)
 
           # Prepare XCRC
           begin
-            prepare_result = YAML.load`#{xcrc_location}/xcprepare --configuration #{check_build_configuration} --platform #{check_platform}`
+            prepare_result = YAML.load`#{xcrc_location_absolute}/xcprepare --configuration #{check_build_configuration} --platform #{check_platform}`
             unless prepare_result['result'] || mode != 'consumer'
               # Uninstall the XCRemoteCache for the consumer mode
               disable_xcremotecache(user_project)
@@ -343,7 +368,7 @@ module CocoapodsXCRemoteCacheModifier
               next if target.name.start_with?("Pods-")
               next if target.name.end_with?("Tests")
               next if exclude_targets.include?(target.name)
-              enable_xcremotecache(target, user_proj_directory, xcrc_location, xccc_location, mode, exclude_build_configurations, check_build_configuration, check_platform, final_target)
+              enable_xcremotecache(target, "../#{xcrc_location}", "../#{xccc_location}", mode, exclude_build_configurations, final_target)
           end
 
           # Create .rcinfo into `Pods` directory as that .xcodeproj reads configuration from .xcodeproj location
@@ -357,7 +382,7 @@ module CocoapodsXCRemoteCacheModifier
           # Attach XCRC to the app targets
           user_project.targets.each do |target|
               next if exclude_targets.include?(target.name)
-              enable_xcremotecache(target, user_proj_directory, xcrc_location, xccc_location, mode, exclude_build_configurations, check_build_configuration, check_platform, final_target)
+              enable_xcremotecache(target, xcrc_location, xccc_location, mode, exclude_build_configurations, final_target)
           end
 
           # Set Target sourcemap
