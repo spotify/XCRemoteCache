@@ -249,14 +249,14 @@ public class XCPostbuild {
 
 
             // Trigger uploading the artifact
-            switch (context.mode, try modeController.isEnabled()) {
-            case (.producerFast, true):
+            switch (context.mode, try modeController.isEnabled(), context.remoteCommit) {
+            case (.producerFast, true, .available(commit: let commitToReuse)):
                 // Upload only updated meta. Artifact zip is already on a remote server
                 let referenceCommit = try config.publishingSha ?? gitClient.getCurrentSha()
-                let metaData = try remoteNetworkClient.fetch(.meta(commit: referenceCommit))
+                let metaData = try remoteNetworkClient.fetch(.meta(commit: commitToReuse))
                 let meta = try metaReader.read(data: metaData)
                 try postbuildAction.performMetaUpload(meta: meta, for: referenceCommit)
-            case (.producer, _), (.producerFast, _):
+            case (.producer, _, _), (.producerFast, _, _):
                 // Generate artifacts and upload to the remote server for a reference sha
                 let referenceCommit = try config.publishingSha ?? gitClient.getCurrentSha()
                 try postbuildAction.performBuildUpload(for: referenceCommit)
