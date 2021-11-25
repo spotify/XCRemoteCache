@@ -103,10 +103,13 @@ class ThinningCreatorPlugin: ArtifactCreatorPlugin {
             .appendingPathComponent("produced")
 
         let pathToDirWithZipArtifacts: URL
-        // try the ProducerFull mode path first
+        // try the `.producerFull` scenario first (the artifact was not locally
+        // generated but just reused from the remote cache)
         if try dirScanner.itemType(atPath: targetEnabledMarker.path) == ItemType.file {
             pathToDirWithZipArtifacts = targetReusedArtifactRootDir
         } else {
+            // cover a case when a target was build locally and an artifact
+            // has just been created (locally)
             guard try dirScanner.itemType(atPath: targetGeneratedArtifactRootDir.path) == ItemType.dir else {
                 // given target didn't generate any artifacts (e.g. it is never cached with XCRemoteCache)
                 return nil

@@ -247,17 +247,22 @@ public class XCPostbuild {
                 try postbuildAction.deleteFingerprintOverrides()
             }
 
+
             // Trigger uploading the artifact
-            if context.mode == .producer {
-                // Generate artifacts and upload to the remote server for a reference sha
-                let referenceCommit = try config.publishingSha ?? gitClient.getCurrentSha()
-                try postbuildAction.performBuildUpload(for: referenceCommit)
-            } else if try context.mode == .producerFast && !modeController.isEnabled() {
-                // Generate artifacts and upload to the remote server for a reference sha
+            switch (context.mode, try modeController.isEnabled()) {
+            case (.producerFast, true):
+                // Upload only updated meta. Artifact zip is already on a remote server
                 let referenceCommit = try config.publishingSha ?? gitClient.getCurrentSha()
                 let metaData = try remoteNetworkClient.fetch(.meta(commit: referenceCommit))
                 let meta = try metaReader.read(data: metaData)
                 try postbuildAction.performMetaUpload(meta: meta, for: referenceCommit)
+            case (.producer, _), (.producerFast, _):
+                // Generate artifacts and upload to the remote server for a reference sha
+                let referenceCommit = try config.publishingSha ?? gitClient.getCurrentSha()
+                try postbuildAction.performBuildUpload(for: referenceCommit)
+            default:
+                // Consumer does not upload anything
+                break
             }
 
             let executableURL = context.productsDir.appendingPathComponent(context.executablePath)

@@ -62,4 +62,19 @@ class SwiftcContextTests: FileXCTestCase {
 
         XCTAssertEqual(context.mode, .consumer(commit: .unavailable))
     }
+
+    func testProducerModeWhenFileWithCommitShaExistsIsResolvedToProducerFast() throws {
+        config.mode = .producerFast
+        let context = try SwiftcContext(config: config, input: input)
+
+        XCTAssertEqual(context.mode, .producerFast)
+    }
+
+    func testProducerModeWhenFileWithCommitShaDoesntExxistIsResolvedToProducer() throws {
+        config.mode = .producerFast
+        try fileManager.spt_deleteItem(at: remoteCommitFile)
+        let context = try SwiftcContext(config: config, input: input)
+
+        XCTAssertEqual(context.mode, .producer)
+    }
 }

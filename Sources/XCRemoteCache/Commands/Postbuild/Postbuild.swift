@@ -128,7 +128,8 @@ class Postbuild {
         try generateFingerprintOverrides(contextSpecificFingerprint: fingerprint.contextSpecific)
     }
 
-    /// Builds an artifact package and uploads it to the remote server
+    /// Uploads only a meta to the remote server - useful when the file artifact (.zip) already exists on a remote
+    /// server and only a meta for a current commit sha has to be uploaded
     public func performMetaUpload(meta: MainArtifactMeta, for commit: String) throws {
         // Reset plugins keys as these are unique to each
         var meta = meta
