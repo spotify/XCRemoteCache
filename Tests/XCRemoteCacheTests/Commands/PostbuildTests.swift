@@ -85,6 +85,7 @@ class PostbuildTests: FileXCTestCase {
     )
     private var modeController = CacheModeControllerFake()
     private var metaReader = JsonMetaReader(fileAccessor: FileManager.default)
+    private var metaWriter = JsonMetaWriter(fileWriter: FileManager.default)
     private static let SampleMeta = MainArtifactSampleMeta.defaults
     private var sampleMetaFile: URL!
 
@@ -123,6 +124,7 @@ class PostbuildTests: FileXCTestCase {
             dSYMOrganizer: DSYMOrganizerFake(dSYMFile: nil),
             modeController: modeController,
             metaReader: metaReader,
+            metaWriter: metaWriter,
             creatorPlugins: [],
             consumerPlugins: []
         )
@@ -152,6 +154,7 @@ class PostbuildTests: FileXCTestCase {
             dSYMOrganizer: DSYMOrganizerFake(dSYMFile: nil),
             modeController: modeController,
             metaReader: metaReader,
+            metaWriter: metaWriter,
             creatorPlugins: [],
             consumerPlugins: []
         )
@@ -179,6 +182,7 @@ class PostbuildTests: FileXCTestCase {
             dSYMOrganizer: dsymOrganizer,
             modeController: modeController,
             metaReader: metaReader,
+            metaWriter: metaWriter,
             creatorPlugins: [],
             consumerPlugins: []
         )
@@ -206,6 +210,7 @@ class PostbuildTests: FileXCTestCase {
             dSYMOrganizer: dsymOrganizer,
             modeController: modeController,
             metaReader: metaReader,
+            metaWriter: metaWriter,
             creatorPlugins: [],
             consumerPlugins: []
         )
@@ -243,6 +248,7 @@ class PostbuildTests: FileXCTestCase {
             dSYMOrganizer: dsymOrganizer,
             modeController: modeController,
             metaReader: metaReader,
+            metaWriter: metaWriter,
             creatorPlugins: [],
             consumerPlugins: []
         )
@@ -283,6 +289,7 @@ class PostbuildTests: FileXCTestCase {
             dSYMOrganizer: dsymOrganizer,
             modeController: modeController,
             metaReader: metaReader,
+            metaWriter: metaWriter,
             creatorPlugins: [],
             consumerPlugins: []
         )
@@ -308,6 +315,7 @@ class PostbuildTests: FileXCTestCase {
             dSYMOrganizer: DSYMOrganizerFake(dSYMFile: nil),
             modeController: fakeModeController,
             metaReader: metaReader,
+            metaWriter: metaWriter,
             creatorPlugins: [],
             consumerPlugins: []
         )
@@ -355,6 +363,7 @@ class PostbuildTests: FileXCTestCase {
             dSYMOrganizer: DSYMOrganizerFake(dSYMFile: nil),
             modeController: modeController,
             metaReader: metaReader,
+            metaWriter: metaWriter,
             creatorPlugins: [plugin],
             consumerPlugins: []
         )
@@ -386,6 +395,7 @@ class PostbuildTests: FileXCTestCase {
             dSYMOrganizer: DSYMOrganizerFake(dSYMFile: nil),
             modeController: modeController,
             metaReader: metaReader,
+            metaWriter: metaWriter,
             creatorPlugins: [plugin],
             consumerPlugins: []
         )
@@ -418,6 +428,7 @@ class PostbuildTests: FileXCTestCase {
             dSYMOrganizer: DSYMOrganizerFake(dSYMFile: nil),
             modeController: modeController,
             metaReader: metaReader,
+            metaWriter: metaWriter,
             creatorPlugins: [],
             consumerPlugins: [consumerPlugin]
         )
@@ -455,6 +466,7 @@ class PostbuildTests: FileXCTestCase {
             dSYMOrganizer: DSYMOrganizerFake(dSYMFile: nil),
             modeController: modeController,
             metaReader: metaReader,
+            metaWriter: metaWriter,
             creatorPlugins: [],
             consumerPlugins: [consumerPlugin]
         )
@@ -486,6 +498,7 @@ class PostbuildTests: FileXCTestCase {
             dSYMOrganizer: DSYMOrganizerFake(dSYMFile: nil),
             modeController: modeController,
             metaReader: metaReader,
+            metaWriter: metaWriter,
             creatorPlugins: [],
             consumerPlugins: [consumerPlugin]
         )
@@ -519,6 +532,7 @@ class PostbuildTests: FileXCTestCase {
             dSYMOrganizer: DSYMOrganizerFake(dSYMFile: nil),
             modeController: modeController,
             metaReader: metaReader,
+            metaWriter: metaWriter,
             creatorPlugins: [],
             consumerPlugins: []
         )
@@ -551,6 +565,7 @@ class PostbuildTests: FileXCTestCase {
             dSYMOrganizer: DSYMOrganizerFake(dSYMFile: nil),
             modeController: modeController,
             metaReader: metaReader,
+            metaWriter: metaWriter,
             creatorPlugins: [],
             consumerPlugins: []
         )
@@ -559,5 +574,68 @@ class PostbuildTests: FileXCTestCase {
         try postbuild.deleteFingerprintOverrides()
 
         XCTAssertFalse(fileManager.fileExists(atPath: previousFingerprintOverride.path))
-    } // swiftlint:disable:next file_length
+    }
+
+    func testUploadingMeta() throws {
+        let postbuild = Postbuild(
+            context: postbuildContext,
+            networkClient: network,
+            remapper: remapper,
+            fingerprintAccumulator: fingerprintGenerator,
+            artifactsOrganizer: organizer,
+            artifactCreator: artifactCreator,
+            fingerprintSyncer: syncer,
+            dependenciesReader: dependenciesReader,
+            dependencyProcessor: processor,
+            fingerprintOverrideManager: overrideManager,
+            dSYMOrganizer: DSYMOrganizerFake(dSYMFile: nil),
+            modeController: modeController,
+            metaReader: metaReader,
+            metaWriter: metaWriter,
+            creatorPlugins: [],
+            consumerPlugins: []
+        )
+
+        try postbuild.performMetaUpload(meta: Self.SampleMeta, for: "33")
+
+
+        let data = try network.fetch(.meta(commit: "33"))
+        let downloadedMeta = try metaReader.read(data: data)
+
+        XCTAssertEqual(downloadedMeta, Self.SampleMeta)
+    }
+
+    func testUploadingMetaWithNewPluginKeys() throws {
+        let plugin = MetaAppenderArtifactCreatorPlugin(["New": "Value"])
+        let postbuild = Postbuild(
+            context: postbuildContext,
+            networkClient: network,
+            remapper: remapper,
+            fingerprintAccumulator: fingerprintGenerator,
+            artifactsOrganizer: organizer,
+            artifactCreator: artifactCreator,
+            fingerprintSyncer: syncer,
+            dependenciesReader: dependenciesReader,
+            dependencyProcessor: processor,
+            fingerprintOverrideManager: overrideManager,
+            dSYMOrganizer: DSYMOrganizerFake(dSYMFile: nil),
+            modeController: modeController,
+            metaReader: metaReader,
+            metaWriter: metaWriter,
+            creatorPlugins: [plugin],
+            consumerPlugins: []
+        )
+        var meta = Self.SampleMeta
+        meta.pluginsKeys = ["Previous": "Value"]
+        var expectedMeta = meta
+        expectedMeta.pluginsKeys = ["New": "Value"]
+
+        try postbuild.performMetaUpload(meta: meta, for: "33")
+
+        let data = try network.fetch(.meta(commit: "33"))
+        let downloadedMeta = try metaReader.read(data: data)
+
+        XCTAssertEqual(downloadedMeta, expectedMeta)
+    }
 }
+// swiftlint:disable:next file_length
