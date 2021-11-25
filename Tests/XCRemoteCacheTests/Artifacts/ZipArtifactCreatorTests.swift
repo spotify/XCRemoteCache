@@ -35,7 +35,11 @@ class ZipArtifactCreatorTests: FileXCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
         workingDir = try prepareTempDir().appendingPathComponent("creator")
-        creator = ZipArtifactCreator(workingDir: workingDir, fileManager: fileManager)
+        creator = ZipArtifactCreator(
+            workingDir: workingDir,
+            metaWriter: JsonMetaWriter(fileWriter: fileManager),
+            fileManager: fileManager
+        )
     }
 
     func testCreatingArtifactGeneratesValidArtifactId() throws {

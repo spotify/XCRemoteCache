@@ -85,6 +85,7 @@ public class XCPostbuild {
                 algorithm: MD5Algorithm()
             )
             let organizer = ZipArtifactOrganizer(targetTempDir: context.targetTempDir, fileManager: fileManager)
+            let metaWriter = JsonMetaWriter(fileWriter: fileManager)
             let artifactCreator = BuildArtifactCreator(
                 buildDir: context.productsDir,
                 tempDir: context.targetTempDir,
@@ -92,6 +93,7 @@ public class XCPostbuild {
                 moduleName: context.moduleName,
                 modulesFolderPath: context.modulesFolderPath,
                 dSYMPath: context.dSYMPath,
+                metaWriter: metaWriter,
                 fileManager: fileManager
             )
             let dirAccessor = DirAccessorComposer(
@@ -230,6 +232,7 @@ public class XCPostbuild {
                 dSYMOrganizer: dSYMOrganizer,
                 modeController: modeController,
                 metaReader: metaReader,
+                metaWriter: metaWriter,
                 creatorPlugins: creatorPlugins,
                 consumerPlugins: consumerPlugins
             )

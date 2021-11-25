@@ -41,6 +41,7 @@ class Postbuild {
     private let dSYMOrganizer: DSYMOrganizer
     private let modeController: CacheModeController
     private let metaReader: MetaReader
+    private let metaWriter: MetaWriter
     private let creatorPlugins: [ArtifactCreatorPlugin]
     private let consumerPlugins: [ArtifactConsumerPostbuildPlugin]
 
@@ -58,6 +59,7 @@ class Postbuild {
         dSYMOrganizer: DSYMOrganizer,
         modeController: CacheModeController,
         metaReader: MetaReader,
+        metaWriter: MetaWriter,
         creatorPlugins: [ArtifactCreatorPlugin],
         consumerPlugins: [ArtifactConsumerPostbuildPlugin]
     ) {
@@ -74,6 +76,7 @@ class Postbuild {
         self.dSYMOrganizer = dSYMOrganizer
         self.modeController = modeController
         self.metaReader = metaReader
+        self.metaWriter = metaWriter
         self.creatorPlugins = creatorPlugins
         self.consumerPlugins = consumerPlugins
     }
@@ -136,9 +139,8 @@ class Postbuild {
             meta.pluginsKeys = try meta.pluginsKeys.merging(plugin.extraMetaKeys(prevMeta), uniquingKeysWith: { $1 })
             return meta
         }
-        // Create "lightweight" artifact to cherry-pick a meta file
-        let creator = try artifactCreator.createArtifact(artifactKey: "lightweight", meta: meta)
-        try networkClient.uploadSynchronously(creator.meta, as: .meta(commit: commit))
+        let metaPath = try metaWriter.write(meta, locationDir: context.targetTempDir)
+        try networkClient.uploadSynchronously(metaPath, as: .meta(commit: commit))
     }
 
     /// Builds an artifact package and uploads it to the remote server
