@@ -276,9 +276,8 @@ public class XCPostbuild {
             } else {
                 try postbuildAction.performBuildCleanup()
                 try cacheHitLogger.logMiss()
-                // Producer mode doesn't use cached artifacts so modeController is not enabled. If producer
-                // reaches this point, there were no issues with publishing
-                let actionName = context.mode == .producer ? "Published" : "Disabled"
+                // If producers reach this point, there were no issues with publishing
+                let actionName = context.mode == .consumer ? "Disabled" : "Published"
                 printToUser("\(actionName) remote cache for \(context.targetName)")
             }
         } catch PluginError.unrecoverableError(let error) {
