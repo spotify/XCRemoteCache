@@ -27,6 +27,7 @@ class FileFingerprintSyncerTests: FileXCTestCase {
     private var swiftmoduleDir: URL!
 
     override func setUpWithError() throws {
+        try super.setUpWithError()
         syncer = FileFingerprintSyncer(
             fingerprintOverrideExtension: "md5",
             dirAccessor: fileManager,

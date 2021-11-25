@@ -94,10 +94,11 @@ public struct XCRemoteCacheConfig: Encodable {
     var focusedTargets: [String] = []
     ///  Disable cache for http requests to fecth metadata and download artifacts
     var disableHttpCache: Bool = false
-    /// Path, relative to $TARGET_TEMP_DIR which gathers all compilation commands that should be executed if a target
-    /// switches to local compilation. Example: A new `.swift` file invalidates remote artifact and triggers local compilation
-    /// When that happens, all previously skipped clang build steps need to be eventually called locally - this file lists
-    /// all these commands.
+    /// Path, relative to $TARGET_TEMP_DIR which gathers all compilation commands that should be e
+    /// xecuted if a target switches to local compilation.
+    /// Example: A new `.swift` file invalidates remote arXcodeProjIntegrate.swifttifact and triggers local compilation
+    /// When that happens, all previously skipped clang build steps
+    /// need to be eventually called locally - this file lists all these commands.
     var compilationHistoryFile: String = "history.compile"
     /// Timeout for remote response data interval (in seconds). If an interval between data chunks is
     /// longer than a timeout, a request fails
@@ -124,6 +125,7 @@ public struct XCRemoteCacheConfig: Encodable {
 extension XCRemoteCacheConfig {
     /// Merges existing config with the other config and returns a final result
     /// `other` scheme overrides existing configuration
+    // swiftlint:disable:next function_body_length
     func merged(with scheme: ConfigFileScheme) -> XCRemoteCacheConfig {
         var merge = self
         merge.mode = scheme.mode ?? mode

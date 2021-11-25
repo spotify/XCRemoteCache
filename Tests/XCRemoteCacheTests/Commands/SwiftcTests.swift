@@ -277,7 +277,9 @@ class SwiftcTests: FileXCTestCase {
         let artifactObjCHeader = URL(fileURLWithPath: "/cachedArtifact/include/archTest/Target-Swift.h")
         let artifactSwiftmodule = URL(fileURLWithPath: "/cachedArtifact/swiftmodule/archTest/Target.swiftmodule")
         let artifactSwiftdoc = URL(fileURLWithPath: "/cachedArtifact/swiftmodule/archTest/Target.swiftdoc")
-        let artifactSwiftSourceInfo = URL(fileURLWithPath: "/cachedArtifact/swiftmodule/archTest/Target.swiftsourceinfo")
+        let artifactSwiftSourceInfo = URL(
+            fileURLWithPath: "/cachedArtifact/swiftmodule/archTest/Target.swiftsourceinfo"
+        )
 
         artifactOrganizer = ArtifactOrganizerFake(artifactRoot: artifactRoot)
         let swiftc = Swiftc(
@@ -457,5 +459,5 @@ class SwiftcTests: FileXCTestCase {
         )
 
         XCTAssertNoThrow(try swiftc.mockCompilation())
-    }
+    } // swiftlint:disable:next file_length
 }

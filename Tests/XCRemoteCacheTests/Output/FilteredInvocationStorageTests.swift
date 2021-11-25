@@ -26,6 +26,7 @@ class FilteredInvocationStorageTests: XCTestCase {
     var storage: FilteredInvocationStorage!
 
     override func setUp() {
+        super.setUp()
         storage = FilteredInvocationStorage(storage: underlyingStorage, retrieveIgnoredCommands: ["to_ignore"])
     }
 

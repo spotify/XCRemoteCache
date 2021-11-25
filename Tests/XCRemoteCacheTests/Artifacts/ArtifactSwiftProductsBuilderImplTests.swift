@@ -31,6 +31,7 @@ class ArtifactSwiftProductsBuilderImplTests: FileXCTestCase {
     private var builder: ArtifactSwiftProductsBuilderImpl!
 
     override func setUpWithError() throws {
+        try super.setUpWithError()
         let rootDir = try prepareTempDir()
         moduleDir = rootDir.appendingPathComponent("Products")
         swiftmoduleFile = moduleDir.appendingPathComponent("MyModule.swiftmodule")
@@ -47,24 +48,41 @@ class ArtifactSwiftProductsBuilderImplTests: FileXCTestCase {
     func testIncludesRequiredSwiftmoduleFiles() throws {
         try fileManager.spt_createFile(swiftmoduleFile, content: "swiftmodule")
         try fileManager.spt_createFile(swiftmoduleDocFile, content: "swiftdoc")
-        let builderSwiftmoduleDir = builder.buildingArtifactSwiftModulesLocation().appendingPathComponent("arm64")
-        let expectedBuildedSwiftmoduleFile = builderSwiftmoduleDir.appendingPathComponent("MyModule.swiftmodule")
-        let expectedBuildedSwiftmoduledocFile = builderSwiftmoduleDir.appendingPathComponent("MyModule.swiftdoc")
+        let builderSwiftmoduleDir =
+            builder
+                .buildingArtifactSwiftModulesLocation()
+                .appendingPathComponent("arm64")
+        let expectedBuildedSwiftmoduleFile =
+            builderSwiftmoduleDir.appendingPathComponent("MyModule.swiftmodule")
+        let expectedBuildedSwiftmoduledocFile =
+            builderSwiftmoduleDir.appendingPathComponent("MyModule.swiftdoc")
 
         try builder.includeModuleDefinitionsToTheArtifact(arch: "arm64", moduleURL: swiftmoduleFile)
 
-        XCTAssertEqual(fileManager.contents(atPath: expectedBuildedSwiftmoduleFile.path), "swiftmodule".data(using: .utf8))
-        XCTAssertEqual(fileManager.contents(atPath: expectedBuildedSwiftmoduledocFile.path), "swiftdoc".data(using: .utf8))
+        XCTAssertEqual(
+            fileManager.contents(atPath: expectedBuildedSwiftmoduleFile.path),
+            "swiftmodule".data(using: .utf8)
+        )
+        XCTAssertEqual(
+            fileManager.contents(atPath: expectedBuildedSwiftmoduledocFile.path),
+            "swiftdoc".data(using: .utf8)
+        )
     }
 
     func testIncludesAllSwiftmoduleFiles() throws {
         try fileManager.spt_createEmptyFile(swiftmoduleFile)
         try fileManager.spt_createEmptyFile(swiftmoduleDocFile)
         try fileManager.spt_createEmptyFile(swiftmoduleSourceInfoFile)
-        let builderSwiftmoduleDir = builder.buildingArtifactSwiftModulesLocation().appendingPathComponent("arm64")
-        let expectedBuildedSwiftmoduleFile = builderSwiftmoduleDir.appendingPathComponent("MyModule.swiftmodule")
-        let expectedBuildedSwiftmoduledocFile = builderSwiftmoduleDir.appendingPathComponent("MyModule.swiftdoc")
-        let expectedBuildedSwiftSourceInfoFile = builderSwiftmoduleDir.appendingPathComponent("MyModule.swiftsourceinfo")
+        let builderSwiftmoduleDir =
+            builder
+                .buildingArtifactSwiftModulesLocation()
+                .appendingPathComponent("arm64")
+        let expectedBuildedSwiftmoduleFile =
+            builderSwiftmoduleDir.appendingPathComponent("MyModule.swiftmodule")
+        let expectedBuildedSwiftmoduledocFile =
+            builderSwiftmoduleDir.appendingPathComponent("MyModule.swiftdoc")
+        let expectedBuildedSwiftSourceInfoFile =
+            builderSwiftmoduleDir.appendingPathComponent("MyModule.swiftsourceinfo")
 
         try builder.includeModuleDefinitionsToTheArtifact(arch: "arm64", moduleURL: swiftmoduleFile)
 
@@ -74,6 +92,11 @@ class ArtifactSwiftProductsBuilderImplTests: FileXCTestCase {
     }
 
     func testFailsIncludingWhenMissingRequiredSwiftmoduleFiles() throws {
-        XCTAssertThrowsError(try builder.includeModuleDefinitionsToTheArtifact(arch: "arm64", moduleURL: swiftmoduleFile))
+        XCTAssertThrowsError(
+            try builder.includeModuleDefinitionsToTheArtifact(
+                arch: "arm64",
+                moduleURL: swiftmoduleFile
+            )
+        )
     }
 }

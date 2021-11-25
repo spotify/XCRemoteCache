@@ -28,7 +28,7 @@ task :lint => [:prepare] do
   puts 'Run linting'
 
   system("swiftformat --lint --config .swiftformat --cache ignore .") or abort "swiftformat failure" if SWIFTFORMAT_ENABLED
-  system("swiftlint lint --config .swiftlint.yml") or abort "swiftlint failure" if SWIFTLINT_ENABLED
+  system("swiftlint lint --config .swiftlint.yml --strict") or abort "swiftlint failure" if SWIFTLINT_ENABLED
 end
 
 task :autocorrect => [:prepare]  do 
