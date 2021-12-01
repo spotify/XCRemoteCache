@@ -89,20 +89,34 @@ module CocoapodsXCRemoteCacheModifier
         @@configuration.select { |key, value| !CUSTOM_CONFIGURATION_KEYS.include?(key) }
       end
 
-      def self.enable_xcremotecache(target, xc_location, xc_cc_path, mode, exclude_build_configurations, final_target)
+      def self.parent_dir(path, parent_count)
+        "../" * parent_count + path
+      end
+
+      # @param target [Target] target to apply XCRemoteCache
+      # @param repo_distance [Integer] distance from the git repo root to the target's $SRCROOT 
+      # @param xc_location [String] path to the dir with all XCRemoteCache binaries, relative to the repo root
+      # @param xc_cc_path [String] path to the XCRemoteCache clang wrapper, relative to the repo root
+      # @param mode [String] mode name ('consumer', 'producer' etc.)
+      # @param exclude_build_configurations [[String]] list of targets that should have disabled remote cache
+      # @param final_target [String] name of target that should trigger marking
+      def self.enable_xcremotecache(target, repo_distance, xc_location, xc_cc_path, mode, exclude_build_configurations, final_target)
+        srcroot_relative_xc_location = parent_dir(xc_location, repo_distance)
+
         target.build_configurations.each do |config|
           # apply only for relevant Configurations
           next if exclude_build_configurations.include?(config.name)
           if mode == 'consumer'
-            config.build_settings['CC'] = ["$SRCROOT/#{xc_cc_path}"]
+            config.build_settings['CC'] = ["$SRCROOT/#{parent_dir(xc_cc_path, repo_distance)}"]
           end
-          config.build_settings['SWIFT_EXEC'] = ["$SRCROOT/#{xc_location}/xcswiftc"]
-          config.build_settings['LIBTOOL'] = ["$SRCROOT/#{xc_location}/xclibtool"]
-          config.build_settings['LD'] = ["$SRCROOT/#{xc_location}/xcld"]
+          config.build_settings['SWIFT_EXEC'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xcswiftc"]
+          config.build_settings['LIBTOOL'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xclibtool"]
+          config.build_settings['LD'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xcld"]
 
           config.build_settings['XCREMOTE_CACHE_FAKE_SRCROOT'] = FAKE_SRCROOT
-          add_cflags!(config.build_settings, '-fdebug-prefix-map', "$(SRCROOT:dir:standardizepath)=$(XCREMOTE_CACHE_FAKE_SRCROOT)")
-          add_swiftflags!(config.build_settings, '-debug-prefix-map', "$(SRCROOT:dir:standardizepath)=$(XCREMOTE_CACHE_FAKE_SRCROOT)")
+          debug_prefix_map_replacement = '$(SRCROOT' + ':dir:standardizepath' * repo_distance + ')'
+          add_cflags!(config.build_settings, '-fdebug-prefix-map', "#{debug_prefix_map_replacement}=$(XCREMOTE_CACHE_FAKE_SRCROOT)")
+          add_swiftflags!(config.build_settings, '-debug-prefix-map', "#{debug_prefix_map_replacement}=$(XCREMOTE_CACHE_FAKE_SRCROOT)")
         end
 
         # Prebuild
@@ -114,7 +128,7 @@ module CocoapodsXCRemoteCacheModifier
           end
           prebuild_script = existing_prebuild_script || target.new_shell_script_build_phase("[XCRC] Prebuild")
           prebuild_script.shell_script = "\"$SCRIPT_INPUT_FILE_0\""
-          prebuild_script.input_paths = ["$SRCROOT/#{xc_location}/xcprebuild"]
+          prebuild_script.input_paths = ["$SRCROOT/#{srcroot_relative_xc_location}/xcprebuild"]
           prebuild_script.output_paths = [
             "$(TARGET_TEMP_DIR)/rc.enabled",
             "$(DWARF_DSYM_FOLDER_PATH)/$(DWARF_DSYM_FILE_NAME)"
@@ -140,7 +154,7 @@ module CocoapodsXCRemoteCacheModifier
         end
         postbuild_script = existing_postbuild_script || target.new_shell_script_build_phase("[XCRC] Postbuild")
         postbuild_script.shell_script = "\"$SCRIPT_INPUT_FILE_0\""
-        postbuild_script.input_paths = ["$SRCROOT/#{xc_location}/xcpostbuild"]
+        postbuild_script.input_paths = ["$SRCROOT/#{srcroot_relative_xc_location}/xcpostbuild"]
         postbuild_script.output_paths = [
           "$(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/$(PLATFORM_PREFERRED_ARCH).swiftmodule.md5",
           "$(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/$(PLATFORM_PREFERRED_ARCH)-$(LLVM_TARGET_TRIPLE_VENDOR)-$(SWIFT_PLATFORM_TARGET_PREFIX)$(LLVM_TARGET_TRIPLE_SUFFIX).swiftmodule.md5"
@@ -156,7 +170,7 @@ module CocoapodsXCRemoteCacheModifier
           end
           mark_script = existing_mark_script || target.new_shell_script_build_phase("[XCRC] Mark")
           mark_script.shell_script = "\"$SCRIPT_INPUT_FILE_0\" mark --configuration $CONFIGURATION --platform $PLATFORM_NAME"
-          mark_script.input_paths = ["$SRCROOT/#{xc_location}/xcprepare"]
+          mark_script.input_paths = ["$SRCROOT/#{srcroot_relative_xc_location}/xcprepare"]
         else
           # Delete existing mark build phase (to support switching between modes or changing the final target)
           target.build_phases.delete_if do |phase|
@@ -368,7 +382,7 @@ module CocoapodsXCRemoteCacheModifier
               next if target.name.start_with?("Pods-")
               next if target.name.end_with?("Tests")
               next if exclude_targets.include?(target.name)
-              enable_xcremotecache(target, "../#{xcrc_location}", "../#{xccc_location}", mode, exclude_build_configurations, final_target)
+              enable_xcremotecache(target, 1, xcrc_location, xccc_location, mode, exclude_build_configurations, final_target)
           end
 
           # Create .rcinfo into `Pods` directory as that .xcodeproj reads configuration from .xcodeproj location
@@ -382,7 +396,7 @@ module CocoapodsXCRemoteCacheModifier
           # Attach XCRC to the app targets
           user_project.targets.each do |target|
               next if exclude_targets.include?(target.name)
-              enable_xcremotecache(target, xcrc_location, xccc_location, mode, exclude_build_configurations, final_target)
+              enable_xcremotecache(target, 0, xcrc_location, xccc_location, mode, exclude_build_configurations, final_target)
           end
 
           # Set Target sourcemap
