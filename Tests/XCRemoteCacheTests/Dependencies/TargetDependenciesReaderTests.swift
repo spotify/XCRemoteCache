@@ -27,6 +27,7 @@ class TargetDependenciesReaderTests: XCTestCase {
     private var reader: TargetDependenciesReader!
 
     override func setUp() {
+        super.setUp()
         dirAccessor = DirAccessorFake()
         /// A Factory that builds a faked dependency reader that returns a single dependency,
         /// a basename of the input .d file and the ".swift" extension

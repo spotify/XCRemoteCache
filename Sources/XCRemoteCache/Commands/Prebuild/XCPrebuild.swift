@@ -129,7 +129,10 @@ public class XCPrebuild {
                 algorithm: MD5Algorithm()
             )
             let organizer = ZipArtifactOrganizer(targetTempDir: context.targetTempDir, fileManager: fileManager)
-            let compilationHistoryOrganizer = CompilationHistoryFileOrganizer(context.compilationHistoryFile, fileManager: fileManager)
+            let compilationHistoryOrganizer = CompilationHistoryFileOrganizer(
+                context.compilationHistoryFile,
+                fileManager: fileManager
+            )
             let metaReader = JsonMetaReader(fileAccessor: fileManager)
             var consumerPlugins: [ArtifactConsumerPrebuildPlugin] = []
 

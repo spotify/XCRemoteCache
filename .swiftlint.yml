@@ -5,6 +5,7 @@ disabled_rules:
   - superfluous_disable_command # Disabled since we disable some rules pre-emptively to avoid issues in the future
   - todo                        # Temporarily disabled. We have too many right now hiding real issues :(
   - nesting                     # Does not make sense anymore since Swift 4 uses nested `CodingKeys` enums for example
+  - trailing_dot_in_comments    # Triggers warnings for generated file headers
 
 opt_in_rules:
   - anyobject_protocol

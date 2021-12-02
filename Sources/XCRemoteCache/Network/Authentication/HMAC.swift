@@ -52,7 +52,14 @@ struct HMAC {
 
     private static func calcHMAC(keyUnsafeBytes: UnsafeRawBufferPointer, value: String, out: UnsafeMutableRawPointer!) {
         value.data(using: .utf8)!.withUnsafeBytes { value in
-            CCHmac(CCHmacAlgorithm(kCCHmacAlgSHA256), keyUnsafeBytes.baseAddress, Int(keyUnsafeBytes.count), value.baseAddress, Int(value.count), out)
+            CCHmac(
+                CCHmacAlgorithm(kCCHmacAlgSHA256),
+                keyUnsafeBytes.baseAddress,
+                Int(keyUnsafeBytes.count),
+                value.baseAddress,
+                Int(value.count),
+                out
+            )
         }
     }
 }

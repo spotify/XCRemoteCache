@@ -28,6 +28,7 @@ class InvocationFileStorageTests: FileXCTestCase {
     private var storage: ExistingFileStorage!
 
     override func setUpWithError() throws {
+        try super.setUpWithError()
         file = try prepareTempDir().appendingPathComponent("file.history")
         try fileManager.spt_createEmptyFile(file)
         storage = ExistingFileStorage(storageFile: file, command: command)

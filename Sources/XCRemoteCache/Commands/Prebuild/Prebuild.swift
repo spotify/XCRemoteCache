@@ -55,6 +55,7 @@ class Prebuild {
         self.artifactConsumerPrebuildPlugins = artifactConsumerPrebuildPlugins
     }
 
+    // swiftlint:disable:next function_body_length
     public func perform() throws -> PrebuildResult {
         guard case .available(let commit) = context.remoteCommit else {
             return .incompatible

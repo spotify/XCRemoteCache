@@ -38,6 +38,7 @@ public class XCPrepareMark {
         self.commit = commit
     }
 
+    // swiftlint:disable:next function_body_length
     public func main() {
         let env = ProcessInfo.processInfo.environment
         let fileManager = FileManager.default

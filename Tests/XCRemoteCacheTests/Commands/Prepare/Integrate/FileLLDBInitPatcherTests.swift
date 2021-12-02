@@ -28,6 +28,7 @@ class FileLLDBInitPatcherTests: XCTestCase {
     private var patcher: FileLLDBInitPatcher!
 
     override func setUp() {
+        super.setUp()
         accessor = FileAccessorFake(mode: .normal)
         patcher = FileLLDBInitPatcher(
             file: lldbInitPath,

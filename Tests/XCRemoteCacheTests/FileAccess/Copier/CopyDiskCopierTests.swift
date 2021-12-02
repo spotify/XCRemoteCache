@@ -27,6 +27,7 @@ class CopyDiskCopierTests: FileXCTestCase {
     private var emptySourceFile: URL!
 
     override func setUpWithError() throws {
+        try super.setUpWithError()
         workingDir = try prepareTempDir()
         emptySourceFile = workingDir.appendingPathComponent("source")
         try fileManager.spt_writeToFile(atPath: emptySourceFile.path, contents: Data())

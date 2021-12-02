@@ -114,7 +114,9 @@ struct XcodeProjIntegrate: Integrate {
         markPhase = PBXShellScriptBuildPhase(
             name: "\(Self.BuildStepPrefix)RemoteCache_mark",
             inputPaths: [binaries.prepare.path],
-            shellScript: "\"$SCRIPT_INPUT_FILE_0\" mark --configuration \"$CONFIGURATION\" --platform \"$PLATFORM_NAME\""
+            shellScript:
+                "\"$SCRIPT_INPUT_FILE_0\" mark " +
+                "--configuration \"$CONFIGURATION\" --platform \"$PLATFORM_NAME\""
         )
     }
 
@@ -129,6 +131,7 @@ struct XcodeProjIntegrate: Integrate {
         try encodedYAML.write(to: configOverrideLocation, atomically: false, encoding: .utf8)
     }
 
+    // swiftlint:disable:next function_body_length
     func run() throws {
         let outputFile = output ?? projectURL
         let projectRoot = projectURL.deletingLastPathComponent()
