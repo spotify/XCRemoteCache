@@ -349,6 +349,28 @@ module CocoapodsXCRemoteCacheModifier
           File.delete(xccc_location_absolute) if File.exist?(xccc_location_absolute)
 
           # Prepare XCRC
+
+          # Pods projects can be generated only once (if incremental_installation is enabled)
+          # Always integrate XCRemoteCache to all Pods, in case it will be needed later
+          unless installer_context.pods_project.nil?
+            # Attach XCRemoteCache to Pods targets
+            installer_context.pods_project.targets.each do |target|
+                next if target.name.start_with?("Pods-")
+                next if target.name.end_with?("Tests")
+                next if exclude_targets.include?(target.name)
+                enable_xcremotecache(target, "../#{xcrc_location}", "../#{xccc_location}", mode, exclude_build_configurations, final_target)
+            end
+
+            # Create .rcinfo into `Pods` directory as that .xcodeproj reads configuration from .xcodeproj location
+            pods_proj_directory = installer_context.sandbox_root
+
+            # Manual .rcinfo generation (in YAML format)
+            save_rcinfo({'extra_configuration_file' => "#{user_proj_directory}/.rcinfo"}, pods_proj_directory)
+
+            installer_context.pods_project.save()
+          end
+
+          # Enabled/disable XCRemoteCache for the main (user) project
           begin
             prepare_result = YAML.load`#{xcrc_location_absolute}/xcprepare --configuration #{check_build_configuration} --platform #{check_platform}`
             unless prepare_result['result'] || mode != 'consumer'
@@ -363,21 +385,6 @@ module CocoapodsXCRemoteCacheModifier
             next
           end
 
-          # Attach XCRemoteCache to Pods targets
-          installer_context.pods_project.targets.each do |target|
-              next if target.name.start_with?("Pods-")
-              next if target.name.end_with?("Tests")
-              next if exclude_targets.include?(target.name)
-              enable_xcremotecache(target, "../#{xcrc_location}", "../#{xccc_location}", mode, exclude_build_configurations, final_target)
-          end
-
-          # Create .rcinfo into `Pods` directory as that .xcodeproj reads configuration from .xcodeproj location
-          pods_proj_directory = installer_context.sandbox_root
-          
-          # Manual .rcinfo generation (in YAML format)
-          save_rcinfo({'extra_configuration_file' => "#{user_proj_directory}/.rcinfo"}, pods_proj_directory)
-
-          installer_context.pods_project.save()
 
           # Attach XCRC to the app targets
           user_project.targets.each do |target|
