@@ -98,7 +98,7 @@ module CocoapodsXCRemoteCacheModifier
       # @param xc_location [String] path to the dir with all XCRemoteCache binaries, relative to the repo root
       # @param xc_cc_path [String] path to the XCRemoteCache clang wrapper, relative to the repo root
       # @param mode [String] mode name ('consumer', 'producer' etc.)
-      # @param exclude_build_configurations [[String]] list of targets that should have disabled remote cache
+      # @param exclude_build_configurations [String[]] list of targets that should have disabled remote cache
       # @param final_target [String] name of target that should trigger marking
       def self.enable_xcremotecache(target, repo_distance, xc_location, xc_cc_path, mode, exclude_build_configurations, final_target)
         srcroot_relative_xc_location = parent_dir(xc_location, repo_distance)
