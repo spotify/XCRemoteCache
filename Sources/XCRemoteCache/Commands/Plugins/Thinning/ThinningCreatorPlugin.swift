@@ -61,18 +61,18 @@ class ThinningCreatorPlugin: ArtifactCreatorPlugin {
         }
         let uploadedTargetArtifacts = try allURLs.compactMap { tempDir -> TargetTuple? in
             let potentialArtifacts = try findTargetPackageZip(tempDir: tempDir)
-            guard let allArtifacts = potentialArtifacts, !allArtifacts.isEmpty else {
+            guard !potentialArtifacts.isEmpty else {
                 // there is no generated *.zip file, so given target didn't create an artifact - it could be
                 // just a helper target (like the target we integrate this plugin with)
                 return nil
             }
             // Find {{fileKey}} based on the .zip file basename
-            guard allArtifacts.count == 1 else {
+            guard potentialArtifacts.count == 1 else {
                 throw ThinningCreatorPluginError.noSingleTargetArtifactsGenerated(
                     rootDir: tempDir
                 )
             }
-            let fileKey = allArtifacts[0].deletingPathExtension().lastPathComponent
+            let fileKey = potentialArtifacts[0].deletingPathExtension().lastPathComponent
             // Taking target name from tempDir, which has a structures "*.build"
             let targetName = tempDir.deletingPathExtension().lastPathComponent
             return TargetTuple(targetName: targetName, fileKey: fileKey)
@@ -87,7 +87,7 @@ class ThinningCreatorPlugin: ArtifactCreatorPlugin {
         return Dictionary(uniqueKeysWithValues: extraKeysTuples)
     }
 
-    private func findTargetPackageZip(tempDir: URL) throws -> [URL]? {
+    private func findTargetPackageZip(tempDir: URL) throws -> [URL] {
         // Producer mode:
         // All targets that uploaded their artifacts, have it placed in the
         // `$(TARGET_TEMP_DIR)/xccache/produced/{{fileKey}}.zip` location. Find all targets that have such a file
@@ -112,7 +112,7 @@ class ThinningCreatorPlugin: ArtifactCreatorPlugin {
             // has just been created (locally)
             guard try dirScanner.itemType(atPath: targetGeneratedArtifactRootDir.path) == ItemType.dir else {
                 // given target didn't generate any artifacts (e.g. it is never cached with XCRemoteCache)
-                return nil
+                return []
             }
             pathToDirWithZipArtifacts = targetGeneratedArtifactRootDir
         }
