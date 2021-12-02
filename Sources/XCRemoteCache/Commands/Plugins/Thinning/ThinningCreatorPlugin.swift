@@ -91,7 +91,7 @@ class ThinningCreatorPlugin: ArtifactCreatorPlugin {
         // Producer mode:
         // All targets that uploaded their artifacts, have it placed in the
         // `$(TARGET_TEMP_DIR)/xccache/produced/{{fileKey}}.zip` location. Find all targets that have such a file
-        // ProducerFull mode:
+        // ProducerFast mode:
         // If a target reused already existing artifact, it still has `$(TARGET_TEMP_DIR)/rc.enabled` marker file
         // and the reused zip is placed in:
         // `$(TARGET_TEMP_DIR)/xccache/{{fileKey}}.zip` location.
@@ -103,7 +103,7 @@ class ThinningCreatorPlugin: ArtifactCreatorPlugin {
             .appendingPathComponent("produced")
 
         let pathToDirWithZipArtifacts: URL
-        // try the `.producerFull` scenario first (the artifact was not locally
+        // try the `.producerFast` scenario first (the artifact was not locally
         // generated but just reused from the remote cache)
         if try dirScanner.itemType(atPath: targetEnabledMarker.path) == ItemType.file {
             pathToDirWithZipArtifacts = targetReusedArtifactRootDir
