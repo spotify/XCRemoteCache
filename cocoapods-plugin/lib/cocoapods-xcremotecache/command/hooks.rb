@@ -364,7 +364,7 @@ module CocoapodsXCRemoteCacheModifier
 
           # Prepare XCRC
 
-          # Pods projects can be generated only once (if incremental_installation is abled)
+          # Pods projects can be generated only once (if incremental_installation is enabled)
           # Always integrate XCRemoteCache to all Pods, in case it will be needed later
           unless installer_context.pods_project.nil?
             # Attach XCRemoteCache to Pods targets
