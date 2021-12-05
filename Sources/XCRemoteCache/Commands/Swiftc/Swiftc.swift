@@ -120,9 +120,9 @@ class Swiftc: SwiftcProtocol {
                 let prebuildDiscoveryURL = context.tempDir.appendingPathComponent(context.prebuildDependenciesPath)
                 let prebuildDiscoverWriter = dependenciesWriterFactory(prebuildDiscoveryURL, fileManager)
                 try prebuildDiscoverWriter.write(skipForSha: remoteCommit)
-            case .consumer, .producer:
-                // Never skips prebuild phase and fallbacks to the swiftc compilation for:
-                // 1) Not enabled remote cache or 2) producer
+            case .consumer, .producer, .producerFast:
+                // Never skip prebuild phase and fallback to the swiftc compilation for:
+                // 1) Not enabled remote cache, 2) producer(s)
                 break
             }
             return .forceFallback

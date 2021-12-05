@@ -17,8 +17,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public enum Mode: String, Codable, CaseIterable {
-    case consumer
-    case producer
-    case producerFast = "producer-fast"
+import Foundation
+
+protocol MetaWriter {
+    func write<T>(_ meta: T, locationDir : URL) throws -> URL where T : Meta
+}
+
+class JsonMetaWriter: MetaWriter {
+    private let metaEncoder = JSONEncoder()
+    private let fileWriter: FileWriter
+
+    init(fileWriter: FileWriter) {
+        self.fileWriter = fileWriter
+    }
+
+    func write<T>(_ meta: T, locationDir : URL) throws -> URL where T : Meta {
+        let metaURL = locationDir.appendingPathComponent(meta.fileKey).appendingPathExtension("json")
+        let metaData = try metaEncoder.encode(meta)
+        try fileWriter.write(toPath: metaURL.path, contents: metaData)
+        return metaURL
+    }
 }

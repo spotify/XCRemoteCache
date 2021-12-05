@@ -135,7 +135,7 @@ xcremotecache/xcprepare integrate --input <yourProject.xcodeproj> --mode consume
 | Argument | Description | Default | Required |
 | ------------- | ------------- | ------------- | ------------- |
 | `--input` | .xcodeproj location  | N/A | ✅ |
-| `--mode` | mode. Supported values: `consumer`, `producer` | N/A | ✅ |
+| `--mode` | mode. Supported values: `consumer`, `producer`, `producer-fast`(experimental) | N/A | ✅ |
 | `--targets-include` | comma-separated list of targets to integrate XCRemoteCache. | `""` | ⬜️ |
 | `--targets-exclude` | comma-separated list of targets to not integrate XCRemoteCache. Takes priority over --targets-include.  | `""` | ⬜️ |
 | `--configurations-include` | comma-separated list of configurations to integrate XCRemoteCache.  | `""` | ⬜️ |

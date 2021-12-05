@@ -33,7 +33,10 @@ class ThinningCreatorPluginTests: FileXCTestCase {
         targetTempDirRoot = workingDir.appendingPathComponent("Root")
         currentTargetTempDir = targetTempDirRoot.appendingPathComponent("Current.build")
         try fileManager.spt_createEmptyDir(currentTargetTempDir)
-        plugin = ThinningCreatorPlugin(targetTempDir: currentTargetTempDir, dirScanner: FileManager.default)
+        plugin = ThinningCreatorPlugin(
+            targetTempDir: currentTargetTempDir,
+            modeMarkerPath: "rc_marker.enabled",
+            dirScanner: FileManager.default)
     }
 
     func testReturnsEmptyExtraKeysForNoArtifacts() throws {
@@ -72,5 +75,63 @@ class ThinningCreatorPluginTests: FileXCTestCase {
         try fileManager.spt_createEmptyFile(otherGeneratedArtifact)
 
         XCTAssertThrowsError(try plugin.extraMetaKeys(Self.sampleMeta))
+    }
+
+    func testDefinesExtraMetaKeysForTargetsThatReusedArtifact() throws {
+        let otherTargetTempDir = targetTempDirRoot.appendingPathComponent("Other.build")
+        let marker = otherTargetTempDir.appendingPathComponent("rc_marker.enabled")
+        let reusedArtifact = otherTargetTempDir
+            .appendingPathComponent("xccache")
+            .appendingPathComponent("123")
+            .appendingPathExtension("zip")
+        try fileManager.spt_createEmptyFile(marker)
+        try fileManager.spt_createEmptyFile(reusedArtifact)
+
+        let extraKeys = try plugin.extraMetaKeys(Self.sampleMeta)
+
+        XCTAssertEqual(extraKeys, ["thinning_Other": "123"])
+    }
+
+    func testFailsGeneratingExtraMetaKeysForTwoArtifactsInTargetTempDir() throws {
+        let otherTargetTempDir = targetTempDirRoot.appendingPathComponent("Other.build")
+        let marker = otherTargetTempDir.appendingPathComponent("rc_marker.enabled")
+        let reusedArtifact1 = otherTargetTempDir
+            .appendingPathComponent("xccache")
+            .appendingPathComponent("001")
+            .appendingPathExtension("zip")
+        let reusedArtifact2 = otherTargetTempDir
+            .appendingPathComponent("xccache")
+            .appendingPathComponent("002")
+            .appendingPathExtension("zip")
+        try fileManager.spt_createEmptyFile(marker)
+        try fileManager.spt_createEmptyFile(reusedArtifact1)
+        try fileManager.spt_createEmptyFile(reusedArtifact2)
+
+        XCTAssertThrowsError(try plugin.extraMetaKeys(Self.sampleMeta))
+    }
+
+    func testDefinesExtraMetaKeysForGeneratedAndReusedArtifact() throws {
+        let otherTargetTempDir = targetTempDirRoot.appendingPathComponent("Generated.build")
+        let generatedArtifact = otherTargetTempDir
+            .appendingPathComponent("xccache")
+            .appendingPathComponent("produced")
+            .appendingPathComponent("000")
+            .appendingPathExtension("zip")
+        try fileManager.spt_createEmptyFile(generatedArtifact)
+        let reusedTargetTempDir = targetTempDirRoot.appendingPathComponent("Reused.build")
+        let marker = reusedTargetTempDir.appendingPathComponent("rc_marker.enabled")
+        let reusedArtifact = reusedTargetTempDir
+            .appendingPathComponent("xccache")
+            .appendingPathComponent("999")
+            .appendingPathExtension("zip")
+        try fileManager.spt_createEmptyFile(marker)
+        try fileManager.spt_createEmptyFile(reusedArtifact)
+
+        let extraKeys = try plugin.extraMetaKeys(Self.sampleMeta)
+
+        XCTAssertEqual(extraKeys, [
+            "thinning_Generated": "000",
+            "thinning_Reused": "999"
+        ])
     }
 }

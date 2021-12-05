@@ -41,6 +41,7 @@ class Postbuild {
     private let dSYMOrganizer: DSYMOrganizer
     private let modeController: CacheModeController
     private let metaReader: MetaReader
+    private let metaWriter: MetaWriter
     private let creatorPlugins: [ArtifactCreatorPlugin]
     private let consumerPlugins: [ArtifactConsumerPostbuildPlugin]
 
@@ -58,6 +59,7 @@ class Postbuild {
         dSYMOrganizer: DSYMOrganizer,
         modeController: CacheModeController,
         metaReader: MetaReader,
+        metaWriter: MetaWriter,
         creatorPlugins: [ArtifactCreatorPlugin],
         consumerPlugins: [ArtifactConsumerPostbuildPlugin]
     ) {
@@ -74,6 +76,7 @@ class Postbuild {
         self.dSYMOrganizer = dSYMOrganizer
         self.modeController = modeController
         self.metaReader = metaReader
+        self.metaWriter = metaWriter
         self.creatorPlugins = creatorPlugins
         self.consumerPlugins = consumerPlugins
     }
@@ -123,6 +126,22 @@ class Postbuild {
         let dependencies = try generateDependencies()
         let fingerprint = try generateFingerprint(dependencies)
         try generateFingerprintOverrides(contextSpecificFingerprint: fingerprint.contextSpecific)
+    }
+
+    /// Uploads only a meta to the remote server - useful when the file artifact (.zip) already exists on a remote
+    /// server and only a meta for a current commit sha has to be uploaded
+    public func performMetaUpload(meta: MainArtifactMeta, for commit: String) throws {
+        // Reset plugins keys as these are unique to each
+        var meta = meta
+        meta.pluginsKeys = [:]
+        meta = try creatorPlugins.reduce(meta) { prevMeta, plugin in
+            var meta = prevMeta
+            // add extra keys from the plugin. A plugin overrides previously defined keys in case of duplication
+            meta.pluginsKeys = try meta.pluginsKeys.merging(plugin.extraMetaKeys(prevMeta), uniquingKeysWith: { $1 })
+            return meta
+        }
+        let metaPath = try metaWriter.write(meta, locationDir: context.targetTempDir)
+        try networkClient.uploadSynchronously(metaPath, as: .meta(commit: commit))
     }
 
     /// Builds an artifact package and uploads it to the remote server

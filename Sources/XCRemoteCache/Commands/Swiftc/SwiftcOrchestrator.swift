@@ -116,6 +116,12 @@ class SwiftcOrchestrator {
             }
         case .consumer:
             fallbackToDefault(command: swiftcCommand)
+        case .producerFast:
+            let compileStepResult = try swiftc.mockCompilation()
+            if case .forceFallback = compileStepResult {
+                // cannot reuse cached artifact. Build it locally and upload to the server just as for the producer
+                fallthrough
+            }
         case .producer:
             var swiftcArgs = ProcessInfo().arguments
             swiftcArgs = try producerFallbackCommandProcessors.reduce(swiftcArgs) { args, processor in

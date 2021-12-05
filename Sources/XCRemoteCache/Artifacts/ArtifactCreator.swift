@@ -41,6 +41,7 @@ class BuildArtifactCreator: ArtifactSwiftProductsBuilderImpl, ArtifactCreator {
     private let moduleName: String?
     private let modulesFolderPath: String
     private let dSYMPath: URL
+    private let metaWriter: MetaWriter
     private let fileManager: FileManager
 
     init(
@@ -50,6 +51,7 @@ class BuildArtifactCreator: ArtifactSwiftProductsBuilderImpl, ArtifactCreator {
         moduleName: String?,
         modulesFolderPath: String,
         dSYMPath: URL,
+        metaWriter: MetaWriter,
         fileManager: FileManager
     ) {
         self.buildDir = buildDir
@@ -59,6 +61,7 @@ class BuildArtifactCreator: ArtifactSwiftProductsBuilderImpl, ArtifactCreator {
         self.moduleName = moduleName
         self.fileManager = fileManager
         self.dSYMPath = dSYMPath
+        self.metaWriter = metaWriter
         super.init(workingDir: tempDir, moduleName: moduleName, fileManager: fileManager)
     }
 
@@ -72,7 +75,11 @@ class BuildArtifactCreator: ArtifactSwiftProductsBuilderImpl, ArtifactCreator {
         let dynamicLibraryArtifacts = try prepareDynamicLibraryArtifacts()
         zipPaths.append(contentsOf: dynamicLibraryArtifacts)
 
-        let creator = ZipArtifactCreator(workingDir: zipWorkingDir, fileManager: fileManager)
+        let creator = ZipArtifactCreator(
+            workingDir: zipWorkingDir,
+            metaWriter: metaWriter,
+            fileManager: fileManager
+        )
         return try creator.createArtifact(zipContent: zipPaths, artifactKey: artifactKey, meta: meta)
     }
 

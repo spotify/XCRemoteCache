@@ -85,6 +85,7 @@ public class XCPostbuild {
                 algorithm: MD5Algorithm()
             )
             let organizer = ZipArtifactOrganizer(targetTempDir: context.targetTempDir, fileManager: fileManager)
+            let metaWriter = JsonMetaWriter(fileWriter: fileManager)
             let artifactCreator = BuildArtifactCreator(
                 buildDir: context.productsDir,
                 tempDir: context.targetTempDir,
@@ -92,6 +93,7 @@ public class XCPostbuild {
                 moduleName: context.moduleName,
                 modulesFolderPath: context.modulesFolderPath,
                 dSYMPath: context.dSYMPath,
+                metaWriter: metaWriter,
                 fileManager: fileManager
             )
             let dirAccessor = DirAccessorComposer(
@@ -205,9 +207,10 @@ public class XCPostbuild {
                             worker: DispatchGroupParallelizationWorker(qos: .userInitiated)
                         )
                         consumerPlugins.append(thinningPlugin)
-                    case .producer:
+                    case .producer, .producerFast:
                         let thinningPlugin = ThinningCreatorPlugin(
                             targetTempDir: context.targetTempDir,
+                            modeMarkerPath: context.modeMarkerPath,
                             dirScanner: fileManager
                         )
                         creatorPlugins.append(thinningPlugin)
@@ -229,6 +232,7 @@ public class XCPostbuild {
                 dSYMOrganizer: dSYMOrganizer,
                 modeController: modeController,
                 metaReader: metaReader,
+                metaWriter: metaWriter,
                 creatorPlugins: creatorPlugins,
                 consumerPlugins: consumerPlugins
             )
@@ -243,11 +247,22 @@ public class XCPostbuild {
                 try postbuildAction.deleteFingerprintOverrides()
             }
 
+
             // Trigger uploading the artifact
-            if context.mode == .producer {
+            switch (context.mode, try modeController.isEnabled(), context.remoteCommit) {
+            case (.producerFast, true, .available(commit: let commitToReuse)):
+                // Upload only updated meta. Artifact zip is already on a remote server
+                let referenceCommit = try config.publishingSha ?? gitClient.getCurrentSha()
+                let metaData = try remoteNetworkClient.fetch(.meta(commit: commitToReuse))
+                let meta = try metaReader.read(data: metaData)
+                try postbuildAction.performMetaUpload(meta: meta, for: referenceCommit)
+            case (.producer, _, _), (.producerFast, _, _):
                 // Generate artifacts and upload to the remote server for a reference sha
                 let referenceCommit = try config.publishingSha ?? gitClient.getCurrentSha()
                 try postbuildAction.performBuildUpload(for: referenceCommit)
+            default:
+                // Consumer does not upload anything
+                break
             }
 
             let executableURL = context.productsDir.appendingPathComponent(context.executablePath)
@@ -261,9 +276,8 @@ public class XCPostbuild {
             } else {
                 try postbuildAction.performBuildCleanup()
                 try cacheHitLogger.logMiss()
-                // Producer mode doesn't use cached artifacts so modeController is not enabled. If producer
-                // reaches this point, there were no issues with publishing
-                let actionName = context.mode == .producer ? "Published" : "Disabled"
+                // If producers reach this point, there were no issues with publishing
+                let actionName = context.mode == .consumer ? "Disabled" : "Published"
                 printToUser("\(actionName) remote cache for \(context.targetName)")
             }
         } catch PluginError.unrecoverableError(let error) {

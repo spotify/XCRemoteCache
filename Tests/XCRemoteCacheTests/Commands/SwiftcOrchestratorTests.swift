@@ -190,4 +190,45 @@ class SwiftcOrchestratorTests: XCTestCase {
 
         XCTAssertNotNil(shellOutSpy.switchedProcess)
     }
+
+    func testForFailedCompilationMockInProducerFastModeBuildsArtifactObjCHeader() throws {
+        let swiftc = SwiftcMock(mockingResult: .forceFallback)
+        let orchestrator = SwiftcOrchestrator(
+            mode: .producerFast,
+            swiftc: swiftc,
+            swiftcCommand: "",
+            objcHeaderOutput: objcHeaderURL,
+            moduleOutput: moduleOutputURL,
+            arch: "archTest",
+            artifactBuilder: artifactBuilder,
+            producerFallbackCommandProcessors: [],
+            invocationStorage: invocationStorage,
+            shellOut: shellOutSpy
+        )
+
+        try orchestrator.run()
+
+        XCTAssertEqual(artifactBuilder.addedObjCHeaders, ["archTest": [objcHeaderURL]])
+    }
+
+    func testSuccessedMockInProducerFastModeDoesntFillObjCHeader() throws {
+        let swiftc = SwiftcMock(mockingResult: .success)
+        let orchestrator = SwiftcOrchestrator(
+            mode: .producerFast,
+            swiftc: swiftc,
+            swiftcCommand: "",
+            objcHeaderOutput: objcHeaderURL,
+            moduleOutput: moduleOutputURL,
+            arch: "arch",
+            artifactBuilder: artifactBuilder,
+            producerFallbackCommandProcessors: [],
+            invocationStorage: invocationStorage,
+            shellOut: shellOutSpy
+        )
+
+        try orchestrator.run()
+
+        XCTAssertEqual(artifactBuilder.addedObjCHeaders, [:])
+    }
+
 }
