@@ -24,7 +24,7 @@ class EnvironmentFingerprintGeneratorTests: XCTestCase {
 
     private static let defaultENV = [
         "GCC_PREPROCESSOR_DEFINITIONS": "GCC",
-        "CLANG_PROFILE_DATA_DIRECTORY": "CLANG",
+        "CLANG_COVERAGE_MAPPING": "YES",
         "TARGET_NAME": "TARGET",
         "CONFIGURATION": "CONG",
         "PLATFORM_NAME": "PLAT",
@@ -35,7 +35,7 @@ class EnvironmentFingerprintGeneratorTests: XCTestCase {
         "PRODUCT_MODULE_NAME": "4",
     ]
     /// Corresponds to EnvironmentFingerprintGenerator.version
-    private static let currentVersion = "5"
+    private static let currentVersion = "6"
 
     private var config: XCRemoteCacheConfig!
     private var generator: FingerprintAccumulator!
@@ -55,7 +55,7 @@ class EnvironmentFingerprintGeneratorTests: XCTestCase {
     func testConsidersDefaultEnvs() throws {
         let fingerprint = try fingerprintGenerator.generateFingerprint()
 
-        XCTAssertEqual(fingerprint, "GCC,CLANG,TARGET,CONG,PLAT,XC,1,2,3,4,\(Self.currentVersion)")
+        XCTAssertEqual(fingerprint, "GCC,YES,TARGET,CONG,PLAT,XC,1,2,3,4,\(Self.currentVersion)")
     }
 
     func testFingerprintIncludesVersionAsLastComponent() throws {
@@ -89,6 +89,6 @@ class EnvironmentFingerprintGeneratorTests: XCTestCase {
 
         let fingerprint = try fingerprintGenerator.generateFingerprint()
 
-        XCTAssertEqual(fingerprint, "GCC,CLANG,TARGET,CONG,PLAT,XC,1,2,3,4,CUSTOM_VALUE,\(Self.currentVersion)")
+        XCTAssertEqual(fingerprint, "GCC,YES,TARGET,CONG,PLAT,XC,1,2,3,4,CUSTOM_VALUE,\(Self.currentVersion)")
     }
 }
