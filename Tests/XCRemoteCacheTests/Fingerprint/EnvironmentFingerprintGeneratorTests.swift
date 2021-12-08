@@ -35,7 +35,7 @@ class EnvironmentFingerprintGeneratorTests: XCTestCase {
         "PRODUCT_MODULE_NAME": "4",
     ]
     /// Corresponds to EnvironmentFingerprintGenerator.version
-    private static let currentVersion = "6"
+    private static let currentVersion = "5"
 
     private var config: XCRemoteCacheConfig!
     private var generator: FingerprintAccumulator!

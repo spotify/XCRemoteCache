@@ -27,7 +27,7 @@ public enum XCRemoteCacheConfigError: Error {
 
 public struct XCRemoteCacheConfig: Encodable {
     /// Remote cache schema version. Bump that version if RC artifact generation introduces breaking changes
-    let schemaVersion = "6"
+    let schemaVersion = "5"
     /// Mode: consumer|producer, defaults to consumer
     var mode: Mode = .consumer
     /// Address of all remote cache replicas. The best one (with the quickest response) will be chose in xcprepare step
