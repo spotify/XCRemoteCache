@@ -22,7 +22,7 @@ class EnvironmentFingerprintGenerator {
     /// Default ENV variables constituing the environment fingerprint
     private static let defaultEnvFingerprintKeys = [
         "GCC_PREPROCESSOR_DEFINITIONS",
-        "CLANG_PROFILE_DATA_DIRECTORY",
+        "CLANG_COVERAGE_MAPPING",
         "TARGET_NAME",
         "CONFIGURATION",
         "PLATFORM_NAME",
