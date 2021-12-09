@@ -37,7 +37,7 @@ class ZipArtifactCreatorTests: FileXCTestCase {
         workingDir = try prepareTempDir().appendingPathComponent("creator")
         creator = ZipArtifactCreator(
             workingDir: workingDir,
-            metaWriter: JsonMetaWriter(fileWriter: fileManager),
+            metaWriter: JsonMetaWriter(fileWriter: fileManager, pretty: false),
             fileManager: fileManager
         )
     }

@@ -27,7 +27,7 @@ class JsonMetaWriter: MetaWriter {
     private let metaEncoder: JSONEncoder
     private let fileWriter: FileWriter
 
-    init(fileWriter: FileWriter, pretty: Bool = false) {
+    init(fileWriter: FileWriter, pretty: Bool) {
         self.fileWriter = fileWriter
         let encoder = JSONEncoder()
         if pretty {
