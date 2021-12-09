@@ -112,6 +112,8 @@ public struct XCRemoteCacheConfig: Encodable {
     var thinningEnabled: Bool = false
     /// Module name of a target that works as a helper for thinned targets
     var thinningTargetModuleName: String = "ThinningRemoteCacheModule"
+    /// Opt-in pretty json formatting for meta files
+    var prettifyMetaFiles: Bool = false
     /// Secret key for AWS V4 Signature, if this is set the Authentication Header will be added
     var AWSSecretKey: String = ""
     /// Access key for AWS V4 Signature
@@ -165,6 +167,7 @@ extension XCRemoteCacheConfig {
             scheme.productFilesExtensionsWithContentOverride ?? productFilesExtensionsWithContentOverride
         merge.thinningEnabled = scheme.thinningEnabled ?? thinningEnabled
         merge.thinningTargetModuleName = scheme.thinningTargetModuleName ?? thinningTargetModuleName
+        merge.prettifyMetaFiles = scheme.prettifyMetaFiles ?? prettifyMetaFiles
         merge.AWSAccessKey = scheme.AWSAccessKey ?? AWSAccessKey
         merge.AWSSecretKey = scheme.AWSSecretKey ?? AWSSecretKey
         merge.AWSRegion = scheme.AWSRegion ?? AWSRegion
@@ -223,6 +226,7 @@ struct ConfigFileScheme: Decodable {
     let productFilesExtensionsWithContentOverride: [String]?
     let thinningEnabled: Bool?
     let thinningTargetModuleName: String?
+    let prettifyMetaFiles: Bool?
     let AWSSecretKey: String?
     let AWSAccessKey: String?
     let AWSRegion: String?
@@ -264,6 +268,7 @@ struct ConfigFileScheme: Decodable {
         case productFilesExtensionsWithContentOverride = "product_files_extensions_with_content_override"
         case thinningEnabled = "thinning_enabled"
         case thinningTargetModuleName = "thinning_target_module_name"
+        case prettifyMetaFiles = "prettify_meta_files"
         case AWSSecretKey = "aws_secret_key"
         case AWSAccessKey = "aws_access_key"
         case AWSRegion = "aws_region"

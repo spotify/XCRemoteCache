@@ -58,6 +58,7 @@ module CocoapodsXCRemoteCacheModifier
           'xccc_file' => "#{BIN_DIR}/xccc",
           'remote_commit_file' => "#{BIN_DIR}/arc.rc",
           'exclude_targets' => [],
+          'prettify_meta_files' => false
         }
         @@configuration.merge! default_values.select { |k, v| !@@configuration.key?(k) }
       end

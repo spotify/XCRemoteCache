@@ -63,7 +63,7 @@ class BuildArtifactCreatorTests: FileXCTestCase {
             moduleName: "Target",
             modulesFolderPath: "",
             dSYMPath: dSYM,
-            metaWriter: JsonMetaWriter(fileWriter: fileManager),
+            metaWriter: JsonMetaWriter(fileWriter: fileManager, pretty: false),
             fileManager: fileManager
         )
     }

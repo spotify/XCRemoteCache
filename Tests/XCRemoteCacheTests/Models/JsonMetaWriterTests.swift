@@ -24,7 +24,7 @@ class JsonMetaWriterTests: XCTestCase {
 
     func testWritesToFileWithFilekeyFilename() throws {
         let fileAccessor = FileAccessorFake(mode: .normal)
-        let writer = JsonMetaWriter(fileWriter: fileAccessor)
+        let writer = JsonMetaWriter(fileWriter: fileAccessor, pretty: false)
         let workingDir: URL = "/"
         let meta = MainArtifactSampleMeta.defaults
 
@@ -35,7 +35,20 @@ class JsonMetaWriterTests: XCTestCase {
 
     func testWritesMetaInValidFormat() throws {
         let fileAccessor = FileAccessorFake(mode: .normal)
-        let writer = JsonMetaWriter(fileWriter: fileAccessor)
+        let writer = JsonMetaWriter(fileWriter: fileAccessor, pretty: false)
+        let reader = JsonMetaReader(fileAccessor: fileAccessor)
+        let workingDir: URL = "/"
+        let meta = MainArtifactSampleMeta.defaults
+
+        let url = try writer.write(MainArtifactSampleMeta.defaults, locationDir: workingDir)
+
+        let readMeta = try reader.read(localFile: url)
+        XCTAssertEqual(readMeta, meta)
+    }
+
+    func testWritesPrettyMetaInValidFormat() throws {
+        let fileAccessor = FileAccessorFake(mode: .normal)
+        let writer = JsonMetaWriter(fileWriter: fileAccessor, pretty: true)
         let reader = JsonMetaReader(fileAccessor: fileAccessor)
         let workingDir: URL = "/"
         let meta = MainArtifactSampleMeta.defaults

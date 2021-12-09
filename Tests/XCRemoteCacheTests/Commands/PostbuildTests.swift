@@ -85,7 +85,7 @@ class PostbuildTests: FileXCTestCase {
     )
     private var modeController = CacheModeControllerFake()
     private var metaReader = JsonMetaReader(fileAccessor: FileManager.default)
-    private var metaWriter = JsonMetaWriter(fileWriter: FileManager.default)
+    private var metaWriter = JsonMetaWriter(fileWriter: FileManager.default, pretty: false)
     private static let SampleMeta = MainArtifactSampleMeta.defaults
     private var sampleMetaFile: URL!
 

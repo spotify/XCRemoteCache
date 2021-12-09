@@ -85,7 +85,7 @@ public class XCPostbuild {
                 algorithm: MD5Algorithm()
             )
             let organizer = ZipArtifactOrganizer(targetTempDir: context.targetTempDir, fileManager: fileManager)
-            let metaWriter = JsonMetaWriter(fileWriter: fileManager)
+            let metaWriter = JsonMetaWriter(fileWriter: fileManager, pretty: config.prettifyMetaFiles)
             let artifactCreator = BuildArtifactCreator(
                 buildDir: context.productsDir,
                 tempDir: context.targetTempDir,

@@ -24,11 +24,16 @@ protocol MetaWriter {
 }
 
 class JsonMetaWriter: MetaWriter {
-    private let metaEncoder = JSONEncoder()
+    private let metaEncoder: JSONEncoder
     private let fileWriter: FileWriter
 
-    init(fileWriter: FileWriter) {
+    init(fileWriter: FileWriter, pretty: Bool) {
         self.fileWriter = fileWriter
+        let encoder = JSONEncoder()
+        if pretty {
+            encoder.outputFormatting = .prettyPrinted
+        }
+        self.metaEncoder = encoder
     }
 
     func write<T>(_ meta: T, locationDir : URL) throws -> URL where T : Meta {

@@ -299,6 +299,7 @@ _Note that for the `producer` mode, the prebuild build phase and `xccc`, `xcld`,
 | `product_files_extensions_with_content_override ` | List of all extensions that should carry over source fingerprints. Extensions of all product files that contain non-deterministic content (absolute paths, timestamp, etc) should be included. | `["swiftmodule"]` | ⬜️ |
 | `thinning_enabled ` | If true, support for thin projects is enabled | `false` | ⬜️ |
 | `thinning_target_module_name ` | Module name of a target that works as a helper for thinned targets | `"ThinningRemoteCacheModule"` | ⬜️ |
+| `prettify_meta_files` | A Boolean value that opts-in pretty JSON formatting for meta files | `false` | ⬜️ |
 | `aws_secret_key` | Secret key for AWS V4 Signature Authorization. If this is set to a non-empty String - an Authentication Header will be added based on this and the other `aws_*` parameters.| `""` | ⬜️ |
 | `aws_access_key` | Access key for AWS V4 Signature Authorization. | `""` | ⬜️ |
 | `aws_region` | Region for AWS V4 Signature Authorization. E.g. `eu`.  | `""` | ⬜️ |
