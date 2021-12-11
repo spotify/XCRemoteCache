@@ -82,7 +82,7 @@ extension PostbuildContext {
         let targetNameValue: String = try env.readEnv(key: "TARGET_NAME")
         targetName = targetNameValue
         targetTempDir = try env.readEnv(key: "TARGET_TEMP_DIR")
-        arch = try env.readEnv(key: "PLATFORM_PREFERRED_ARCH")
+        arch = try env.readEnv(key: "NATIVE_ARCH")
         compilationTempDir = try env.readEnv(key: "OBJECT_FILE_DIR_normal").appendingPathComponent(arch)
         configuration = try env.readEnv(key: "CONFIGURATION")
         platform = try env.readEnv(key: "PLATFORM_NAME")

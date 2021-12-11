@@ -100,11 +100,11 @@ struct XcodeProjIntegrate: Integrate {
             outputPaths: [
                 """
                 $(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/\
-                $(PLATFORM_PREFERRED_ARCH).swiftmodule.md5
+                $(NATIVE_ARCH).swiftmodule.md5
                 """,
                 """
                 $(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/\
-                $(PLATFORM_PREFERRED_ARCH)-$(LLVM_TARGET_TRIPLE_VENDOR)-$(SWIFT_PLATFORM_TARGET_PREFIX)\
+                $(NATIVE_ARCH)-$(LLVM_TARGET_TRIPLE_VENDOR)-$(SWIFT_PLATFORM_TARGET_PREFIX)\
                 $(LLVM_TARGET_TRIPLE_SUFFIX).swiftmodule.md5
                 """,
             ],

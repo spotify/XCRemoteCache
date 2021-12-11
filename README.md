@@ -209,8 +209,8 @@ Configure Xcode targets that **should use** XCRemoteCache:
 * command: `"$SCRIPT_INPUT_FILE_0"`
 * input files: location of `xcpostbuild` command (e.g. `xcremotecache/xcpostbuild`)
 * output files: 
-  * `$(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/$(PLATFORM_PREFERRED_ARCH).swiftmodule.md5`
-  * `$(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/$(PLATFORM_PREFERRED_ARCH)-$(LLVM_TARGET_TRIPLE_VENDOR)-$(SWIFT_PLATFORM_TARGET_PREFIX)$(LLVM_TARGET_TRIPLE_SUFFIX).swiftmodule.md5`
+  * `$(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/$(NATIVE_ARCH).swiftmodule.md5`
+  * `$(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/$(NATIVE_ARCH)-$(LLVM_TARGET_TRIPLE_VENDOR)-$(SWIFT_PLATFORM_TARGET_PREFIX)$(LLVM_TARGET_TRIPLE_SUFFIX).swiftmodule.md5`
 * discovery dependency file: `$(TARGET_TEMP_DIR)/postbuild.d`
 
 <details>
