@@ -71,3 +71,5 @@ To enable thinning target on the consumer side:
 * Prefer using fakes instead of spies or mocks. Place testing doubles in [Tests/XCRemoteCacheTests/TestDoubles](../Tests/XCRemoteCacheTests/TestDoubles) so other tests can reuse them
 
 * If you test a scenario that accesses a file on a disk, consider using the `DiskUsageSizeProviderTests` class that isolates a working directory and eliminates potential file leaks between testcases
+
+* For dependency injection arguments, avoid passing default values (e.g. `init(dep: SomeDependency = SomeDependency())` and require passing explicit values (e.g. `init(dep: SomeDependency))`. Thanks to that it is clear from a call site which dependencies is used and suggests adding a testcase when a new dependency is added.
