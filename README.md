@@ -37,6 +37,9 @@ _XCRemoteCache is a remote cache tool for Xcode projects. It reuses target artif
   * [Amazon S3 and Google Cloud Storage](#amazon-s3-and-google-cloud-storage)
 - [CocoaPods plugin](#cocoapods-plugin)
 - [Requirements](#requirements)
+- [Apple silicon support](#apple-silicon-support)
+  * [Artifacts per architecture (Recommended)](#artifacts-per-architecture-recommended)
+  * [Fat artifacts](#fat-artifacts)
 - [Limitations](#limitations)
 - [FAQ](#faq)
 - [Development](#development)
@@ -359,6 +362,37 @@ Retention Policy: Buckets usually have a retention policy option which ensures o
 ## CocoaPods plugin
 
 Head over to our [cocoapods-plugin](cocoapods-plugin/README.md) docs to see how to integrate XCRemoteCache in your CocoaPods project.
+
+## Apple silicon support
+
+### Artifacts per architecture (Recommended)
+
+XCRemoteCache supports building artifacts for Apple silicon consumers. Is it recommended to build separately for `x86_64` and `arm64` architectures to have single-architecture artifacts and do not unnecessary irrelevant binaries. Here are required steps if you want to support both Intel and Apple silicon consumers.
+
+* Add `ARCHS` to `custom_fingerprint_envs`, e.g.
+```
+custom_fingerprint_envs: 
+  - PLATFORM_PREFERRED_ARCH
+```
+* When running a producer for a simulator: run a first build for `x86_64`, clean a build and build again for `arm64`, e.g.:
+```
+xcodebuild ARCHS=x86_64 ONLY_ACTIVE_ARCH=NO build ...
+xcodebuild clean
+xcodebuild ARCHS=arm64 ONLY_ACTIVE_ARCH=NO build ...
+
+```
+
+If all of your machines (both producer and all consumers have the same architecture, either Intel or Apple Silicon), you don't have to do anything to support Apple Silicon.
+
+### Fat artifacts
+
+If you prefer to generate far artifacts (with both Intel and Apple silicon binaries), you can disable "Build Archive Architecture Only" on a producer side, e.g.
+
+```
+xcodebuild ONLY_ACTIVE_ARCH=NO build ...
+```
+
+Note: This setup is not recommended and may not be supported in future XCRemoteCache releases.
 
 ## Requirements
 
