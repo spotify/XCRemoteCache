@@ -32,6 +32,8 @@ enum MachOType: String, Codable {
 enum PostbuildContextError: Error {
     /// URL address is not a valid URL
     case invalidAddress(String)
+    /// ARCHS env does not contain any architecture to build
+    case missingArchitecture
 }
 
 public struct PostbuildContext {
@@ -64,6 +66,9 @@ public struct PostbuildContext {
     var machOType: MachOType
     var wasDsymGenerated: Bool
     var dSYMPath: URL
+    // building architecture. Used to find all dependencies from *.d files
+    // Warning: if two architectures are built (e.g. for disabled "Build Archive
+    // Architecture Only"), a first architecture one is picked
     let arch: String
     let builtProductsDir: URL
     /// Location to the product bundle. Can be nil for libraries
@@ -82,8 +87,13 @@ extension PostbuildContext {
         let targetNameValue: String = try env.readEnv(key: "TARGET_NAME")
         targetName = targetNameValue
         targetTempDir = try env.readEnv(key: "TARGET_TEMP_DIR")
-        arch = try env.readEnv(key: "PLATFORM_PREFERRED_ARCH")
-        compilationTempDir = try env.readEnv(key: "OBJECT_FILE_DIR_normal").appendingPathComponent(arch)
+        let archs: [String] = try env.readEnv(key: "ARCHS").split(separator: " ").map(String.init)
+        guard let firstArch = archs.first, !firstArch.isEmpty else {
+            throw PostbuildContextError.missingArchitecture
+        }
+        arch = firstArch
+        let variant: String = try env.readEnv(key: "CURRENT_VARIANT")
+        compilationTempDir = try env.readEnv(key: "OBJECT_FILE_DIR_\(variant)").appendingPathComponent(arch)
         configuration = try env.readEnv(key: "CONFIGURATION")
         platform = try env.readEnv(key: "PLATFORM_NAME")
         xcodeBuildNumber = try env.readEnv(key: "XCODE_PRODUCT_BUILD_VERSION")

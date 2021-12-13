@@ -38,6 +38,9 @@ _XCRemoteCache is a remote cache tool for Xcode projects. It reuses target artif
   * [Amazon S3 and Google Cloud Storage](#amazon-s3-and-google-cloud-storage)
 - [CocoaPods plugin](#cocoapods-plugin)
 - [Requirements](#requirements)
+- [Apple silicon support](#apple-silicon-support)
+  * [Artifacts per architecture (Recommended)](#artifacts-per-architecture-recommended)
+  * [Fat artifacts](#fat-artifacts)
 - [Limitations](#limitations)
 - [FAQ](#faq)
 - [Development](#development)
@@ -113,6 +116,8 @@ Create `.rcinfo` yaml file next to the `.xcodeproj` with a minimum set of config
 primary_repo: https://yourRepo.git
 cache_addresses:
 - https://xcremotecacheserver.com
+custom_fingerprint_envs: 
+- ARCHS
 ```
 
 #### 3. Run automatic integration script
@@ -360,6 +365,36 @@ Retention Policy: Buckets usually have a retention policy option which ensures o
 ## CocoaPods plugin
 
 Head over to our [cocoapods-plugin](cocoapods-plugin/README.md) docs to see how to integrate XCRemoteCache in your CocoaPods project.
+
+## Apple silicon support
+
+### Artifacts per architecture (Recommended)
+
+_If all of your machines (both producer and all consumers have the same architecture, either Intel or Apple Silicon), you don't have to do anything._
+
+XCRemoteCache supports building artifacts for Apple silicon consumers. Is it recommended to build separately for `x86_64` and `arm64` architectures to have single-architecture artifacts that do not require downloading irrelevant binaries. Here are required steps if you want to support both Intel and Apple silicon consumers.
+
+* Add `ARCHS` to `custom_fingerprint_envs` in your `.rcinfo`, e.g.
+```
+custom_fingerprint_envs: 
+  - ARCHS
+```
+* Building for a simulator on a producer: run a first build for `x86_64`, clean a build and build again for `arm64`, e.g.:
+```
+xcodebuild ARCHS=x86_64 ONLY_ACTIVE_ARCH=NO build ...
+xcodebuild clean
+xcodebuild ARCHS=arm64 ONLY_ACTIVE_ARCH=NO build ...
+```
+
+### Fat artifacts
+
+If you prefer to generate far artifacts (with both Intel and Apple silicon binaries), you can disable "Build Archive Architecture Only" on a producer side, e.g.
+
+```
+xcodebuild ONLY_ACTIVE_ARCH=NO build ...
+```
+
+Note: This setup is not recommended and may not be supported in future XCRemoteCache releases.
 
 ## Requirements
 

@@ -26,8 +26,8 @@ class PostbuildContextTests: FileXCTestCase {
     private static let SampleEnvs = [
         "TARGET_NAME": "TARGET_NAME",
         "TARGET_TEMP_DIR": "TARGET_TEMP_DIR",
-        "PLATFORM_PREFERRED_ARCH": "PLATFORM_PREFERRED_ARCH",
-        "OBJECT_FILE_DIR_normal": "OBJECT_FILE_DIR_normal" ,
+        "ARCHS": "x86_64",
+        "OBJECT_FILE_DIR_normal": "/OBJECT_FILE_DIR_normal" ,
         "CONFIGURATION": "CONFIGURATION",
         "PLATFORM_NAME": "PLATFORM_NAME",
         "XCODE_PRODUCT_BUILD_VERSION": "XCODE_PRODUCT_BUILD_VERSION",
@@ -42,6 +42,7 @@ class PostbuildContextTests: FileXCTestCase {
         "DWARF_DSYM_FILE_NAME": "DWARF_DSYM_FILE_NAME",
         "BUILT_PRODUCTS_DIR": "BUILT_PRODUCTS_DIR",
         "DERIVED_SOURCES_DIR": "DERIVED_SOURCES_DIR",
+        "CURRENT_VARIANT": "normal"
     ]
 
     override func setUpWithError() throws {
@@ -86,5 +87,46 @@ class PostbuildContextTests: FileXCTestCase {
         let context = try PostbuildContext(config, env: envs)
 
         XCTAssertEqual(context.action, .index)
+    }
+
+    func testReadsSingleArch() throws {
+        var envs = Self.SampleEnvs
+        envs["ARCHS"] = "x86_64"
+        let context = try PostbuildContext(config, env: envs)
+
+        XCTAssertEqual(context.arch, "x86_64")
+    }
+
+    func testReadsFirstArch() throws {
+        var envs = Self.SampleEnvs
+        envs["ARCHS"] = "x86_64 arm64"
+        let context = try PostbuildContext(config, env: envs)
+
+        XCTAssertEqual(context.arch, "x86_64")
+    }
+
+    func testFailsForEmptyArch() throws {
+        var envs = Self.SampleEnvs
+        envs["ARCHS"] = ""
+
+        XCTAssertThrowsError(try PostbuildContext(config, env: envs))
+    }
+
+    func testFailsForMissingArch() throws {
+        var envs = Self.SampleEnvs
+        envs["ARCHS"] = nil
+
+        XCTAssertThrowsError(try PostbuildContext(config, env: envs))
+    }
+
+    func testFindTempDirForCustomVariant() throws {
+        var envs = Self.SampleEnvs
+        envs["ARCHS"] = "x86_64"
+        envs["CURRENT_VARIANT"] = "custom"
+        envs["OBJECT_FILE_DIR_custom"] = "/OBJECT_FILE_DIR_custom"
+
+        let context = try PostbuildContext(config, env: envs)
+
+        XCTAssertEqual(context.compilationTempDir, "/OBJECT_FILE_DIR_custom/x86_64")
     }
 }
