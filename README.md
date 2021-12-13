@@ -1,5 +1,6 @@
 <p align="center">
-    <img src="docs/img/logo.png" width="75%">
+    <img src="docs/img/logo.png#gh-light-mode-only" width="75%">
+    <img src="docs/img/logo-dark.png#gh-dark-mode-only" width="75%">
 </p>
 
 _XCRemoteCache is a remote cache tool for Xcode projects. It reuses target artifacts generated on a remote machine, served from a simple REST server._
