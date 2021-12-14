@@ -35,7 +35,7 @@ class DependenciesRemapperComposite: DependenciesRemapper {
     }
 
     func replace(genericPaths: [String]) -> [String] {
-        remappers.reduce(genericPaths) { prev, mapper in
+        remappers.reversed().reduce(genericPaths) { prev, mapper in
             mapper.replace(genericPaths: prev)
         }
     }

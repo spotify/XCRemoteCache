@@ -66,10 +66,21 @@ public class XCPostbuild {
             // Initialize dependencies
             let primaryGitBranch = GitBranch(repoLocation: config.primaryRepo, branch: config.primaryBranch)
             let gitClient = GitClientImpl(repoRoot: config.repoRoot, primary: primaryGitBranch, shell: shellGetStdout)
-            let pathRemapper = try StringDependenciesRemapper.buildFromEnvs(
+            let envRemapper = try StringDependenciesRemapper.buildFromEnvs(
                 keys: DependenciesMapping.rewrittenEnvs,
                 envs: env
             )
+            let pathRemapper: DependenciesRemapper
+            if config.outOfBandMapping.isEmpty {
+                pathRemapper = envRemapper
+            } else {
+                let outOfBandMappings: [StringDependenciesRemapper.Mapping] = config.outOfBandMapping.reduce([]) { (prev, arg1) in
+                    let (local, generic) = arg1
+                    return prev + [.init(generic: generic, local: local)]
+                }
+                let outOfBandRemapper = StringDependenciesRemapper(mappings: outOfBandMappings)
+                pathRemapper = DependenciesRemapperComposite([envRemapper, outOfBandRemapper])
+            }
             let envFingerprint = try EnvironmentFingerprintGenerator(
                 configuration: config,
                 env: env,

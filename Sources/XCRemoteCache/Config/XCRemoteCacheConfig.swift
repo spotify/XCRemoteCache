@@ -122,6 +122,8 @@ public struct XCRemoteCacheConfig: Encodable {
     var AWSRegion: String = ""
     /// Service for AWS V4 Signature (e.g. `storage`)
     var AWSService: String = ""
+    /// dependency path => generic path
+    var outOfBandMapping: [String: String] = [:]
 }
 
 extension XCRemoteCacheConfig {
@@ -172,6 +174,7 @@ extension XCRemoteCacheConfig {
         merge.AWSSecretKey = scheme.AWSSecretKey ?? AWSSecretKey
         merge.AWSRegion = scheme.AWSRegion ?? AWSRegion
         merge.AWSService = scheme.AWSService ?? AWSService
+        merge.outOfBandMapping = scheme.outOfBandMapping ?? outOfBandMapping
         return merge
     }
 
@@ -231,6 +234,7 @@ struct ConfigFileScheme: Decodable {
     let AWSAccessKey: String?
     let AWSRegion: String?
     let AWSService: String?
+    let outOfBandMapping: [String: String]?
 
     // Yams library doesn't support encoding strategy, see https://github.com/jpsim/Yams/issues/84
     enum CodingKeys: String, CodingKey {
@@ -273,6 +277,7 @@ struct ConfigFileScheme: Decodable {
         case AWSAccessKey = "aws_access_key"
         case AWSRegion = "aws_region"
         case AWSService = "aws_service"
+        case outOfBandMapping = "out_of_band_mapping"
     }
 }
 
