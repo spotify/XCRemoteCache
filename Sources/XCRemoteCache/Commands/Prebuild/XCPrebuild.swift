@@ -119,17 +119,11 @@ public class XCPrebuild {
                 keys: DependenciesMapping.rewrittenEnvs,
                 envs: env
             )
-            let pathRemapper: DependenciesRemapper
-            if config.outOfBandMappings.isEmpty {
-                pathRemapper = envRemapper
-            } else {
-                let outOfBandMappings: [StringDependenciesRemapper.Mapping] = config.outOfBandMappings.reduce([]) { (prev, arg1) in
-                    let (local, generic) = arg1
-                    return prev + [.init(generic: generic, local: local)]
-                }
-                let outOfBandRemapper = StringDependenciesRemapper(mappings: outOfBandMappings)
-                pathRemapper = DependenciesRemapperComposite([envRemapper, outOfBandRemapper])
+            let customOutOfBandMappings = config.outOfBandMappings.map { (local, generic) in
+                StringDependenciesRemapper.Mapping(generic: generic, local: local)
             }
+            let outOfBandRemapper = StringDependenciesRemapper(mappings: customOutOfBandMappings)
+            let pathRemapper = DependenciesRemapperComposite([envRemapper, outOfBandRemapper])
             let filesFingerprintGenerator = FingerprintAccumulatorImpl(
                 algorithm: MD5Algorithm(),
                 fileManager: fileManager
