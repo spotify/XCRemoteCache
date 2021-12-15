@@ -120,10 +120,10 @@ public class XCPrebuild {
                 envs: env
             )
             let pathRemapper: DependenciesRemapper
-            if config.outOfBandMapping.isEmpty {
+            if config.outOfBandMappings.isEmpty {
                 pathRemapper = envRemapper
             } else {
-                let outOfBandMappings: [StringDependenciesRemapper.Mapping] = config.outOfBandMapping.reduce([]) { (prev, arg1) in
+                let outOfBandMappings: [StringDependenciesRemapper.Mapping] = config.outOfBandMappings.reduce([]) { (prev, arg1) in
                     let (local, generic) = arg1
                     return prev + [.init(generic: generic, local: local)]
                 }
