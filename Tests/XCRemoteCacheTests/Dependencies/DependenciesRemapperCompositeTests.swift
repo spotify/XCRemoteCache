@@ -78,4 +78,41 @@ class DependenciesRemapperCompositeTests: XCTestCase {
 
         XCTAssertEqual(localPath, ["/tmp/root/some.swift", "/pwd/other.swift"])
     }
+
+    func testRemapsMultipleMatchingMappers() throws {
+        let remapper = DependenciesRemapperComposite([
+            StringDependenciesRemapper(mappings: [StringDependenciesRemapper.Mapping(generic: "$(ROOT)", local: "/root")]),
+            StringDependenciesRemapper(mappings: [StringDependenciesRemapper.Mapping(generic: "$(SPECIFIC)", local: "$(ROOT)/specific")])
+        ])
+        let localPaths = ["/root/specific/file"]
+
+        let genericPaths = remapper.replace(localPaths: localPaths)
+
+        XCTAssertEqual(genericPaths, ["$(SPECIFIC)/file"])
+    }
+
+    func testRemapsBackToLocalWithRevertedRemappersOrder() throws {
+        let remapper = DependenciesRemapperComposite([
+            StringDependenciesRemapper(mappings: [StringDependenciesRemapper.Mapping(generic: "$(ROOT)", local: "/root")]),
+            StringDependenciesRemapper(mappings: [StringDependenciesRemapper.Mapping(generic: "$(SPECIFIC)", local: "$(ROOT)/specific")])
+        ])
+        let genericPaths = ["$(SPECIFIC)/file"]
+
+        let localPaths = remapper.replace(genericPaths: genericPaths)
+
+        XCTAssertEqual(localPaths, ["/root/specific/file"])
+    }
+
+    func testRemappingBackAndForthIsIdentity() throws {
+        let remapper = DependenciesRemapperComposite([
+            StringDependenciesRemapper(mappings: [StringDependenciesRemapper.Mapping(generic: "$(ROOT)", local: "/root")]),
+            StringDependenciesRemapper(mappings: [StringDependenciesRemapper.Mapping(generic: "$(SPECIFIC)", local: "$(ROOT)/specific")])
+        ])
+        let localPaths = ["/root/specific/file"]
+
+        let genericPaths = remapper.replace(localPaths: localPaths)
+        let remappedLocalPaths = remapper.replace(genericPaths: genericPaths)
+
+        XCTAssertEqual(localPaths, remappedLocalPaths)
+    }
 }
