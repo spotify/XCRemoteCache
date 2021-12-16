@@ -116,7 +116,7 @@ public class XCPrebuild {
             let client: NetworkClient = config.disableHttpCache ? networkClient : cacheNetworkClient
             let remoteNetworkClient = RemoteNetworkClientImpl(client, urlBuilder)
             let pathRemapper = try StringDependenciesRemapperFactory().build(
-                orderKeys: DependenciesMapping.rewrittenEnvs + config.outOfBandMappings.keys,
+                orderKeys: DependenciesMapping.rewrittenEnvs,
                 envs: env,
                 customMappings: config.outOfBandMappings
             )

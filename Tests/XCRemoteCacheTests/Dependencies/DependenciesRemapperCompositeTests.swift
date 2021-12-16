@@ -103,7 +103,7 @@ class DependenciesRemapperCompositeTests: XCTestCase {
         XCTAssertEqual(localPaths, ["/root/specific/file"])
     }
 
-    func testRemappingBackAndForthIsIdentity() throws {
+    func testRemappingTwoMappingsBackAndForthIsIdentical() throws {
         let remapper = DependenciesRemapperComposite([
             StringDependenciesRemapper(mappings: [StringDependenciesRemapper.Mapping(generic: "$(ROOT)", local: "/root")]),
             StringDependenciesRemapper(mappings: [StringDependenciesRemapper.Mapping(generic: "$(SPECIFIC)", local: "$(ROOT)/specific")])
