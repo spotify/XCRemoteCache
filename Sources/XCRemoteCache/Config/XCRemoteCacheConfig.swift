@@ -122,13 +122,12 @@ public struct XCRemoteCacheConfig: Encodable {
     var AWSRegion: String = ""
     /// Service for AWS V4 Signature (e.g. `storage`)
     var AWSService: String = ""
-    /// A Dictionary of source files remapping that should be applied to make it absolute paths agnostic.
-    /// Useful if a project refers compilation files of precompiled dependencies placed out of repo root
-    /// Keys represent generic replacement of given values (e.g. for `["COOL_LIBRARY": "/CoolLibrary"]`,
-    /// `/CoolLibrary/main.swift` in a list of dependencies will be replaced with `$(COOL_LIBRARY)/main.swift`)
-    /// Warning: remapping order is not-deterministic so avoid remappings with multiple matchings
-
-    /// Warning: mapping order is not-deterministic so avoid remapping with multiple-matches
+    /// A dictionary of files path remapping that should be applied to make it absolute path agnostic on a list of dependencies.
+    /// Useful if a project refers files out of repo root, either compilation files or precompiled dependencies.
+    /// Keys represent generic replacement and values are substrings that should be replaced.
+    /// Example: for mapping `["COOL_LIBRARY": "/CoolLibrary"]`
+    /// `/CoolLibrary/main.swift`will be represented as `$(COOL_LIBRARY)/main.swift`).
+    /// Warning: remapping order is not-deterministic so avoid remappings with multiple matchings.
     var outOfBandMappings: [String: String] = [:]
 }
 
