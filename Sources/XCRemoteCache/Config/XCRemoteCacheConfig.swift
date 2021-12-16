@@ -124,7 +124,10 @@ public struct XCRemoteCacheConfig: Encodable {
     var AWSService: String = ""
     /// A Dictionary of source files remapping that should be applied to make it absolute paths agnostic.
     /// Useful if a project refers compilation files of precompiled dependencies placed out of repo root
-    /// Keys represent local paths to replace with corresponding values (e.g. ["/coolLibrary": '$(COOL_LIBRARY)"]
+    /// Keys represent generic replacement of given values (e.g. for `["COOL_LIBRARY": "/CoolLibrary"]`,
+    /// `/CoolLibrary/main.swift` in a list of dependencies will be replaced with `$(COOL_LIBRARY)/main.swift`)
+    /// Warning: remapping order is not-deterministic so avoid remappings with multiple matchings
+
     /// Warning: mapping order is not-deterministic so avoid remapping with multiple-matches
     var outOfBandMappings: [String: String] = [:]
 }
