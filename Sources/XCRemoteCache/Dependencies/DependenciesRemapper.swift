@@ -77,14 +77,3 @@ final class StringDependenciesRemapper: DependenciesRemapper {
         }
     }
 }
-
-
-extension StringDependenciesRemapper {
-    static func buildFromEnvs(keys: [String], envs: [String: String]) throws -> Self {
-        let mappings: [Mapping] = try keys.map { key in
-            let localValue: String = try envs.readEnv(key: key)
-            return Mapping(generic: "$(\(key))", local: localValue)
-        }
-        return Self(mappings: mappings)
-    }
-}

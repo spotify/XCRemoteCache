@@ -70,20 +70,6 @@ class StringDependenciesRemapperTests: XCTestCase {
         XCTAssertEqual(genericPaths, ["$(SRC_ROOT)/some.swift", "$(PWD)/extra.swift"])
     }
 
-    func testMappingsFromEnvMaps() throws {
-        remapper = try StringDependenciesRemapper.buildFromEnvs(keys: ["SRC_ROOT"], envs: ["SRC_ROOT": "/tmp/root"])
-
-        let localPaths = remapper.replace(genericPaths: ["$(SRC_ROOT)/some.swift"])
-
-        XCTAssertEqual(localPaths, ["/tmp/root/some.swift"])
-    }
-
-    func testInvalidMappingsFromEnvFAils() throws {
-        XCTAssertThrowsError(
-            try StringDependenciesRemapper.buildFromEnvs(keys: ["SRC_ROOT"], envs: ["NO_SRC_ROOT": ""])
-        )
-    }
-
     func testMappingsLocalPathsIsDoneInOrder() {
         let mappings: [StringDependenciesRemapper.Mapping] = [
             .init(generic: "$(TMP)", local: "/tmp"),
