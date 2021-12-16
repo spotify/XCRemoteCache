@@ -83,4 +83,30 @@ class StringDependenciesRemapperTests: XCTestCase {
             try StringDependenciesRemapper.buildFromEnvs(keys: ["SRC_ROOT"], envs: ["NO_SRC_ROOT": ""])
         )
     }
+
+    func testMappingsLocalPathsIsDoneInOrder() {
+        let mappings: [StringDependenciesRemapper.Mapping] = [
+            .init(generic: "$(TMP)", local: "/tmp"),
+            .init(generic: "$(ROOT)", local: "$(TMP)/root"),
+        ]
+        remapper = StringDependenciesRemapper(mappings: mappings)
+
+
+        let genericPaths = remapper.replace(localPaths: ["/tmp/root/some.swift"])
+
+        XCTAssertEqual(genericPaths, ["$(ROOT)/some.swift"])
+    }
+
+    func testMappingsGenericPathsIsDoneInReversedOrder() {
+        let mappings: [StringDependenciesRemapper.Mapping] = [
+            .init(generic: "$(TMP)", local: "/tmp"),
+            .init(generic: "$(ROOT)", local: "$(TMP)/root"),
+        ]
+        remapper = StringDependenciesRemapper(mappings: mappings)
+
+
+        let localPaths = remapper.replace(genericPaths: ["$(ROOT)/some.swift"])
+
+        XCTAssertEqual(localPaths, ["/tmp/root/some.swift"])
+    }
 }

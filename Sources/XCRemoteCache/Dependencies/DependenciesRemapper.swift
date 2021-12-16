@@ -61,7 +61,7 @@ final class StringDependenciesRemapper: DependenciesRemapper {
 
     func replace(genericPaths: [String]) -> [String] {
         return genericPaths.map { path in
-            let localPath = mappings.reduce(path) { prevPath, mapping in
+            let localPath = mappings.reversed().reduce(path) { prevPath, mapping in
                 prevPath.replacingOccurrences(of: mapping.generic, with: mapping.local)
             }
             return localPath
