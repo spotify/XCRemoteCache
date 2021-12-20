@@ -115,9 +115,10 @@ public class XCPrebuild {
             )
             let client: NetworkClient = config.disableHttpCache ? networkClient : cacheNetworkClient
             let remoteNetworkClient = RemoteNetworkClientImpl(client, urlBuilder)
-            let pathRemapper = try StringDependenciesRemapper.buildFromEnvs(
-                keys: DependenciesMapping.rewrittenEnvs,
-                envs: env
+            let pathRemapper = try StringDependenciesRemapperFactory().build(
+                orderKeys: DependenciesMapping.rewrittenEnvs,
+                envs: env,
+                customMappings: config.outOfBandMappings
             )
             let filesFingerprintGenerator = FingerprintAccumulatorImpl(
                 algorithm: MD5Algorithm(),

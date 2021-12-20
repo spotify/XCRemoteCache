@@ -35,7 +35,7 @@ class DependenciesRemapperComposite: DependenciesRemapper {
     }
 
     func replace(genericPaths: [String]) -> [String] {
-        remappers.reduce(genericPaths) { prev, mapper in
+        remappers.reversed().reduce(genericPaths) { prev, mapper in
             mapper.replace(genericPaths: prev)
         }
     }
@@ -61,7 +61,7 @@ final class StringDependenciesRemapper: DependenciesRemapper {
 
     func replace(genericPaths: [String]) -> [String] {
         return genericPaths.map { path in
-            let localPath = mappings.reduce(path) { prevPath, mapping in
+            let localPath = mappings.reversed().reduce(path) { prevPath, mapping in
                 prevPath.replacingOccurrences(of: mapping.generic, with: mapping.local)
             }
             return localPath
@@ -75,16 +75,5 @@ final class StringDependenciesRemapper: DependenciesRemapper {
             }
             return result
         }
-    }
-}
-
-
-extension StringDependenciesRemapper {
-    static func buildFromEnvs(keys: [String], envs: [String: String]) throws -> Self {
-        let mappings: [Mapping] = try keys.map { key in
-            let localValue: String = try envs.readEnv(key: key)
-            return Mapping(generic: "$(\(key))", local: localValue)
-        }
-        return Self(mappings: mappings)
     }
 }

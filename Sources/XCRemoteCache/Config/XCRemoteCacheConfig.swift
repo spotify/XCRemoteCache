@@ -122,6 +122,13 @@ public struct XCRemoteCacheConfig: Encodable {
     var AWSRegion: String = ""
     /// Service for AWS V4 Signature (e.g. `storage`)
     var AWSService: String = ""
+    /// A dictionary of files path remapping that should be applied to make it absolute path agnostic on a list of dependencies.
+    /// Useful if a project refers files out of repo root, either compilation files or precompiled dependencies.
+    /// Keys represent generic replacement and values are substrings that should be replaced.
+    /// Example: for mapping `["COOL_LIBRARY": "/CoolLibrary"]`
+    /// `/CoolLibrary/main.swift`will be represented as `$(COOL_LIBRARY)/main.swift`).
+    /// Warning: remapping order is not-deterministic so avoid remappings with multiple matchings.
+    var outOfBandMappings: [String: String] = [:]
 }
 
 extension XCRemoteCacheConfig {
@@ -172,6 +179,7 @@ extension XCRemoteCacheConfig {
         merge.AWSSecretKey = scheme.AWSSecretKey ?? AWSSecretKey
         merge.AWSRegion = scheme.AWSRegion ?? AWSRegion
         merge.AWSService = scheme.AWSService ?? AWSService
+        merge.outOfBandMappings = scheme.outOfBandMappings ?? outOfBandMappings
         return merge
     }
 
@@ -231,6 +239,7 @@ struct ConfigFileScheme: Decodable {
     let AWSAccessKey: String?
     let AWSRegion: String?
     let AWSService: String?
+    let outOfBandMappings: [String: String]?
 
     // Yams library doesn't support encoding strategy, see https://github.com/jpsim/Yams/issues/84
     enum CodingKeys: String, CodingKey {
@@ -273,6 +282,7 @@ struct ConfigFileScheme: Decodable {
         case AWSAccessKey = "aws_access_key"
         case AWSRegion = "aws_region"
         case AWSService = "aws_service"
+        case outOfBandMappings = "out_of_band_mappings"
     }
 }
 
