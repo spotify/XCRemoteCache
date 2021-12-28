@@ -196,6 +196,7 @@ Configure Xcode targets that **should use** XCRemoteCache:
 * `SWIFT_EXEC` - location of `xcprepare` (e.g. `xcremotecache/xcswiftc`)
 * `LIBTOOL` - location of `xclibtool` (e.g. `xcremotecache/xclibtool`)
 * `LD` - location of `xcld` (e.g. `xcremotecache/xcld`)
+* `XCRC_PLATFORM_PREFERRED_ARCH` - `$(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)`
 
 <details>
   <summary>Screenshot</summary>
@@ -215,8 +216,8 @@ Configure Xcode targets that **should use** XCRemoteCache:
 * command: `"$SCRIPT_INPUT_FILE_0"`
 * input files: location of `xcpostbuild` command (e.g. `xcremotecache/xcpostbuild`)
 * output files: 
-  * `$(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/$(PLATFORM_PREFERRED_ARCH).swiftmodule.md5`
-  * `$(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/$(PLATFORM_PREFERRED_ARCH)-$(LLVM_TARGET_TRIPLE_VENDOR)-$(SWIFT_PLATFORM_TARGET_PREFIX)$(LLVM_TARGET_TRIPLE_SUFFIX).swiftmodule.md5`
+  * `$(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/$(XCRC_PLATFORM_PREFERRED_ARCH).swiftmodule.md5`
+  * `$(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/$(XCRC_PLATFORM_PREFERRED_ARCH)-$(LLVM_TARGET_TRIPLE_VENDOR)-$(SWIFT_PLATFORM_TARGET_PREFIX)$(LLVM_TARGET_TRIPLE_SUFFIX).swiftmodule.md5`
 * discovery dependency file: `$(TARGET_TEMP_DIR)/postbuild.d`
 
 <details>
