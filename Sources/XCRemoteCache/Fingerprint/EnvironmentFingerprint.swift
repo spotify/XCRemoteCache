@@ -19,7 +19,7 @@
 
 /// Generates a fingerprint string of the environment (compilation context)
 class EnvironmentFingerprintGenerator {
-    /// Default ENV variables constituing the environment fingerprint
+    /// Default ENV variables constituting the environment fingerprint
     private static let defaultEnvFingerprintKeys = [
         "GCC_PREPROCESSOR_DEFINITIONS",
         "CLANG_COVERAGE_MAPPING",
@@ -31,6 +31,7 @@ class EnvironmentFingerprintGenerator {
         "DYLIB_COMPATIBILITY_VERSION",
         "DYLIB_CURRENT_VERSION",
         "PRODUCT_MODULE_NAME",
+        "ARCHS"
     ]
     private let version: String
     private let customFingerprintEnvs: [String]

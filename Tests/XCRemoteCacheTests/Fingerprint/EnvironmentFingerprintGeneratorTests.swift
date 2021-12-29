@@ -33,6 +33,7 @@ class EnvironmentFingerprintGeneratorTests: XCTestCase {
         "DYLIB_COMPATIBILITY_VERSION": "2",
         "DYLIB_CURRENT_VERSION": "3",
         "PRODUCT_MODULE_NAME": "4",
+        "ARCHS": "AR"
     ]
     /// Corresponds to EnvironmentFingerprintGenerator.version
     private static let currentVersion = "5"
@@ -55,7 +56,7 @@ class EnvironmentFingerprintGeneratorTests: XCTestCase {
     func testConsidersDefaultEnvs() throws {
         let fingerprint = try fingerprintGenerator.generateFingerprint()
 
-        XCTAssertEqual(fingerprint, "GCC,YES,TARGET,CONG,PLAT,XC,1,2,3,4,\(Self.currentVersion)")
+        XCTAssertEqual(fingerprint, "GCC,YES,TARGET,CONG,PLAT,XC,1,2,3,4,AR,\(Self.currentVersion)")
     }
 
     func testFingerprintIncludesVersionAsLastComponent() throws {
@@ -73,7 +74,7 @@ class EnvironmentFingerprintGeneratorTests: XCTestCase {
 
         let fingerprint = try fingerprintGenerator.generateFingerprint()
 
-        XCTAssertEqual(fingerprint, ",,,,,,,,,,\(Self.currentVersion)")
+        XCTAssertEqual(fingerprint, ",,,,,,,,,,,\(Self.currentVersion)")
     }
 
     func testConsidersCustomEnvs() throws {
@@ -89,6 +90,6 @@ class EnvironmentFingerprintGeneratorTests: XCTestCase {
 
         let fingerprint = try fingerprintGenerator.generateFingerprint()
 
-        XCTAssertEqual(fingerprint, "GCC,YES,TARGET,CONG,PLAT,XC,1,2,3,4,CUSTOM_VALUE,\(Self.currentVersion)")
+        XCTAssertEqual(fingerprint, "GCC,YES,TARGET,CONG,PLAT,XC,1,2,3,4,AR,CUSTOM_VALUE,\(Self.currentVersion)")
     }
 }
