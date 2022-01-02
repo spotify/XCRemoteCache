@@ -17,6 +17,7 @@ require 'cocoapods/resolver'
 require 'open-uri'
 require 'yaml'
 require 'json'
+require 'pathname'
 
 
 module CocoapodsXCRemoteCacheModifier
@@ -354,7 +355,8 @@ module CocoapodsXCRemoteCacheModifier
           download_xcrc_if_needed(xcrc_location_absolute)
 
           # Save .rcinfo
-          save_rcinfo(generate_rcinfo(), user_proj_directory)
+          root_rcinfo = generate_rcinfo()
+          save_rcinfo(root_rcinfo, user_proj_directory)
 
           # Create directory for xccc & arc.rc location
           Dir.mkdir(BIN_DIR) unless File.exist?(BIN_DIR)
@@ -379,8 +381,18 @@ module CocoapodsXCRemoteCacheModifier
             # Create .rcinfo into `Pods` directory as that .xcodeproj reads configuration from .xcodeproj location
             pods_proj_directory = installer_context.sandbox_root
 
-            # Manual .rcinfo generation (in YAML format)
-            save_rcinfo({'extra_configuration_file' => "#{user_proj_directory}/.rcinfo"}, pods_proj_directory)
+            # Manual Pods/.rcinfo generation
+            
+            # all paths in .rcinfo are relative to the root so paths used in Pods.xcodeproj need to be aligned
+            pods_path = Pathname.new(pods_proj_directory)
+            root_path = Pathname.new(user_proj_directory)
+            root_path_to_pods = root_path.relative_path_from(pods_path)
+            
+            pods_rcinfo = root_rcinfo.merge({
+              'remote_commit_file' => "#{root_path_to_pods}/#{remote_commit_file}",
+              'xccc_file' => "#{root_path_to_pods}/#{xccc_location}"
+            })
+            save_rcinfo(pods_rcinfo, pods_proj_directory)
 
             installer_context.pods_project.save()
           end
