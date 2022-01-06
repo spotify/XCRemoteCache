@@ -72,7 +72,7 @@ class TemplateBasedCCWrapperBuilder: CCWrapperBuilder {
         )
         infoLog("ClangWrapperBuilder compiles file at \(compilationFile).")
         // -O3: optimize for faster execution
-        let args = [clangCommand, "-O3", compilationFile.path, "-o", destination.path]
+        let args = [clangCommand, "-arch", "arm64", "-arch", "x86_64", "-O3", compilationFile.path, "-o", destination.path]
         let compilationOutput = try shell("xcrun", args, URL(fileURLWithPath: "").path, nil)
         infoLog("Clang compilation output: \(compilationOutput)")
     }
