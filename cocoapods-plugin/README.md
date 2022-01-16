@@ -53,6 +53,7 @@ An object that is passed to the `xcremotecache` can contain all properties suppo
 | `xccc_file` | The path where should be placed the `xccc` binary (in the pod installation phase) | `{podfile_dir}/.rc/xccc` | ⬜️ |
 | `remote_commit_file` | The path of the file with the remote commit sha (in the pod installation phase) | `{podfile_dir}/.rc/arc.rc`| ⬜️ |
 | `prettify_meta_files` | A Boolean value that opts-in pretty JSON formatting for meta files | `false` | ⬜️ |
+| `disable_certificate_verification` | A Boolean value that opts-in SSL certificate validation is disabled | `false` | ⬜️ |
 
 ## Uninstalling
 

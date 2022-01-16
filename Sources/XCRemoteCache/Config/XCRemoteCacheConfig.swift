@@ -129,8 +129,8 @@ public struct XCRemoteCacheConfig: Encodable {
     /// `/CoolLibrary/main.swift`will be represented as `$(COOL_LIBRARY)/main.swift`).
     /// Warning: remapping order is not-deterministic so avoid remappings with multiple matchings.
     var outOfBandMappings: [String: String] = [:]
-    /// Option to enable/disable TrustManager
-    var certificateVerification: Bool = true
+    /// If true, SSL certificate validation is disabled
+    var disableCertificateVerification: Bool = false
 }
 
 extension XCRemoteCacheConfig {
@@ -182,7 +182,7 @@ extension XCRemoteCacheConfig {
         merge.AWSRegion = scheme.AWSRegion ?? AWSRegion
         merge.AWSService = scheme.AWSService ?? AWSService
         merge.outOfBandMappings = scheme.outOfBandMappings ?? outOfBandMappings
-        merge.certificateVerification = scheme.certificateVerification ?? certificateVerification
+        merge.disableCertificateVerification = scheme.disableCertificateVerification ?? disableCertificateVerification
         return merge
     }
 
@@ -243,7 +243,7 @@ struct ConfigFileScheme: Decodable {
     let AWSRegion: String?
     let AWSService: String?
     let outOfBandMappings: [String: String]?
-    let certificateVerification: Bool?
+    let disableCertificateVerification: Bool?
 
     // Yams library doesn't support encoding strategy, see https://github.com/jpsim/Yams/issues/84
     enum CodingKeys: String, CodingKey {
@@ -287,7 +287,7 @@ struct ConfigFileScheme: Decodable {
         case AWSRegion = "aws_region"
         case AWSService = "aws_service"
         case outOfBandMappings = "out_of_band_mappings"
-        case certificateVerification = "certificate_verification"
+        case disableCertificateVerification = "disable_certificate_verification"
     }
 }
 
