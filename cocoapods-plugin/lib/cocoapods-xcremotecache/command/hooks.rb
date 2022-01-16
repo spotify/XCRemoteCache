@@ -59,7 +59,8 @@ module CocoapodsXCRemoteCacheModifier
           'xccc_file' => "#{BIN_DIR}/xccc",
           'remote_commit_file' => "#{BIN_DIR}/arc.rc",
           'exclude_targets' => [],
-          'prettify_meta_files' => false
+          'prettify_meta_files' => false,
+          'disable_certificate_verification' => false
         }
         @@configuration.merge! default_values.select { |k, v| !@@configuration.key?(k) }
       end
@@ -337,7 +338,7 @@ module CocoapodsXCRemoteCacheModifier
           end
 
           validate_configuration()
-
+          disable_certificate_verification = @@configuration['disable_certificate_verification']
           mode = @@configuration['mode']
           xccc_location = @@configuration['xccc_file']
           remote_commit_file = @@configuration['remote_commit_file']
