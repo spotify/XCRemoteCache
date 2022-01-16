@@ -29,6 +29,7 @@ module CocoapodsXCRemoteCacheModifier
     LLDB_INIT_PATH = "#{ENV['HOME']}/.lldbinit"
     FAT_ARCHIVE_NAME_INFIX = 'arm64-x86_64'
 
+    # List of plugins' user properties that should be copied to .rcinfo 
     CUSTOM_CONFIGURATION_KEYS = [
       'enabled', 
       'xcrc_location',
@@ -37,7 +38,9 @@ module CocoapodsXCRemoteCacheModifier
       'final_target',
       'check_build_configuration', 
       'check_platform', 
-      'modify_lldb_init'
+      'modify_lldb_init',
+      'prettify_meta_files',
+      'disable_certificate_verification'
     ]
 
     class XCRemoteCache
@@ -338,7 +341,6 @@ module CocoapodsXCRemoteCacheModifier
           end
 
           validate_configuration()
-          disable_certificate_verification = @@configuration['disable_certificate_verification']
           mode = @@configuration['mode']
           xccc_location = @@configuration['xccc_file']
           remote_commit_file = @@configuration['remote_commit_file']
