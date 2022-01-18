@@ -23,3 +23,31 @@ jobs:
         run: rake build[release]
       - name: Test
         run: rake test
+  cocoapods:
+    name: Test publishing CocoaPods plugin
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: cocoapods-plugin
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+      - run: bundle install
+      - name: Publish to RubyGems
+        run: |
+          mkdir -p $HOME/.gem
+          touch $HOME/.gem/credentials
+          chmod 0600 $HOME/.gem/credentials
+          printf -- "---\n:rubygems_api_key: ${GEM_HOST_API_KEY}\n" > $HOME/.gem/credentials
+          gem build *.gemspec
+          CURRENT_VERSION=$(gem list cocoapods-xcremotecache  --remote  -q | sed 's/[^0-9\.]//g')
+          echo "$CURRENT_VERSION"
+          CURRENT_VERSION="0.0.5"
+          [ -f cocoapods-xcremotecache-$CURRENT_VERSION.gem ] && echo "Version $CURRENT_VERSION already exists" || echo "Would publish to gem"
+        env:
+          GEM_HOST_API_KEY: "${{secrets.RUBYGEMS_AUTH_TOKEN}}"
