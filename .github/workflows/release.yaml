@@ -44,3 +44,26 @@ jobs:
           file_glob: true
           tag: ${{ github.ref }}
           overwrite: true
+  cocoapods:
+    name: Publish CocoaPods plugin
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+      - run: bundle install
+      - name: Publish to RubyGems
+        run: |
+          mkdir -p $HOME/.gem
+          touch $HOME/.gem/credentials
+          chmod 0600 $HOME/.gem/credentials
+          printf -- "---\n:rubygems_api_key: ${GEM_HOST_API_KEY}\n" > $HOME/.gem/credentials
+          gem build *.gemspec
+          CURRENT_VERSION=$(gem list cocoapods-xcremotecache  --remote  -q | sed 's/[^0-9\.]//g')
+          [ -f cocoapods-xcremotecache-$CURRENT_VERSION.gem ] && echo "Version $CURRENT_VERSION already exists" || gem push *.gem
+        env:
+          GEM_HOST_API_KEY: "${{secrets.RUBYGEMS_AUTH_TOKEN}}"
