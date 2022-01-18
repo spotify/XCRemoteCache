@@ -421,6 +421,12 @@ Follow the [Development](docs/Development.md) guide. It has all the information 
 To release a version, in [Releases](https://github.com/spotify/XCRemoteCache/releases) draft a new release with `v0.3.0{-rc0}` tag format. 
 Packages with binaries will be automatically uploaded to the GitHub [Releases](https://github.com/spotify/XCRemoteCache/releases) page.
 
+### Releasing CocoaPods plugin
+
+Bump a gem version defined in [gem_version.rb](cocoapods-plugin/lib/cocoapods-xcremotecache/gem_version.rb) and create a new release described above.
+
+A plugin is automatically uploaded to [RubyGems](https://rubygems.org/gems/cocoapods-xcremotecache) if a given version doesn't exist yet.
+
 ### Building release package
 
 To build a release zip package for a single platform (e.g. `x86_64-apple-macosx`, `arm64-apple-macosx`), call:
