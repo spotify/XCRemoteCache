@@ -45,6 +45,7 @@ _XCRemoteCache is a remote cache tool for Xcode projects. It reuses target artif
 - [FAQ](#faq)
 - [Development](#development)
 - [Release](#release)
+  * [Releasing CocoaPods plugin](#releasing-cocoapods-plugin)
   * [Building release package](#building-release-package)
 - [Contributing](#contributing)
 - [Code of conduct](#code-of-conduct)
@@ -420,6 +421,12 @@ Follow the [Development](docs/Development.md) guide. It has all the information 
 
 To release a version, in [Releases](https://github.com/spotify/XCRemoteCache/releases) draft a new release with `v0.3.0{-rc0}` tag format. 
 Packages with binaries will be automatically uploaded to the GitHub [Releases](https://github.com/spotify/XCRemoteCache/releases) page.
+
+### Releasing CocoaPods plugin
+
+Bump a gem version defined in [gem_version.rb](cocoapods-plugin/lib/cocoapods-xcremotecache/gem_version.rb) and create a new release described above.
+
+A plugin is automatically uploaded to [RubyGems](https://rubygems.org/gems/cocoapods-xcremotecache) if a given version doesn't exist yet.
 
 ### Building release package
 
