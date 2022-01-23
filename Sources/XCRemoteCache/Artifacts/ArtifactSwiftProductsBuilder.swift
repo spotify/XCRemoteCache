@@ -52,7 +52,7 @@ protocol ArtifactSwiftProductsBuilder {
 class ArtifactSwiftProductsBuilderImpl: ArtifactSwiftProductsBuilder {
 
     /// List of all required swiftmodule related extensions that should be copied to the artifact
-    private static let swiftmoduleExtensionsToInclude = ["swiftmodule", "swiftdoc", "swiftsourceinfo"]
+    private static let swiftmoduleExtensionsToInclude = ["swiftmodule", "swiftdoc", "swiftsourceinfo", "swiftinterface"]
     private let workingDir: URL
     private let moduleName: String?
     private let fileManager: FileManager

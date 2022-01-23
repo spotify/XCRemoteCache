@@ -27,6 +27,7 @@ class ArtifactSwiftProductsBuilderImplTests: FileXCTestCase {
     private var swiftmoduleFile: URL!
     private var swiftmoduleDocFile: URL!
     private var swiftmoduleSourceInfoFile: URL!
+    private var swiftmoduleInterfaceFile: URL!
     private var workingDir: URL!
     private var builder: ArtifactSwiftProductsBuilderImpl!
 
@@ -37,6 +38,7 @@ class ArtifactSwiftProductsBuilderImplTests: FileXCTestCase {
         swiftmoduleFile = moduleDir.appendingPathComponent("MyModule.swiftmodule")
         swiftmoduleDocFile = moduleDir.appendingPathComponent("MyModule.swiftdoc")
         swiftmoduleSourceInfoFile = moduleDir.appendingPathComponent("MyModule.swiftsourceinfo")
+        swiftmoduleInterfaceFile = moduleDir.appendingPathComponent("MyModule.swiftinterface")
         workingDir = rootDir.appendingPathComponent("working")
         builder = ArtifactSwiftProductsBuilderImpl(
             workingDir: workingDir,
@@ -73,6 +75,7 @@ class ArtifactSwiftProductsBuilderImplTests: FileXCTestCase {
         try fileManager.spt_createEmptyFile(swiftmoduleFile)
         try fileManager.spt_createEmptyFile(swiftmoduleDocFile)
         try fileManager.spt_createEmptyFile(swiftmoduleSourceInfoFile)
+        try fileManager.spt_createEmptyFile(swiftmoduleInterfaceFile)
         let builderSwiftmoduleDir =
             builder
                 .buildingArtifactSwiftModulesLocation()
@@ -83,12 +86,15 @@ class ArtifactSwiftProductsBuilderImplTests: FileXCTestCase {
             builderSwiftmoduleDir.appendingPathComponent("MyModule.swiftdoc")
         let expectedBuildedSwiftSourceInfoFile =
             builderSwiftmoduleDir.appendingPathComponent("MyModule.swiftsourceinfo")
+        let expectedBuildedSwiftInterfaceFile =
+            builderSwiftmoduleDir.appendingPathComponent("MyModule.swiftinterface")
 
         try builder.includeModuleDefinitionsToTheArtifact(arch: "arm64", moduleURL: swiftmoduleFile)
 
         XCTAssertTrue(fileManager.fileExists(atPath: expectedBuildedSwiftmoduleFile.path))
         XCTAssertTrue(fileManager.fileExists(atPath: expectedBuildedSwiftmoduledocFile.path))
         XCTAssertTrue(fileManager.fileExists(atPath: expectedBuildedSwiftSourceInfoFile.path))
+        XCTAssertTrue(fileManager.fileExists(atPath: expectedBuildedSwiftInterfaceFile.path))
     }
 
     func testFailsIncludingWhenMissingRequiredSwiftmoduleFiles() throws {

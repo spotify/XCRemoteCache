@@ -31,6 +31,7 @@ class BuildArtifactCreatorTests: FileXCTestCase {
     private var swiftmoduleURL: URL!
     private var swiftdocURL: URL!
     private var swiftSourceInfoURL: URL!
+    private var swiftInterfaceURL: URL!
     private var executablePath: String!
     private var executableURL: URL!
     private var creator: BuildArtifactCreator!
@@ -50,6 +51,8 @@ class BuildArtifactCreatorTests: FileXCTestCase {
             .appendingPathComponent("Target.swiftdoc")
         swiftSourceInfoURL = workDirectory.appendingPathComponent("Objects-normal")
             .appendingPathComponent("Target.swiftsourceinfo")
+        swiftInterfaceURL = workDirectory.appendingPathComponent("Objects-normal")
+            .appendingPathComponent("Target.swiftinterface")
         executablePath = "libTarget.a"
         executableURL = buildDir.appendingPathComponent(executablePath)
         dSYM = executableURL.deletingPathExtension().appendingPathExtension(".dSYM")
@@ -98,6 +101,7 @@ class BuildArtifactCreatorTests: FileXCTestCase {
         try fileManager.spt_createEmptyFile(swiftmoduleURL)
         try fileManager.spt_createEmptyFile(swiftdocURL)
         try fileManager.spt_createEmptyFile(swiftSourceInfoURL)
+        try fileManager.spt_createEmptyFile(swiftInterfaceURL)
 
         try creator.includeModuleDefinitionsToTheArtifact(arch: "arch", moduleURL: swiftmoduleURL)
         let artifact = try creator.createArtifact(artifactKey: "key", meta: sampleMeta)
@@ -111,6 +115,7 @@ class BuildArtifactCreatorTests: FileXCTestCase {
             unzippedURL.appendingPathComponent("swiftmodule/arch/Target.swiftmodule"),
             unzippedURL.appendingPathComponent("swiftmodule/arch/Target.swiftdoc"),
             unzippedURL.appendingPathComponent("swiftmodule/arch/Target.swiftsourceinfo"),
+            unzippedURL.appendingPathComponent("swiftmodule/arch/Target.swiftinterface"),
         ])
     }
 
