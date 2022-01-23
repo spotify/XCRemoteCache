@@ -376,6 +376,7 @@ module CocoapodsXCRemoteCacheModifier
           unless installer_context.pods_project.nil?
             # Attach XCRemoteCache to Pods targets
             installer_context.pods_project.targets.each do |target|
+                next if target.source_build_phase.files_references.empty?
                 next if target.name.start_with?("Pods-")
                 next if target.name.end_with?("Tests")
                 next if exclude_targets.include?(target.name)
@@ -384,6 +385,18 @@ module CocoapodsXCRemoteCacheModifier
 
             # Create .rcinfo into `Pods` directory as that .xcodeproj reads configuration from .xcodeproj location
             pods_proj_directory = installer_context.sandbox_root
+
+            # Attach XCRemoteCache to Generated Pods projects
+            installer_context.pods_project.root_object.project_references.each do |subproj_ref|
+                generated_project = Xcodeproj::Project.open("#{pods_proj_directory}/#{subproj_ref[:project_ref].path}")
+                generated_project.native_targets.each do |target|
+                    next if target.source_build_phase.files_references.empty?
+                    next if target.name.end_with?("Tests")
+                    next if exclude_targets.include?(target.name)
+                    enable_xcremotecache(target, 1, xcrc_location, xccc_location, mode, exclude_build_configurations, final_target)
+                end
+                generated_project.save()
+            end
 
             # Manual Pods/.rcinfo generation
             
