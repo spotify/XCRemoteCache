@@ -30,6 +30,7 @@ enum SwiftmoduleFileExtension: String {
     case swiftmodule
     case swiftdoc
     case swiftsourceinfo
+    case swiftinterface
 }
 
 extension SwiftmoduleFileExtension {
@@ -38,5 +39,6 @@ extension SwiftmoduleFileExtension {
         .swiftmodule: .required,
         .swiftdoc: .required,
         .swiftsourceinfo: .optional,
+        .swiftinterface: .optional,
     ]
 }

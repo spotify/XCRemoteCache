@@ -51,8 +51,6 @@ protocol ArtifactSwiftProductsBuilder {
 /// # {workingDir}/xccache/produced/include/#{moduleName} (if `moduleName` is defined)
 class ArtifactSwiftProductsBuilderImpl: ArtifactSwiftProductsBuilder {
 
-    /// List of all required swiftmodule related extensions that should be copied to the artifact
-    private static let swiftmoduleExtensionsToInclude = ["swiftmodule", "swiftdoc", "swiftsourceinfo"]
     private let workingDir: URL
     private let moduleName: String?
     private let fileManager: FileManager
