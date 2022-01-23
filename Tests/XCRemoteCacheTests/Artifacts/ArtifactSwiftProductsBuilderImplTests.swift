@@ -71,7 +71,29 @@ class ArtifactSwiftProductsBuilderImplTests: FileXCTestCase {
         )
     }
 
-    func testIncludesAllSwiftmoduleFiles() throws {
+    func testIncludesAllBasicSwiftmoduleFiles() throws {
+        try fileManager.spt_createEmptyFile(swiftmoduleFile)
+        try fileManager.spt_createEmptyFile(swiftmoduleDocFile)
+        try fileManager.spt_createEmptyFile(swiftmoduleSourceInfoFile)
+        let builderSwiftmoduleDir =
+            builder
+                .buildingArtifactSwiftModulesLocation()
+                .appendingPathComponent("arm64")
+        let expectedBuildedSwiftmoduleFile =
+            builderSwiftmoduleDir.appendingPathComponent("MyModule.swiftmodule")
+        let expectedBuildedSwiftmoduledocFile =
+            builderSwiftmoduleDir.appendingPathComponent("MyModule.swiftdoc")
+        let expectedBuildedSwiftSourceInfoFile =
+            builderSwiftmoduleDir.appendingPathComponent("MyModule.swiftsourceinfo")
+
+        try builder.includeModuleDefinitionsToTheArtifact(arch: "arm64", moduleURL: swiftmoduleFile)
+
+        XCTAssertTrue(fileManager.fileExists(atPath: expectedBuildedSwiftmoduleFile.path))
+        XCTAssertTrue(fileManager.fileExists(atPath: expectedBuildedSwiftmoduledocFile.path))
+        XCTAssertTrue(fileManager.fileExists(atPath: expectedBuildedSwiftSourceInfoFile.path))
+    }
+
+    func testIncludesAllEvolutionEnabledSwiftmoduleFiles() throws {
         try fileManager.spt_createEmptyFile(swiftmoduleFile)
         try fileManager.spt_createEmptyFile(swiftmoduleDocFile)
         try fileManager.spt_createEmptyFile(swiftmoduleSourceInfoFile)

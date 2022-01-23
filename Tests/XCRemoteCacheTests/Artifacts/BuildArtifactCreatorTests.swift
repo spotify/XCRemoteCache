@@ -101,6 +101,26 @@ class BuildArtifactCreatorTests: FileXCTestCase {
         try fileManager.spt_createEmptyFile(swiftmoduleURL)
         try fileManager.spt_createEmptyFile(swiftdocURL)
         try fileManager.spt_createEmptyFile(swiftSourceInfoURL)
+
+        try creator.includeModuleDefinitionsToTheArtifact(arch: "arch", moduleURL: swiftmoduleURL)
+        let artifact = try creator.createArtifact(artifactKey: "key", meta: sampleMeta)
+
+        let unzippedURL = workDirectory.appendingPathComponent(UUID().uuidString)
+        try Zip.unzipFile(artifact.package, destination: unzippedURL, overwrite: true, password: nil, progress: nil)
+        let allFiles = try fileManager.spt_allFilesRecusively(unzippedURL)
+        XCTAssertEqual(Set(allFiles), [
+            unzippedURL.appendingPathComponent("libTarget.a"),
+            unzippedURL.appendingPathComponent("fileKey.json"),
+            unzippedURL.appendingPathComponent("swiftmodule/arch/Target.swiftmodule"),
+            unzippedURL.appendingPathComponent("swiftmodule/arch/Target.swiftdoc"),
+            unzippedURL.appendingPathComponent("swiftmodule/arch/Target.swiftsourceinfo"),
+        ])
+    }
+
+    func testPackagesEvolutionEnabledSwiftmoduleFiles() throws {
+        try fileManager.spt_createEmptyFile(swiftmoduleURL)
+        try fileManager.spt_createEmptyFile(swiftdocURL)
+        try fileManager.spt_createEmptyFile(swiftSourceInfoURL)
         try fileManager.spt_createEmptyFile(swiftInterfaceURL)
 
         try creator.includeModuleDefinitionsToTheArtifact(arch: "arch", moduleURL: swiftmoduleURL)
