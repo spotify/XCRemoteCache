@@ -378,6 +378,8 @@ module CocoapodsXCRemoteCacheModifier
             installer_context.pods_project.targets.each do |target|
                 next if target.name.start_with?("Pods-")
                 next if target.name.end_with?("Tests")
+                # Enable only for native targets which can have compilation steps
+                next unless target.instance_of?(Xcodeproj::Project::Object::PBXNativeTarget)
                 next if exclude_targets.include?(target.name)
                 enable_xcremotecache(target, 1, xcrc_location, xccc_location, mode, exclude_build_configurations, final_target)
             end
