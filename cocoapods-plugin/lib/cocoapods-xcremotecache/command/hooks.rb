@@ -82,8 +82,8 @@ module CocoapodsXCRemoteCacheModifier
         end
 
         mode = @@configuration['mode']
-        unless mode == 'consumer' || mode == 'producer'
-          throw "Incorrect 'mode' value. Allowed values are ['consumer', 'producer'], but you provided '#{mode}'. A typo?"
+        unless mode == 'consumer' || mode == 'producer' || mode == 'producer-fast'
+          throw "Incorrect 'mode' value. Allowed values are ['consumer', 'producer', 'producer-fast'], but you provided '#{mode}'. A typo?"
         end
 
         unless mode == 'consumer' || @@configuration.key?('final_target')
@@ -103,7 +103,7 @@ module CocoapodsXCRemoteCacheModifier
       # @param repo_distance [Integer] distance from the git repo root to the target's $SRCROOT 
       # @param xc_location [String] path to the dir with all XCRemoteCache binaries, relative to the repo root
       # @param xc_cc_path [String] path to the XCRemoteCache clang wrapper, relative to the repo root
-      # @param mode [String] mode name ('consumer', 'producer' etc.)
+      # @param mode [String] mode name ('consumer', 'producer', 'producer-fast' etc.)
       # @param exclude_build_configurations [String[]] list of targets that should have disabled remote cache
       # @param final_target [String] name of target that should trigger marking
       def self.enable_xcremotecache(target, repo_distance, xc_location, xc_cc_path, mode, exclude_build_configurations, final_target)
@@ -114,6 +114,8 @@ module CocoapodsXCRemoteCacheModifier
           next if exclude_build_configurations.include?(config.name)
           if mode == 'consumer'
             config.build_settings['CC'] = ["$SRCROOT/#{parent_dir(xc_cc_path, repo_distance)}"]
+          elsif mode == 'producer' || mode == 'producer-fast'
+            config.build_settings.delete('CC') if config.build_settings.key?('CC')
           end
           config.build_settings['SWIFT_EXEC'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xcswiftc"]
           config.build_settings['LIBTOOL'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xclibtool"]
@@ -144,7 +146,7 @@ module CocoapodsXCRemoteCacheModifier
 
           # Move prebuild (last element) to the first position (to make it real 'prebuild')
           target.build_phases.rotate!(-1) if existing_prebuild_script.nil?
-        elsif mode == 'producer'
+        elsif mode == 'producer' || mode == 'producer-fast'
           # Delete existing prebuild build phase (to support switching between modes)
           target.build_phases.delete_if do |phase|
             if phase.respond_to?(:name)
@@ -169,7 +171,7 @@ module CocoapodsXCRemoteCacheModifier
         postbuild_script.dependency_file = "$(TARGET_TEMP_DIR)/postbuild.d"
 
         # Mark a sha as ready for a given platform and configuration when building the final_target
-        if mode == 'producer' && target.name == final_target
+        if (mode == 'producer' || mode == 'producer') && target.name == final_target
           existing_mark_script = target.build_phases.detect do |phase|
             if phase.respond_to?(:name)
               phase.name != nil && phase.name.start_with?("[XCRC] Mark")
