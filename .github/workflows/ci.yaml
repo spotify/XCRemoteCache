@@ -28,3 +28,4 @@ jobs:
     uses: MarcoEidinger/swift-package-dependencies-check/.github/workflows/reusableWorkflow.yml@v2
     with:
       commit-message: '[Bot] update package dependencies'
+      base: ${{ github.head_ref }}
