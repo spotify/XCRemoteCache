@@ -23,3 +23,8 @@ jobs:
         run: rake build[release]
       - name: Test
         run: rake test
+
+  dependencies:
+    uses: MarcoEidinger/swift-package-dependencies-check/.github/workflows/reusableWorkflow.yml@v2
+    with:
+      commit-message: '[Bot] update package dependencies'
