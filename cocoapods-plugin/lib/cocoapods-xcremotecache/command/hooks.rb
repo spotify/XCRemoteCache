@@ -375,6 +375,7 @@ module CocoapodsXCRemoteCacheModifier
           # Always integrate XCRemoteCache to all Pods, in case it will be needed later
           unless installer_context.pods_project.nil?
             # Attach XCRemoteCache to Pods targets
+            # Enable only for native targets which can have compilation steps
             installer_context.pods_project.native_targets.each do |target|
                 next if target.source_build_phase.files_references.empty?
                 next if target.name.start_with?("Pods-")
