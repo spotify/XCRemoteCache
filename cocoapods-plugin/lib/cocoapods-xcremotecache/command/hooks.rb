@@ -171,7 +171,7 @@ module CocoapodsXCRemoteCacheModifier
         postbuild_script.dependency_file = "$(TARGET_TEMP_DIR)/postbuild.d"
 
         # Mark a sha as ready for a given platform and configuration when building the final_target
-        if (mode == 'producer' || mode == 'producer') && target.name == final_target
+        if (mode == 'producer' || mode == 'producer-fast') && target.name == final_target
           existing_mark_script = target.build_phases.detect do |phase|
             if phase.respond_to?(:name)
               phase.name != nil && phase.name.start_with?("[XCRC] Mark")

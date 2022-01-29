@@ -47,8 +47,6 @@ class XcodeProjBuildSettingsIntegrateAppender: BuildSettingsIntegrateAppender {
             result["CC"] = wrappers.cc.path
             result["LD"] = wrappers.ld.path
             result["LIBTOOL"] = wrappers.libtool.path
-        } else {
-            result.removeValue(forKey: "CC")
         }
 
         let existingSwiftFlags = result["OTHER_SWIFT_FLAGS"] as? String
