@@ -62,7 +62,8 @@ class PrebuildTests: FileXCTestCase {
             forceCached: false,
             compilationHistoryFile: compilationHistory,
             turnOffRemoteCacheOnFirstTimeout: true,
-            targetName: ""
+            targetName: "",
+            overlayHeadersPath: ""
         )
         contextCached = PrebuildContext(
             targetTempDir: sampleURL,
@@ -74,7 +75,8 @@ class PrebuildTests: FileXCTestCase {
             forceCached: true,
             compilationHistoryFile: compilationHistory,
             turnOffRemoteCacheOnFirstTimeout: true,
-            targetName: ""
+            targetName: "",
+            overlayHeadersPath: ""
         )
         organizer = ArtifactOrganizerFake(artifactRoot: artifactsRoot, unzippedExtension: "unzip")
         globalCacheSwitcher = InMemoryGlobalCacheSwitcher()
@@ -238,7 +240,8 @@ class PrebuildTests: FileXCTestCase {
             forceCached: false,
             compilationHistoryFile: compilationHistory,
             turnOffRemoteCacheOnFirstTimeout: true,
-            targetName: ""
+            targetName: "",
+            overlayHeadersPath: ""
         )
 
         let prebuild = Prebuild(
@@ -268,7 +271,8 @@ class PrebuildTests: FileXCTestCase {
             forceCached: false,
             compilationHistoryFile: compilationHistory,
             turnOffRemoteCacheOnFirstTimeout: true,
-            targetName: ""
+            targetName: "",
+            overlayHeadersPath: ""
         )
         metaContent = try generateMeta(fingerprint: generator.generate(), filekey: "1")
         let downloadedArtifactPackage = artifactsRoot.appendingPathComponent("1")
@@ -330,7 +334,8 @@ class PrebuildTests: FileXCTestCase {
             forceCached: false,
             compilationHistoryFile: compilationHistory,
             turnOffRemoteCacheOnFirstTimeout: false,
-            targetName: ""
+            targetName: "",
+            overlayHeadersPath: ""
         )
         try globalCacheSwitcher.enable(sha: "1")
         let prebuild = Prebuild(

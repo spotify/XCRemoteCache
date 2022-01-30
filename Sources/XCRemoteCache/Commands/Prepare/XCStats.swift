@@ -18,7 +18,6 @@
 // under the License.
 
 import Foundation
-import Yams
 
 /// Manages XCRemoteCache statistics: rests, print to the standard output etc
 public class XCStats {

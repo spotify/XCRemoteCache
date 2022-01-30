@@ -18,7 +18,6 @@
 // under the License.
 
 import Foundation
-import Yams
 
 /// Switch between Online/Offline modes
 public enum XCPrepareMode {

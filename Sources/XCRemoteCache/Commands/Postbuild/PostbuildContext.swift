@@ -79,6 +79,8 @@ public struct PostbuildContext {
     /// Action type: build, indexbuild etc.
     var action: BuildActionType
     let modeMarkerPath: String
+    /// location of the json file that define virtual files system overlay (mappings of the virtual location file -> local file path)
+    let overlayHeadersPath: URL
 }
 
 extension PostbuildContext {
@@ -127,5 +129,7 @@ extension PostbuildContext {
         thinnedTargets = thinFocusedTargetsString.split(separator: ",").map(String.init)
         action = (try? BuildActionType(rawValue: env.readEnv(key: "ACTION"))) ?? .unknown
         modeMarkerPath = config.modeMarkerPath
+        /// The files has yaml extension, even it is in the json format
+        overlayHeadersPath = targetTempDir.appendingPathComponent("all-product-headers.yaml")
     }
 }

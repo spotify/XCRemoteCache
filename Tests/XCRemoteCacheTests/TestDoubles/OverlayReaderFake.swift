@@ -18,30 +18,15 @@
 // under the License.
 
 import Foundation
+@testable import XCRemoteCache
 
-/// Print current configuration to the console
-public class XCConfig {
-    private let outputEncoder: XCRemoteCacheEncoder
-
-    public init(format: XCOutputFormat) {
-        outputEncoder = XCEncoderAbstractFactory().build(for: format)
+class OverlayReaderFake: OverlayReader {
+    private let mappings: [OverlayMapping]
+    init(mappings: [OverlayMapping]) {
+        self.mappings = mappings
     }
 
-    public func main() {
-        let env = ProcessInfo.processInfo.environment
-        let fileManager = FileManager.default
-        let config: XCRemoteCacheConfig
-        do {
-            config = try XCRemoteCacheConfigReader(env: env, fileManager: fileManager).readConfiguration()
-        } catch {
-            exit(1, "FATAL: Prepare initialization failed with error: \(error)")
-        }
-
-        do {
-            let output = try outputEncoder.encode(config)
-            print(output)
-        } catch {
-            exit(1, "XCInfo failed with error: \(error)")
-        }
+    func provideMappings() throws -> [OverlayMapping] {
+        return mappings
     }
 }
