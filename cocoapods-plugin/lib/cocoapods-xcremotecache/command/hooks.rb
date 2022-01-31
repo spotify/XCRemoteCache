@@ -260,14 +260,14 @@ module CocoapodsXCRemoteCacheModifier
       end
 
       def self.add_cflags!(options, key, value)
-        return if options.fetch('OTHER_CFLAGS',[]).include?(' ' + value)
-        options['OTHER_CFLAGS'] = remove_cflags!(options, key) << " #{key}=#{value}" 
+        return if options.fetch('OTHER_CFLAGS',[]).include?(value)
+        options['OTHER_CFLAGS'] = remove_cflags!(options, key) << "#{key}=#{value}" 
       end
 
       def self.remove_cflags!(options, key)
         cflags_arr = options.fetch('OTHER_CFLAGS', ['$(inherited)'])
         cflags_arr = [cflags_arr] if cflags_arr.kind_of? String
-        options['OTHER_CFLAGS'] = cflags_arr.delete_if {|flag| flag.start_with?(" #{key}=") }
+        options['OTHER_CFLAGS'] = cflags_arr.delete_if {|flag| flag.include?("#{key}=") }
         options['OTHER_CFLAGS']
       end
 
