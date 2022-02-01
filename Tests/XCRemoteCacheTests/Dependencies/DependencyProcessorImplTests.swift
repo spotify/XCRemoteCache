@@ -20,7 +20,7 @@
 @testable import XCRemoteCache
 import XCTest
 
-class DependencyProcessorImplTests: XCTestCase {
+class DependencyProcessorImplTests: FileXCTestCase {
 
     let processor = DependencyProcessorImpl(
         xcode: "/Xcode",
@@ -70,6 +70,14 @@ class DependencyProcessorImplTests: XCTestCase {
         XCTAssertEqual(dependencies, [])
     }
 
+    func testDoesNotFilterOutOtherProductModulemap() throws {
+        let dependencies = processor.process([
+            "/ProductOther/some.modulemap",
+        ])
+
+        XCTAssertEqual(dependencies, [.init(url: "/ProductOther/some.modulemap", type: .unknown)])
+    }
+
     func testDoesNotFilterOutNonProductModulemap() throws {
         let dependencies = processor.process([
             "/Source/some.modulemap",
@@ -108,5 +116,67 @@ class DependencyProcessorImplTests: XCTestCase {
         ])
 
         XCTAssertEqual(dependencies, [.init(url: "/xxx/some", type: .unknown)])
+    }
+
+    func testFiltersOutIntermediateBySymlink() throws {
+        let sampleDir = try prepareTempDir()
+
+        let intermediateDirReal = sampleDir.appendingPathComponent("Intermediate")
+        let symlink = sampleDir.appendingPathComponent("symlink")
+        let someFilename = "some"
+
+        let processor = DependencyProcessorImpl(
+            xcode: "/Xcode",
+            product: "/Product",
+            source: "/Source",
+            intermediate: intermediateDirReal,
+            bundle: "/Bundle"
+        )
+
+        let intermediateFileSymlink = createSymlink(filename: someFilename, sourceDir: symlink, destinationDir: intermediateDirReal)
+
+        let dependencies = processor.process([
+            intermediateFileSymlink
+        ])
+
+        XCTAssertEqual(dependencies, [])
+    }
+
+    func testDoesNotFilterOutSourceBySymlink() throws {
+        let sampleDir = try prepareTempDir()
+
+        let sourceDirReal = sampleDir.appendingPathComponent("Source")
+        let symlink = sampleDir.appendingPathComponent("symlink")
+        let someFilename = "some"
+
+        let processor = DependencyProcessorImpl(
+            xcode: "/Xcode",
+            product: "/Product",
+            source: sourceDirReal,
+            intermediate: "/Intermediate",
+            bundle: "/Bundle"
+        )
+
+        let sourceFileSymlink = createSymlink(filename: someFilename, sourceDir: symlink, destinationDir: sourceDirReal)
+
+        let dependencies = processor.process([
+            sourceFileSymlink
+        ])
+
+        XCTAssertEqual(dependencies, [.init(url: sourceFileSymlink, type: .source)])
+    }
+
+    /**
+     * Creates Symlink from sourceDir to destinationDir and creates empty file inside it
+     * return URL with symbolic link from sourceDir to destinationDir
+     */
+    fileprivate func createSymlink(filename: String, sourceDir: URL, destinationDir: URL) -> URL {
+        let fileMng = FileManager.default
+
+        XCTAssertNoThrow(try fileMng.spt_forceSymbolicLink(at: sourceDir,
+                                                           withDestinationURL: destinationDir))
+        XCTAssertNoThrow(try fileMng.spt_createEmptyFile(destinationDir.appendingPathComponent(filename)))
+
+        return sourceDir.appendingPathComponent(filename)
     }
 }
