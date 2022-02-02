@@ -24,4 +24,4 @@ jobs:
       - name: Test
         run: rake test
       - name: E2ETests
-        run: rake e2e
+        run: rake e2e_only
