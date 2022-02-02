@@ -196,8 +196,9 @@ module CocoapodsXCRemoteCacheModifier
           config.build_settings.delete('SWIFT_EXEC') if config.build_settings.key?('SWIFT_EXEC')
           config.build_settings.delete('LIBTOOL') if config.build_settings.key?('LIBTOOL')
           config.build_settings.delete('LD') if config.build_settings.key?('LD')
-          # Add Fake src root for ObjC & Swift
+          # Remove Fake src root for ObjC & Swift
           config.build_settings.delete('XCREMOTE_CACHE_FAKE_SRCROOT')
+          config.build_settings.delete('XCRC_PLATFORM_PREFERRED_ARCH')
           remove_cflags!(config.build_settings, '-fdebug-prefix-map')
           remove_swiftflags!(config.build_settings, '-debug-prefix-map')
         end
@@ -259,14 +260,14 @@ module CocoapodsXCRemoteCacheModifier
       end
 
       def self.add_cflags!(options, key, value)
-        return if options.fetch('OTHER_CFLAGS',[]).include?(' ' + value)
-        options['OTHER_CFLAGS'] = remove_cflags!(options, key) << " #{key}=#{value}" 
+        return if options.fetch('OTHER_CFLAGS',[]).include?(value)
+        options['OTHER_CFLAGS'] = remove_cflags!(options, key) << "#{key}=#{value}" 
       end
 
       def self.remove_cflags!(options, key)
         cflags_arr = options.fetch('OTHER_CFLAGS', ['$(inherited)'])
         cflags_arr = [cflags_arr] if cflags_arr.kind_of? String
-        options['OTHER_CFLAGS'] = cflags_arr.delete_if {|flag| flag.start_with?(" #{key}=") }
+        options['OTHER_CFLAGS'] = cflags_arr.delete_if {|flag| flag.include?("#{key}=") }
         options['OTHER_CFLAGS']
       end
 
@@ -281,11 +282,26 @@ module CocoapodsXCRemoteCacheModifier
       end
 
       # Uninstall the XCRemoteCache
-      def self.disable_xcremotecache(user_project)
+      def self.disable_xcremotecache(user_project, pods_project = nil)
         user_project.targets.each do |target|
           disable_xcremotecache_for_target(target)
         end
         user_project.save()
+
+        unless pods_project.nil?
+          pods_project.native_targets.each do |target|
+            disable_xcremotecache_for_target(target)
+          end
+          pods_proj_directory = pods_project.project_dir
+          pods_project.root_object.project_references.each do |subproj_ref|
+            generated_project = Xcodeproj::Project.open("#{pods_proj_directory}/#{subproj_ref[:project_ref].path}")
+            generated_project.native_targets.each do |target|
+              disable_xcremotecache_for_target(target)
+            end
+            generated_project.save()
+          end
+          pods_project.save()
+        end
 
         # Remove .lldbinit rewrite
         save_lldbinit_rewrite(nil) unless !@@configuration['modify_lldb_init']
@@ -422,12 +438,12 @@ module CocoapodsXCRemoteCacheModifier
             prepare_result = YAML.load`#{xcrc_location_absolute}/xcprepare --configuration #{check_build_configuration} --platform #{check_platform}`
             unless prepare_result['result'] || mode != 'consumer'
               # Uninstall the XCRemoteCache for the consumer mode
-              disable_xcremotecache(user_project)
+              disable_xcremotecache(user_project, installer_context.pods_project)
               Pod::UI.puts "[XCRC] XCRemoteCache disabled - no artifacts available"
               next
             end
           rescue => error
-            disable_xcremotecache(user_project)
+            disable_xcremotecache(user_project, installer_context.pods_project)
             Pod::UI.puts "[XCRC] XCRemoteCache failed with an error: #{error}."
             next
           end
@@ -452,7 +468,7 @@ module CocoapodsXCRemoteCacheModifier
         rescue Exception => e
           Pod::UI.puts "[XCRC] XCRemoteCache disabled with error: #{e}"
           puts e.full_message(highlight: true, order: :top)
-          disable_xcremotecache(user_project)
+          disable_xcremotecache(user_project, installer_context.pods_project)
         end
       end
     end
