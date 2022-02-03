@@ -112,7 +112,7 @@ task :e2e_only do
     'artifact_maximum_age' => 0
   })}
   # Configure remote 
-  system("git branch -b #{current_branch}")
+  system("git checkout -b #{current_branch}")
   system('git remote -v')
   system('git remote add self . && git fetch self')
   system('git remote -v')
