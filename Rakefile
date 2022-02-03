@@ -112,8 +112,10 @@ task :e2e_only do
     'artifact_maximum_age' => 0
   })}
   # Configure remote 
-  system('git remote add self . ; git fetch self')
-
+  system('git remote -v')
+  system('git remote add self . && git fetch self')
+  system('git remote -v')
+  ts_counterpart = " while IFS= read -r line; do printf '[%s] %s\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" \"$line\"; done"
   log_name = "xcodebuild.log"
   # initalize Pods
   for podfile_path in Dir.glob('e2eTests/**/*.Podfile')
@@ -136,7 +138,7 @@ task :e2e_only do
     Dir.chdir('e2eTests/XCRemoteCacheSample') do
       system('pod install')
       p "Building producer ..."
-      system("xcodebuild -workspace 'XCRemoteCacheSample.xcworkspace' -scheme 'XCRemoteCacheSample' -configuration 'Debug' -sdk 'iphonesimulator' -destination 'generic/platform=iOS Simulator' -derivedDataPath ./DerivedData EXCLUDED_ARCHS='arm64 i386' clean build | ts | tee #{log_name}")
+      system("xcodebuild -workspace 'XCRemoteCacheSample.xcworkspace' -scheme 'XCRemoteCacheSample' -configuration 'Debug' -sdk 'iphonesimulator' -destination 'generic/platform=iOS Simulator' -derivedDataPath ./DerivedData EXCLUDED_ARCHS='arm64 i386' clean build | #{ts_counterpart} | tee #{log_name}")
       
       # reset stats
       system('XCRC/xcprepare stats --reset --format json')
@@ -156,7 +158,7 @@ task :e2e_only do
     Dir.chdir('e2eTests/XCRemoteCacheSample') do
       system('pod install')
       p "Building consumer ..."
-      system("xcodebuild -workspace 'XCRemoteCacheSample.xcworkspace' -scheme 'XCRemoteCacheSample' -configuration 'Debug' -sdk 'iphonesimulator' -destination 'generic/platform=iOS Simulator' -derivedDataPath ./DerivedData EXCLUDED_ARCHS='arm64 i386' clean build | ts | tee #{log_name}")
+      system("xcodebuild -workspace 'XCRemoteCacheSample.xcworkspace' -scheme 'XCRemoteCacheSample' -configuration 'Debug' -sdk 'iphonesimulator' -destination 'generic/platform=iOS Simulator' -derivedDataPath ./DerivedData EXCLUDED_ARCHS='arm64 i386' clean build | #{ts_counterpart} | tee #{log_name}")
     
       # clean DerivedData
       system('rm -rf ./build')
