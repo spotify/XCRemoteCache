@@ -15,12 +15,6 @@ jobs:
     env:
       XCODE_VERSION: ${{ '13.1' }}
     steps:
-      - name: Install docker
-        run: |
-          brew install docker-machine docker
-          sudo docker --version
-          docker-machine create --driver virtualbox default
-          docker-machine env default
       - name: Select Xcode
         run: "sudo xcode-select -s /Applications/Xcode_$XCODE_VERSION.app"
       - name: Checkout

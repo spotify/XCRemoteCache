@@ -93,7 +93,10 @@ task :e2e_only do
   end
 
   # Build a docker image
-  system('docker build -t xcremotecache-demo-server backend-example')
+  # system('docker build -t xcremotecache-demo-server backend-example')
+  # Start an nginx server
+  system('nginx -c $PWD/e2eTests/nginx/nginx.conf')
+
   current_branch = 'e2e-test-branch'
   producer_configuration = %{xcremotecache({
     'cache_addresses' => ['http://localhost:8080/cache/pods'], 
@@ -126,7 +129,8 @@ task :e2e_only do
     # Link prebuild binaries to the Project
     system('ln -s $(pwd)/releases e2eTests/XCRemoteCacheSample/XCRC')
     # Run a docker server
-    system('docker run -it --rm -d -p 8080:8080 --name xcremotecache xcremotecache-demo-server')
+    # system('docker run -it --rm -d -p 8080:8080 --name xcremotecache xcremotecache-demo-server')
+
 
     # Create producer Podfile
     File.open('e2eTests/XCRemoteCacheSample/Podfile', 'w') do |f|
@@ -176,11 +180,16 @@ task :e2e_only do
     end
 
     # Kill a docker
-    system('docker kill xcremotecache')
+    # system('docker kill xcremotecache')
+    # Destroy cache
+    system('rm -rf /tmp/cache')
   end
 
   # Revert remote 
   system('git origin delete self')
+
+  # Stop nginx
+  system('nginx -s stop')
 end
 
 
