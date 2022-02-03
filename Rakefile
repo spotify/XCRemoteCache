@@ -157,10 +157,10 @@ task :e2e_only do
     Dir.chdir('e2eTests/XCRemoteCacheSample') do
       system('pod install')
       p "Building consumer ..."
-      system("xcodebuild -workspace 'XCRemoteCacheSample.xcworkspace' -scheme 'XCRemoteCacheSample' -configuration 'Debug' -sdk 'iphonesimulator' -destination 'generic/platform=iOS Simulator' -derivedDataPath ./DerivedData2 EXCLUDED_ARCHS='arm64 i386' clean build > #{log_name}")
+      system("xcodebuild -workspace 'XCRemoteCacheSample.xcworkspace' -scheme 'XCRemoteCacheSample' -configuration 'Debug' -sdk 'iphonesimulator' -destination 'generic/platform=iOS Simulator' -derivedDataPath ./DerivedData EXCLUDED_ARCHS='arm64 i386' clean build > #{log_name}")
     
       # clean DerivedData
-      system('rm -rf ./DerivedData2')
+      system('rm -rf ./DerivedData')
 
       # validate 100% hit rate
       stats_json_string = JSON.parse(`XCRC/xcprepare stats --format json`)
