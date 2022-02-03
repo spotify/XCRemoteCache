@@ -92,9 +92,7 @@ task :e2e_only do
     system("gem install #{gemfile_path}")
   end
 
-  # Build a docker image
-  # system('docker build -t xcremotecache-demo-server backend-example')
-  # Start an nginx server
+  # Start nginx server
   system('nginx -c $PWD/e2eTests/nginx/nginx.conf')
 
   current_branch = 'e2e-test-branch'
@@ -116,10 +114,8 @@ task :e2e_only do
   })}
   # Configure remote 
   system("git checkout -b #{current_branch}")
-  system('git remote -v')
   system('git remote add self . && git fetch self')
-  system('git remote -v')
-  ts_counterpart = " while IFS= read -r line; do printf '[%s] %s\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" \"$line\"; done"
+
   log_name = "xcodebuild.log"
   # initalize Pods
   for podfile_path in Dir.glob('e2eTests/**/*.Podfile')
@@ -128,8 +124,6 @@ task :e2e_only do
     system('git clean -xdf e2eTests/XCRemoteCacheSample')
     # Link prebuild binaries to the Project
     system('ln -s $(pwd)/releases e2eTests/XCRemoteCacheSample/XCRC')
-    # Run a docker server
-    # system('docker run -it --rm -d -p 8080:8080 --name xcremotecache xcremotecache-demo-server')
 
 
     # Create producer Podfile
@@ -143,7 +137,7 @@ task :e2e_only do
     Dir.chdir('e2eTests/XCRemoteCacheSample') do
       system('pod install')
       p "Building producer ..."
-      system("xcodebuild -workspace 'XCRemoteCacheSample.xcworkspace' -scheme 'XCRemoteCacheSample' -configuration 'Debug' -sdk 'iphonesimulator' -destination 'generic/platform=iOS Simulator' -derivedDataPath ./DerivedData EXCLUDED_ARCHS='arm64 i386' clean build | #{ts_counterpart} | tee #{log_name}")
+      system("xcodebuild -workspace 'XCRemoteCacheSample.xcworkspace' -scheme 'XCRemoteCacheSample' -configuration 'Debug' -sdk 'iphonesimulator' -destination 'generic/platform=iOS Simulator' -derivedDataPath ./DerivedData EXCLUDED_ARCHS='arm64 i386' clean build > #{log_name}")
       
       # reset stats
       system('XCRC/xcprepare stats --reset --format json')
@@ -163,7 +157,7 @@ task :e2e_only do
     Dir.chdir('e2eTests/XCRemoteCacheSample') do
       system('pod install')
       p "Building consumer ..."
-      system("xcodebuild -workspace 'XCRemoteCacheSample.xcworkspace' -scheme 'XCRemoteCacheSample' -configuration 'Debug' -sdk 'iphonesimulator' -destination 'generic/platform=iOS Simulator' -derivedDataPath ./DerivedData EXCLUDED_ARCHS='arm64 i386' clean build | #{ts_counterpart} | tee #{log_name}")
+      system("xcodebuild -workspace 'XCRemoteCacheSample.xcworkspace' -scheme 'XCRemoteCacheSample' -configuration 'Debug' -sdk 'iphonesimulator' -destination 'generic/platform=iOS Simulator' -derivedDataPath ./DerivedData EXCLUDED_ARCHS='arm64 i386' clean build > #{log_name}")
     
       # clean DerivedData
       system('rm -rf ./build')
@@ -179,14 +173,12 @@ task :e2e_only do
       p "hit rate: #{hit_rate}% (#{hits}/#{all_targets})"
     end
 
-    # Kill a docker
-    # system('docker kill xcremotecache')
-    # Destroy cache
+    # Destroy a cache
     system('rm -rf /tmp/cache')
   end
 
   # Revert remote 
-  system('git origin delete self')
+  system('git remote delete self')
 
   # Stop nginx
   system('nginx -s stop')
