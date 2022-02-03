@@ -142,7 +142,7 @@ task :e2e_only do
       # reset stats
       system('XCRC/xcprepare stats --reset --format json')
       # clean DerivedData
-      system('rm -rf ./build')
+      system('rm -rf ./DerivedData')
     end
 
 
@@ -157,10 +157,10 @@ task :e2e_only do
     Dir.chdir('e2eTests/XCRemoteCacheSample') do
       system('pod install')
       p "Building consumer ..."
-      system("xcodebuild -workspace 'XCRemoteCacheSample.xcworkspace' -scheme 'XCRemoteCacheSample' -configuration 'Debug' -sdk 'iphonesimulator' -destination 'generic/platform=iOS Simulator' -derivedDataPath ./DerivedData EXCLUDED_ARCHS='arm64 i386' clean build > #{log_name}")
+      system("xcodebuild -workspace 'XCRemoteCacheSample.xcworkspace' -scheme 'XCRemoteCacheSample' -configuration 'Debug' -sdk 'iphonesimulator' -destination 'generic/platform=iOS Simulator' -derivedDataPath ./DerivedData2 EXCLUDED_ARCHS='arm64 i386' clean build > #{log_name}")
     
       # clean DerivedData
-      system('rm -rf ./build')
+      system('rm -rf ./DerivedData2')
 
       # validate 100% hit rate
       stats_json_string = JSON.parse(`XCRC/xcprepare stats --format json`)
@@ -178,7 +178,7 @@ task :e2e_only do
   end
 
   # Revert remote 
-  system('git remote delete self')
+  system('git remote remove self')
 
   # Stop nginx
   system('nginx -s stop')
