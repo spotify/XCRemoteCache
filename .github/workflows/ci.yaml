@@ -18,7 +18,7 @@ jobs:
       - name: Install docker
         run: |
           brew install docker-machine docker
-          sudo docker –version
+          sudo docker --version
       - name: Select Xcode
         run: "sudo xcode-select -s /Applications/Xcode_$XCODE_VERSION.app"
       - name: Checkout
