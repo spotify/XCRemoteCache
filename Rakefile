@@ -94,7 +94,7 @@ task :e2e_only do
 
   # Build a docker image
   system('docker build -t xcremotecache-demo-server backend-example')
-  current_branch = `git rev-parse --abbrev-ref HEAD`.chomp
+  current_branch = 'e2e-test-branch'
   producer_configuration = %{xcremotecache({
     'cache_addresses' => ['http://localhost:8080/cache/pods'], 
     'primary_repo' => '.',
@@ -112,6 +112,7 @@ task :e2e_only do
     'artifact_maximum_age' => 0
   })}
   # Configure remote 
+  system("git branch -b #{current_branch}")
   system('git remote -v')
   system('git remote add self . && git fetch self')
   system('git remote -v')
