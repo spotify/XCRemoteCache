@@ -51,8 +51,7 @@ class PostbuildTests: FileXCTestCase {
         derivedSourcesDir: "",
         thinnedTargets: [],
         action: .build,
-        modeMarkerPath: "",
-        overlayHeadersPath: ""
+        modeMarkerPath: ""
     )
     private var network = RemoteNetworkClientImpl(
         NetworkClientFake(fileManager: .default),
