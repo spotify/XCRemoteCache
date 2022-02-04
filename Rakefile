@@ -94,6 +94,7 @@ task :e2e_only do
 
   # Start nginx server
   system('nginx -c $PWD/e2eTests/nginx/nginx.conf')
+  Signal.trap(0, proc {  system('nginx -s stop') })
 
   current_branch = 'e2e-test-branch'
   producer_configuration = %{xcremotecache({
@@ -120,6 +121,7 @@ task :e2e_only do
   # initalize Pods
   for podfile_path in Dir.glob('e2eTests/**/*.Podfile')
     p "****** Scenario: #{podfile_path}"
+    system('rm -rf /tmp/cache')
     # Revert any local changes
     system('git clean -xdf e2eTests/XCRemoteCacheSample')
     # Link prebuild binaries to the Project
@@ -159,9 +161,6 @@ task :e2e_only do
       p "Building consumer ..."
       system("xcodebuild -workspace 'XCRemoteCacheSample.xcworkspace' -scheme 'XCRemoteCacheSample' -configuration 'Debug' -sdk 'iphonesimulator' -destination 'generic/platform=iOS Simulator' -derivedDataPath ./DerivedData EXCLUDED_ARCHS='arm64 i386' clean build > #{log_name}")
     
-      # clean DerivedData
-      system('rm -rf ./DerivedData')
-
       # validate 100% hit rate
       stats_json_string = JSON.parse(`XCRC/xcprepare stats --format json`)
       misses = stats_json_string.fetch('miss_count', 0)
@@ -171,6 +170,9 @@ task :e2e_only do
       hit_rate = hits * 100 / all_targets
       raise "Failure: Hit rate is only #{hit_rate}%" if misses != 0
       p "hit rate: #{hit_rate}% (#{hits}/#{all_targets})"
+
+      # clean DerivedData
+      system('rm -rf ./DerivedData')
     end
 
     # Destroy a cache
@@ -180,8 +182,6 @@ task :e2e_only do
   # Revert remote 
   system('git remote remove self')
 
-  # Stop nginx
-  system('nginx -s stop')
 end
 
 
