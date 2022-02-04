@@ -66,7 +66,7 @@ extension PrebuildContext {
         self.targetName = targetName
         let thinFocusedTargetsString: String? = env.readEnv(key: "SPT_XCREMOTE_CACHE_THINNED_TARGETS")
         thinnedTargets = thinFocusedTargetsString?.split(separator: ",").map(String.init)
-        /// The files has yaml extension, even it is in the json format
+        /// Note: The file has yaml extension, even it is in the json format
         overlayHeadersPath = targetTempDir.appendingPathComponent("all-product-headers.yaml")
     }
 }

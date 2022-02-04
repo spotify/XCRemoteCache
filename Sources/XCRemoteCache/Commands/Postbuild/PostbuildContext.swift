@@ -129,7 +129,7 @@ extension PostbuildContext {
         thinnedTargets = thinFocusedTargetsString.split(separator: ",").map(String.init)
         action = (try? BuildActionType(rawValue: env.readEnv(key: "ACTION"))) ?? .unknown
         modeMarkerPath = config.modeMarkerPath
-        /// The files has yaml extension, even it is in the json format
+        /// Note: The file has yaml extension, even it is in the json format
         overlayHeadersPath = targetTempDir.appendingPathComponent("all-product-headers.yaml")
     }
 }

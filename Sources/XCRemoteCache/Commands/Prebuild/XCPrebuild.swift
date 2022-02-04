@@ -120,9 +120,8 @@ public class XCPrebuild {
                 envs: env,
                 customMappings: config.outOfBandMappings
             )
-            // As the PostbuildContext assumes file format location and filename (`all-product-headers.yaml`)
-            // do not fail in case of a missing headers overlay file. In the future, all overlay files should be
-            // captured from the swiftc invocation similarly is stored in the `history.compile` for the consumer mode.
+            // As PrebuildContext assumes file format location and its filename (`all-product-headers.yaml`)
+            // do not fail in case of a missing headers overlay file. 
             let overlayReader = JsonOverlayReader(
                 context.overlayHeadersPath,
                 mode: .bestEffort,
