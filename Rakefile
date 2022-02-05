@@ -1,5 +1,4 @@
 # encoding: utf-8
-require 'json'
 require_relative 'tasks/e2e'
 
 ################################

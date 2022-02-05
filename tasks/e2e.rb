@@ -114,7 +114,7 @@ namespace :e2e do
         end
     end
 
-    def self.build_project
+    def self.build_project(extra_args = {})
         system('pod install')
         xcodebuild_args = {
             'workspace' => 'XCRemoteCacheSample.xcworkspace',
@@ -123,7 +123,7 @@ namespace :e2e do
             'sdk' => 'iphonesimulator',
             'destination' => 'generic/platform=iOS Simulator',
             'derivedDataPath' => DERIVED_DATA_PATH,
-        }
+        }.merge(extra_args)
         xcodebuild_vars = {
             'EXCLUDED_ARCHS' => 'arm64 i386'
         }
@@ -179,7 +179,7 @@ namespace :e2e do
         dump_podfile(consumer_configuration, template_path)
         puts('Building consumer ...')
         Dir.chdir(E2E_COCOAPODS_SAMPLE_DIR) do
-            build_project
+            build_project({'derivedDataPath' => "#{DERIVED_DATA_PATH}_Consumer"})
             valide_hit_rate
         end
     end
