@@ -13,7 +13,6 @@
 		3695D9D327A3218C007F3792 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3695D9D127A3218C007F3792 /* Main.storyboard */; };
 		3695D9D527A3218D007F3792 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3695D9D427A3218D007F3792 /* Assets.xcassets */; };
 		3695D9D827A3218D007F3792 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3695D9D627A3218D007F3792 /* LaunchScreen.storyboard */; };
-		E0A28FC0C12F263A640F955C /* Pods_XCRemoteCacheSample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A3FD0BAE1387E5E29B6D7E35 /* Pods_XCRemoteCacheSample.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,9 +24,6 @@
 		3695D9D427A3218D007F3792 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3695D9D727A3218D007F3792 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		3695D9D927A3218D007F3792 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		3EE12A879EBE767C99B0FC32 /* Pods-XCRemoteCacheSample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XCRemoteCacheSample.debug.xcconfig"; path = "Target Support Files/Pods-XCRemoteCacheSample/Pods-XCRemoteCacheSample.debug.xcconfig"; sourceTree = "<group>"; };
-		A3FD0BAE1387E5E29B6D7E35 /* Pods_XCRemoteCacheSample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_XCRemoteCacheSample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		C7B900612D1F7BD7CA3DFDC9 /* Pods-XCRemoteCacheSample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XCRemoteCacheSample.release.xcconfig"; path = "Target Support Files/Pods-XCRemoteCacheSample/Pods-XCRemoteCacheSample.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,7 +31,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E0A28FC0C12F263A640F955C /* Pods_XCRemoteCacheSample.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -47,8 +42,6 @@
 			children = (
 				3695D9CA27A3218C007F3792 /* XCRemoteCacheSample */,
 				3695D9C927A3218C007F3792 /* Products */,
-				4FE2462282E9908CE0357DE3 /* Pods */,
-				9736800B94F7D85ED1CA9F7E /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -74,24 +67,6 @@
 			path = XCRemoteCacheSample;
 			sourceTree = "<group>";
 		};
-		4FE2462282E9908CE0357DE3 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				3EE12A879EBE767C99B0FC32 /* Pods-XCRemoteCacheSample.debug.xcconfig */,
-				C7B900612D1F7BD7CA3DFDC9 /* Pods-XCRemoteCacheSample.release.xcconfig */,
-			);
-			name = Pods;
-			path = Pods;
-			sourceTree = "<group>";
-		};
-		9736800B94F7D85ED1CA9F7E /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				A3FD0BAE1387E5E29B6D7E35 /* Pods_XCRemoteCacheSample.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -99,12 +74,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3695D9DC27A3218D007F3792 /* Build configuration list for PBXNativeTarget "XCRemoteCacheSample" */;
 			buildPhases = (
-				E722BEC0D6AA112B0DC88BA5 /* [CP] Check Pods Manifest.lock */,
 				3695D9C427A3218C007F3792 /* Sources */,
 				3695D9C527A3218C007F3792 /* Frameworks */,
 				3695D9C627A3218C007F3792 /* Resources */,
-				181E10D369F1135B2514CC3B /* [CP] Embed Pods Frameworks */,
-				785F3A1B596395970C430424 /* [XCRC] Postbuild */,
 			);
 			buildRules = (
 			);
@@ -160,70 +132,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		181E10D369F1135B2514CC3B /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-XCRemoteCacheSample/Pods-XCRemoteCacheSample-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-XCRemoteCacheSample/Pods-XCRemoteCacheSample-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-XCRemoteCacheSample/Pods-XCRemoteCacheSample-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		785F3A1B596395970C430424 /* [XCRC] Postbuild */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			dependencyFile = "$(TARGET_TEMP_DIR)/postbuild.d";
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"$SRCROOT/XCRC/xcpostbuild",
-			);
-			name = "[XCRC] Postbuild";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/$(XCRC_PLATFORM_PREFERRED_ARCH).swiftmodule.md5",
-				"$(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/$(XCRC_PLATFORM_PREFERRED_ARCH)-$(LLVM_TARGET_TRIPLE_VENDOR)-$(SWIFT_PLATFORM_TARGET_PREFIX)$(LLVM_TARGET_TRIPLE_SUFFIX).swiftmodule.md5",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"$SCRIPT_INPUT_FILE_0\"";
-		};
-		E722BEC0D6AA112B0DC88BA5 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-XCRemoteCacheSample-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		3695D9C427A3218C007F3792 /* Sources */ = {
@@ -376,7 +284,6 @@
 		};
 		3695D9DD27A3218D007F3792 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3EE12A879EBE767C99B0FC32 /* Pods-XCRemoteCacheSample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -389,32 +296,21 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				LD = "$SRCROOT/XCRC/xcld";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				LIBTOOL = "$SRCROOT/XCRC/xclibtool";
 				MARKETING_VERSION = 1.0;
-				OTHER_CFLAGS = (
-					"$(inherited)",
-					" -fdebug-prefix-map=$(SRCROOT)=$(XCREMOTE_CACHE_FAKE_SRCROOT)",
-				);
-				OTHER_SWIFT_FLAGS = "$(inherited) -debug-prefix-map $(SRCROOT)=$(XCREMOTE_CACHE_FAKE_SRCROOT)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.xcremotecache.XCRemoteCacheSample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_EXEC = "$SRCROOT/XCRC/xcswiftc";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				XCRC_PLATFORM_PREFERRED_ARCH = "$(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)";
-				XCREMOTE_CACHE_FAKE_SRCROOT = /xxxxxxxxxx;
 			};
 			name = Debug;
 		};
 		3695D9DE27A3218D007F3792 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C7B900612D1F7BD7CA3DFDC9 /* Pods-XCRemoteCacheSample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -427,26 +323,16 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				LD = "$SRCROOT/XCRC/xcld";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				LIBTOOL = "$SRCROOT/XCRC/xclibtool";
 				MARKETING_VERSION = 1.0;
-				OTHER_CFLAGS = (
-					"$(inherited)",
-					" -fdebug-prefix-map=$(SRCROOT)=$(XCREMOTE_CACHE_FAKE_SRCROOT)",
-				);
-				OTHER_SWIFT_FLAGS = "$(inherited) -debug-prefix-map $(SRCROOT)=$(XCREMOTE_CACHE_FAKE_SRCROOT)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.xcremotecache.XCRemoteCacheSample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_EXEC = "$SRCROOT/XCRC/xcswiftc";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				XCRC_PLATFORM_PREFERRED_ARCH = "$(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)";
-				XCREMOTE_CACHE_FAKE_SRCROOT = /xxxxxxxxxx;
 			};
 			name = Release;
 		};
