@@ -1,5 +1,6 @@
 # encoding: utf-8
 require 'json'
+require_relative 'tasks/e2e'
 
 ################################
 # Rake configuration
@@ -78,112 +79,11 @@ task :test do
   spm_test()
 end
 
-desc 'run E2E tests with CocoaPods plugin'
+desc 'build and run E2E tests'
 task :e2e => [:build, :e2e_only]
 
 desc 'run E2E tests without building the XCRemoteCache binary'
-task :e2e_only do
-  # Build a plugin
-  cocoapods_dir = 'cocoapods-plugin'
-  Dir.chdir(cocoapods_dir) do
-    gemspec_path = "cocoapods-xcremotecache.gemspec"
-    gemfile_path = "cocoapods-xcremotecache.gem"
-    system("gem build #{gemspec_path} -o #{gemfile_path}")
-    system("gem install #{gemfile_path}")
-  end
-
-  # Start nginx server
-  system('nginx -c $PWD/e2eTests/nginx/nginx.conf')
-  Signal.trap(0, proc {  system('nginx -s stop') })
-
-  current_branch = 'e2e-test-branch'
-  producer_configuration = %{xcremotecache({
-    'cache_addresses' => ['http://localhost:8080/cache/pods'], 
-    'primary_repo' => '.',
-    'primary_branch' => '#{current_branch}',
-    'mode' => 'producer',
-    'final_target' => 'XCRemoteCacheSample',
-    'artifact_maximum_age' => 0
-  })}
-  consumer_configuration = %{xcremotecache({
-    'cache_addresses' => ['http://localhost:8080/cache/pods'], 
-    'primary_repo' => '.',
-    'primary_branch' => '#{current_branch}',
-    'mode' => 'consumer',
-    'final_target' => 'XCRemoteCacheSample',
-    'artifact_maximum_age' => 0
-  })}
-  # Configure remote 
-  system("git checkout -b #{current_branch}")
-  system('git remote add self . && git fetch self')
-
-  log_name = "xcodebuild.log"
-  # initalize Pods
-  for podfile_path in Dir.glob('e2eTests/**/*.Podfile')
-    p "****** Scenario: #{podfile_path}"
-    system('rm -rf /tmp/cache')
-    # Revert any local changes
-    system('git clean -xdf e2eTests/XCRemoteCacheSample')
-    # Link prebuild binaries to the Project
-    system('ln -s $(pwd)/releases e2eTests/XCRemoteCacheSample/XCRC')
-
-
-    # Create producer Podfile
-    File.open('e2eTests/XCRemoteCacheSample/Podfile', 'w') do |f|
-      # Copy podfile
-      File.foreach(podfile_path) { |line| f.puts line }
-
-      f.write(producer_configuration)
-    end
-
-    Dir.chdir('e2eTests/XCRemoteCacheSample') do
-      system('pod install')
-      p "Building producer ..."
-      system("xcodebuild -workspace 'XCRemoteCacheSample.xcworkspace' -scheme 'XCRemoteCacheSample' -configuration 'Debug' -sdk 'iphonesimulator' -destination 'generic/platform=iOS Simulator' -derivedDataPath ./DerivedData EXCLUDED_ARCHS='arm64 i386' clean build > #{log_name}")
-      
-      # reset stats
-      system('XCRC/xcprepare stats --reset --format json')
-      # clean DerivedData
-      system('rm -rf ./DerivedData')
-    end
-
-
-    # Create consumer Podfile
-    File.open('e2eTests/XCRemoteCacheSample/Podfile', 'w') do |f|
-      # Copy podfile
-      File.foreach(podfile_path) { |line| f.puts line; p  }
-
-      f.write(consumer_configuration)
-    end
-
-    Dir.chdir('e2eTests/XCRemoteCacheSample') do
-      system('pod install')
-      p "Building consumer ..."
-      system("xcodebuild -workspace 'XCRemoteCacheSample.xcworkspace' -scheme 'XCRemoteCacheSample' -configuration 'Debug' -sdk 'iphonesimulator' -destination 'generic/platform=iOS Simulator' -derivedDataPath ./DerivedData EXCLUDED_ARCHS='arm64 i386' clean build > #{log_name}")
-    
-      # validate 100% hit rate
-      stats_json_string = JSON.parse(`XCRC/xcprepare stats --format json`)
-      misses = stats_json_string.fetch('miss_count', 0)
-      hits = stats_json_string.fetch('hit_count', 0)
-      all_targets = misses + hits
-      raise "Failure: XCRemoteCache is disabled" if all_targets == 0
-      hit_rate = hits * 100 / all_targets
-      raise "Failure: Hit rate is only #{hit_rate}%" if misses != 0
-      p "hit rate: #{hit_rate}% (#{hits}/#{all_targets})"
-
-      # clean DerivedData
-      system('rm -rf ./DerivedData')
-    end
-
-    # Destroy a cache
-    system('rm -rf /tmp/cache')
-  end
-
-  # Revert remote 
-  system('git remote remove self')
-
-end
-
+task :e2e_only => ['e2e:run']
 
 ################################
 # Helper functions
