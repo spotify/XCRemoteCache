@@ -120,7 +120,7 @@ public class XCPrebuild {
                 envs: env,
                 customMappings: config.outOfBandMappings
             )
-            // As PrebuildContext assumes file format location and its filename (`all-product-headers.yaml`)
+            // As PrebuildContext assumes file location and its filename (`all-product-headers.yaml`)
             // do not fail in case of a missing headers overlay file. 
             let overlayReader = JsonOverlayReader(
                 context.overlayHeadersPath,
