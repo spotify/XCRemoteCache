@@ -153,7 +153,7 @@ class Postbuild {
         // Replace all local paths to the generic ones (e.g. $SRCROOT)
         let remappers = [remapper] + creatorPlugins.compactMap(\.customPathsRemapper)
         let remapper = DependenciesRemapperComposite(remappers)
-        let abstractFingerprintFiles = remapper.replace(localPaths: dependencies.map(\.path))
+        let abstractFingerprintFiles = try remapper.replace(localPaths: dependencies.map(\.path))
         // TODO: use `inputs` read by dependenciesReader
         var meta = MainArtifactMeta(
             dependencies: abstractFingerprintFiles,

@@ -30,34 +30,34 @@ class StringDependenciesRemapperTests: XCTestCase {
         remapper = StringDependenciesRemapper(mappings: mappings)
     }
 
-    func testMappingSingleGenericPathReplacesWithLocalPath() {
-        let localPaths = remapper.replace(genericPaths: ["$(SRC_ROOT)/some.swift"])
+    func testMappingSingleGenericPathReplacesWithLocalPath() throws {
+        let localPaths = try remapper.replace(genericPaths: ["$(SRC_ROOT)/some.swift"])
 
         XCTAssertEqual(localPaths, ["/tmp/root/some.swift"])
     }
 
-    func testRewritingSingleLocalPathReplacesWithGenericPath() {
-        let genericPaths = remapper.replace(localPaths: ["/tmp/root/some.swift"])
+    func testRewritingSingleLocalPathReplacesWithGenericPath() throws {
+        let genericPaths = try remapper.replace(localPaths: ["/tmp/root/some.swift"])
 
         XCTAssertEqual(genericPaths, ["$(SRC_ROOT)/some.swift"])
     }
 
-    func testRewritingLocalToGenericAndLocalIsIdentical() {
+    func testRewritingLocalToGenericAndLocalIsIdentical() throws {
         let inputLocalPaths = ["/tmp/root/some.swift"]
 
-        let genericPaths = remapper.replace(localPaths: inputLocalPaths)
-        let localPaths = remapper.replace(genericPaths: genericPaths)
+        let genericPaths = try remapper.replace(localPaths: inputLocalPaths)
+        let localPaths = try remapper.replace(genericPaths: genericPaths)
 
         XCTAssertEqual(localPaths, inputLocalPaths)
     }
 
-    func testRewritingUnrelatedDirReturnsInputPath() {
-        let genericPaths = remapper.replace(localPaths: ["/other/some.swift"])
+    func testRewritingUnrelatedDirReturnsInputPath() throws {
+        let genericPaths = try remapper.replace(localPaths: ["/other/some.swift"])
 
         XCTAssertEqual(genericPaths, ["/other/some.swift"])
     }
 
-    func testMultipleMatchesTakeTheFirstMapping() {
+    func testMultipleMatchesTakeTheFirstMapping() throws {
         let mappings: [StringDependenciesRemapper.Mapping] = [
             .init(generic: "$(SRC_ROOT)", local: "/tmp/root"),
             .init(generic: "$(PWD)", local: "/tmp"),
@@ -65,12 +65,12 @@ class StringDependenciesRemapperTests: XCTestCase {
         remapper = StringDependenciesRemapper(mappings: mappings)
 
 
-        let genericPaths = remapper.replace(localPaths: ["/tmp/root/some.swift", "/tmp/extra.swift"])
+        let genericPaths = try remapper.replace(localPaths: ["/tmp/root/some.swift", "/tmp/extra.swift"])
 
         XCTAssertEqual(genericPaths, ["$(SRC_ROOT)/some.swift", "$(PWD)/extra.swift"])
     }
 
-    func testMappingsLocalPathsIsDoneInOrder() {
+    func testMappingsLocalPathsIsDoneInOrder() throws {
         let mappings: [StringDependenciesRemapper.Mapping] = [
             .init(generic: "$(TMP)", local: "/tmp"),
             .init(generic: "$(ROOT)", local: "$(TMP)/root"),
@@ -78,12 +78,12 @@ class StringDependenciesRemapperTests: XCTestCase {
         remapper = StringDependenciesRemapper(mappings: mappings)
 
 
-        let genericPaths = remapper.replace(localPaths: ["/tmp/root/some.swift"])
+        let genericPaths = try remapper.replace(localPaths: ["/tmp/root/some.swift"])
 
         XCTAssertEqual(genericPaths, ["$(ROOT)/some.swift"])
     }
 
-    func testMappingsGenericPathsIsDoneInReversedOrder() {
+    func testMappingsGenericPathsIsDoneInReversedOrder() throws {
         let mappings: [StringDependenciesRemapper.Mapping] = [
             .init(generic: "$(TMP)", local: "/tmp"),
             .init(generic: "$(ROOT)", local: "$(TMP)/root"),
@@ -91,7 +91,7 @@ class StringDependenciesRemapperTests: XCTestCase {
         remapper = StringDependenciesRemapper(mappings: mappings)
 
 
-        let localPaths = remapper.replace(genericPaths: ["$(ROOT)/some.swift"])
+        let localPaths = try remapper.replace(genericPaths: ["$(ROOT)/some.swift"])
 
         XCTAssertEqual(localPaths, ["/tmp/root/some.swift"])
     }

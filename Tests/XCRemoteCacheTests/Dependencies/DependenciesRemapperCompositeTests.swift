@@ -29,52 +29,52 @@ class DependenciesRemapperCompositeTests: XCTestCase {
         StringDependenciesRemapper.Mapping(generic: "$(PWD)", local: "/pwd"),
     ]
 
-    func testNoRemappersIsTransparent() {
+    func testNoRemappersIsTransparent() throws {
         let remapper = DependenciesRemapperComposite([])
 
-        let genericPath = remapper.replace(localPaths: ["/tmp/root/some.swift"])
+        let genericPath = try remapper.replace(localPaths: ["/tmp/root/some.swift"])
 
         XCTAssertEqual(genericPath, ["/tmp/root/some.swift"])
     }
 
-    func testOneRemapperReplacesLocalPaths() {
+    func testOneRemapperReplacesLocalPaths() throws {
         let remapper = DependenciesRemapperComposite([
             StringDependenciesRemapper(mappings: mappings1),
         ])
 
-        let genericPath = remapper.replace(localPaths: ["/tmp/root/some.swift"])
+        let genericPath = try remapper.replace(localPaths: ["/tmp/root/some.swift"])
 
         XCTAssertEqual(genericPath, ["$(SRC_ROOT)/some.swift"])
     }
 
-    func testOneRemapperReplacesGenericPaths() {
+    func testOneRemapperReplacesGenericPaths() throws {
         let remapper = DependenciesRemapperComposite([
             StringDependenciesRemapper(mappings: mappings1),
         ])
 
-        let localPath = remapper.replace(genericPaths: ["$(SRC_ROOT)/some.swift"])
+        let localPath = try remapper.replace(genericPaths: ["$(SRC_ROOT)/some.swift"])
 
         XCTAssertEqual(localPath, ["/tmp/root/some.swift"])
     }
 
-    func testTwoRemappersReplacesLocalPaths() {
+    func testTwoRemappersReplacesLocalPaths() throws {
         let remapper = DependenciesRemapperComposite([
             StringDependenciesRemapper(mappings: mappings1),
             StringDependenciesRemapper(mappings: mappings2),
         ])
 
-        let genericPath = remapper.replace(localPaths: ["/tmp/root/some.swift", "/pwd/other.swift"])
+        let genericPath = try remapper.replace(localPaths: ["/tmp/root/some.swift", "/pwd/other.swift"])
 
         XCTAssertEqual(genericPath, ["$(SRC_ROOT)/some.swift", "$(PWD)/other.swift"])
     }
 
-    func testOneRemappersReplacesGenericPaths() {
+    func testOneRemappersReplacesGenericPaths() throws {
         let remapper = DependenciesRemapperComposite([
             StringDependenciesRemapper(mappings: mappings1),
             StringDependenciesRemapper(mappings: mappings2),
         ])
 
-        let localPath = remapper.replace(genericPaths: ["$(SRC_ROOT)/some.swift", "$(PWD)/other.swift"])
+        let localPath = try remapper.replace(genericPaths: ["$(SRC_ROOT)/some.swift", "$(PWD)/other.swift"])
 
         XCTAssertEqual(localPath, ["/tmp/root/some.swift", "/pwd/other.swift"])
     }
@@ -86,7 +86,7 @@ class DependenciesRemapperCompositeTests: XCTestCase {
         ])
         let localPaths = ["/root/specific/file"]
 
-        let genericPaths = remapper.replace(localPaths: localPaths)
+        let genericPaths = try remapper.replace(localPaths: localPaths)
 
         XCTAssertEqual(genericPaths, ["$(SPECIFIC)/file"])
     }
@@ -98,7 +98,7 @@ class DependenciesRemapperCompositeTests: XCTestCase {
         ])
         let genericPaths = ["$(SPECIFIC)/file"]
 
-        let localPaths = remapper.replace(genericPaths: genericPaths)
+        let localPaths = try remapper.replace(genericPaths: genericPaths)
 
         XCTAssertEqual(localPaths, ["/root/specific/file"])
     }
@@ -110,8 +110,8 @@ class DependenciesRemapperCompositeTests: XCTestCase {
         ])
         let localPaths = ["/root/specific/file"]
 
-        let genericPaths = remapper.replace(localPaths: localPaths)
-        let remappedLocalPaths = remapper.replace(genericPaths: genericPaths)
+        let genericPaths = try remapper.replace(localPaths: localPaths)
+        let remappedLocalPaths = try remapper.replace(genericPaths: genericPaths)
 
         XCTAssertEqual(localPaths, remappedLocalPaths)
     }
