@@ -1,0 +1,31 @@
+{
+  "case-sensitive": "false",
+  "roots":
+    [
+      {
+        "contents":
+          [
+            {
+              "external-contents": "/Path/Target1/Target1.h",
+              "name": "Target1.h",
+              "type": "file",
+            },
+          ],
+        "name": "/DerivedDataProducts/Target1.framework/Headers",
+        "type": "directory",
+      },
+      {
+        "contents":
+          [
+            {
+              "external-contents": "/DerivedDataIntermediate/Target2.build/module.modulemap",
+              "name": "module.modulemap",
+              "type": "file",
+            },
+          ],
+        "name": "/DerivedDataProducts/Target2.framework/Modules",
+        "type": "directory",
+      },
+    ],
+  "version": 0,
+}

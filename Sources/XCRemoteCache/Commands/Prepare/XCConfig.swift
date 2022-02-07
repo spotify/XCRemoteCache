@@ -18,7 +18,6 @@
 // under the License.
 
 import Foundation
-import Yams
 
 /// Print current configuration to the console
 public class XCConfig {
