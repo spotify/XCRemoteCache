@@ -1,9 +1,13 @@
 .DS_Store
 /.build
 /Packages
-/*.xcodeproj
+*.xcodeproj/
+*.xcworkspace/
 DerivedData
 /.swiftpm/
 releases
 tmp/
 .idea/
+xcuserdata
+*.gem
+Pods/
