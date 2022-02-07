@@ -25,7 +25,18 @@ The generated Xcode project contains schemes for each output application (like `
 
 #### Running tests in Xcode
 
-All unit tests are placed in `XCRemoteCacheTests`. To run them from Xcode, just pick any application scheme and run tests (⌘+U).   
+All unit tests are placed in `XCRemoteCacheTests`. To run them from Xcode, just pick any application scheme and run tests (⌘+U).
+
+#### Running E2E tests
+
+E2E tests build a CocoaPods plugin, locally build both `producer` and `consumer` modes and verify 100% hit rate. All `Podfile` templates are placed in [e2eTests/tests](../e2eTests/tests). As a backend server, nginx server with a sample [nginx.conf](../e2eTests/nginx/nginx.conf) configuration is used. The sample server exposes local location `/tmp/cache` under http://localhost:8080.
+
+To run tests locally, install `nginx` (e.g. `brew install nginx`) and call: 
+
+```bash
+rake 'build[release]'
+rake e2e_only
+```
 
 ## Project organization
 

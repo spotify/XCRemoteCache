@@ -1,4 +1,5 @@
 # encoding: utf-8
+require_relative 'tasks/e2e'
 
 ################################
 # Rake configuration
@@ -76,6 +77,12 @@ task :test do
   # Running tests
   spm_test()
 end
+
+desc 'build and run E2E tests'
+task :e2e => [:build, :e2e_only]
+
+desc 'run E2E tests without building the XCRemoteCache binary'
+task :e2e_only => ['e2e:run']
 
 ################################
 # Helper functions
