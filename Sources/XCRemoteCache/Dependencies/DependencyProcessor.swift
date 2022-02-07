@@ -58,11 +58,11 @@ class DependencyProcessorImpl: DependencyProcessor {
     private let bundlePath: String?
 
     init(xcode: URL, product: URL, source: URL, intermediate: URL, bundle: URL?) {
-        xcodePath = xcode.path
-        productPath = product.path
-        sourcePath = source.path
-        intermediatePath = intermediate.path
-        bundlePath = bundle?.path
+        xcodePath = xcode.path.dirPath()
+        productPath = product.path.dirPath()
+        sourcePath = source.path.dirPath()
+        intermediatePath = intermediate.path.dirPath()
+        bundlePath = bundle?.path.dirPath()
     }
 
     func process(_ files: [URL]) -> [Dependency] {
@@ -72,7 +72,7 @@ class DependencyProcessorImpl: DependencyProcessor {
 
     private func classify(_ files: [URL]) -> [Dependency] {
         return files.map { file -> Dependency in
-            let filePath = file.path
+            let filePath = file.resolvingSymlinksInPath().path
             if filePath.hasPrefix(xcodePath) {
                 return Dependency(url: file, type: .xcode)
             } else if filePath.hasPrefix(intermediatePath) {
@@ -109,5 +109,11 @@ class DependencyProcessorImpl: DependencyProcessor {
         //   because in case of a hit, these will be taken from the artifact
         let irrelevantDependenciesType: [Dependency.Kind] = [.xcode, .intermediate, .ownProduct]
         return !irrelevantDependenciesType.contains(dependency.type)
+    }
+}
+
+fileprivate extension String {
+    func dirPath() -> String {
+        hasSuffix("/") ? self : appending("/")
     }
 }
