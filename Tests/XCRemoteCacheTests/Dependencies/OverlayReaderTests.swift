@@ -51,6 +51,14 @@ class JsonOverlayReaderTests: XCTestCase {
         XCTAssertEqual(mappings, [])
     }
 
+    func testParsingEmptyOverlay() throws {
+        let file = try pathForTestData(name: "overlayReaderEmpty")
+        let reader = JsonOverlayReader(file, mode: .strict, fileReader: FileManager.default)
+        let mappings = try reader.provideMappings()
+
+        XCTAssertEqual(mappings, [])
+    }
+
     private func pathForTestData(name: String) throws -> URL {
         return try XCTUnwrap(Bundle.module.url(forResource: name, withExtension: "json", subdirectory: JsonOverlayReaderTests.resourcesSubdirectory))
     }

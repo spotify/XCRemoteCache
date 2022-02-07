@@ -179,8 +179,7 @@ namespace :e2e do
         dump_podfile(consumer_configuration, template_path)
         puts('Building consumer ...')
         Dir.chdir(E2E_COCOAPODS_SAMPLE_DIR) do
-            # TODO: Change DerivedData's path to emulate multi-machines setup. Blocked by #59
-            build_project({'derivedDataPath' => "#{DERIVED_DATA_PATH}"})
+            build_project({'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
             valide_hit_rate
         end
     end
