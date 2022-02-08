@@ -30,7 +30,7 @@ class OverlayDependenciesRemapper: DependenciesRemapper {
     }
 
     /// Lazily Reads mappings from a file
-    /// - Warning: this file is not thread safe
+    /// - Warning: this function is not thread safe
     private func getMappings() throws -> [OverlayMapping] {
         guard let mappings = mappings else {
             let mappings = try overlayReader.provideMappings()
