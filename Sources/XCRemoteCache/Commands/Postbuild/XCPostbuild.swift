@@ -66,7 +66,7 @@ public class XCPostbuild {
             // Initialize dependencies
             let primaryGitBranch = GitBranch(repoLocation: config.primaryRepo, branch: config.primaryBranch)
             let gitClient = GitClientImpl(repoRoot: config.repoRoot, primary: primaryGitBranch, shell: shellGetStdout)
-            let pathRemapper = try StringDependenciesRemapperFactory().build(
+            let envsRemapper = try StringDependenciesRemapperFactory().build(
                 orderKeys: DependenciesMapping.rewrittenEnvs,
                 envs: env,
                 customMappings: config.outOfBandMappings
@@ -145,6 +145,18 @@ public class XCPostbuild {
                 fileDependeciesReaderFactory: fileReaderFactory,
                 dirScanner: fileManager
             )
+            // As the PostbuildContext assumes file location and filename (`all-product-headers.yaml`)
+            // do not fail in case of a missing headers overlay file. In the future, all overlay files could be
+            // captured from the swiftc invocation similarly is stored in the `history.compile` for the consumer mode.
+            let overlayReader = JsonOverlayReader(
+                context.overlayHeadersPath,
+                mode: .bestEffort,
+                fileReader: fileManager
+            )
+            let overlayRemapper = try OverlayDependenciesRemapper(
+                overlayReader: overlayReader
+            )
+            let pathRemapper = DependenciesRemapperComposite([overlayRemapper, envsRemapper])
             let dependencyProcessor = DependencyProcessorImpl(
                 xcode: context.xcodeDir,
                 product: context.productsDir,
