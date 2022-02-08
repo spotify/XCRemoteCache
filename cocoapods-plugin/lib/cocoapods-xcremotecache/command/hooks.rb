@@ -112,20 +112,30 @@ module CocoapodsXCRemoteCacheModifier
         target.build_configurations.each do |config|
           # apply only for relevant Configurations
           next if exclude_build_configurations.include?(config.name)
-          if mode == 'consumer'
-            config.build_settings['CC'] = ["$SRCROOT/#{parent_dir(xc_cc_path, repo_distance)}"]
-          elsif mode == 'producer' || mode == 'producer-fast'
-            config.build_settings.delete('CC') if config.build_settings.key?('CC')
+          build_settings = config.build_settings
+          if !config.base_configuration_reference.nil?
+            baseconfig = Xcodeproj::Config.new(config.base_configuration_reference.real_path)
+            build_settings = baseconfig.attributes
           end
-          config.build_settings['SWIFT_EXEC'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xcswiftc"]
-          config.build_settings['LIBTOOL'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xclibtool"]
-          config.build_settings['LD'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xcld"]
+          if mode == 'consumer'
+            build_settings['CC'] = ["$SRCROOT/#{parent_dir(xc_cc_path, repo_distance)}"]
+          elsif mode == 'producer' || mode == 'producer-fast'
+            build_settings.delete('CC') if build_settings.key?('CC')
+          end
+          build_settings['SWIFT_EXEC'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xcswiftc"]
+          build_settings['LIBTOOL'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xclibtool"]
+          build_settings['LD'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xcld"]
 
-          config.build_settings['XCREMOTE_CACHE_FAKE_SRCROOT'] = FAKE_SRCROOT
-          config.build_settings['XCRC_PLATFORM_PREFERRED_ARCH'] = ["$(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)"]
+          build_settings['XCREMOTE_CACHE_FAKE_SRCROOT'] = FAKE_SRCROOT
+          build_settings['XCRC_PLATFORM_PREFERRED_ARCH'] = ["$(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)"]
           debug_prefix_map_replacement = '$(SRCROOT' + ':dir:standardizepath' * repo_distance + ')'
-          add_cflags!(config.build_settings, '-fdebug-prefix-map', "#{debug_prefix_map_replacement}=$(XCREMOTE_CACHE_FAKE_SRCROOT)")
-          add_swiftflags!(config.build_settings, '-debug-prefix-map', "#{debug_prefix_map_replacement}=$(XCREMOTE_CACHE_FAKE_SRCROOT)")
+          add_cflags!(build_settings, '-fdebug-prefix-map', "#{debug_prefix_map_replacement}=$(XCREMOTE_CACHE_FAKE_SRCROOT)")
+          add_swiftflags!(build_settings, '-debug-prefix-map', "#{debug_prefix_map_replacement}=$(XCREMOTE_CACHE_FAKE_SRCROOT)")
+
+          if !config.base_configuration_reference.nil?
+            baseconfig = Xcodeproj::Config.new(build_settings)
+            baseconfig.save_as(config.base_configuration_reference.real_path)
+          end
         end
 
         # Prebuild
@@ -135,7 +145,8 @@ module CocoapodsXCRemoteCacheModifier
               phase.name != nil && phase.name.start_with?("[XCRC] Prebuild")
             end
           end
-          prebuild_script = existing_prebuild_script || target.new_shell_script_build_phase("[XCRC] Prebuild")
+
+          prebuild_script = existing_prebuild_script || target.new_shell_script_build_phase("[XCRC] Prebuild #{target.name}")
           prebuild_script.shell_script = "\"$SCRIPT_INPUT_FILE_0\""
           prebuild_script.input_paths = ["$SRCROOT/#{srcroot_relative_xc_location}/xcprebuild"]
           prebuild_script.output_paths = [
@@ -145,7 +156,8 @@ module CocoapodsXCRemoteCacheModifier
           prebuild_script.dependency_file = "$(TARGET_TEMP_DIR)/prebuild.d"
 
           # Move prebuild (last element) to the first position (to make it real 'prebuild')
-          target.build_phases.rotate!(-1) if existing_prebuild_script.nil?
+          compile_phase_index = target.build_phases.index(target.source_build_phase)
+          target.build_phases.insert(compile_phase_index, target.build_phases.delete(prebuild_script))
         elsif mode == 'producer' || mode == 'producer-fast'
           # Delete existing prebuild build phase (to support switching between modes)
           target.build_phases.delete_if do |phase|
@@ -161,7 +173,7 @@ module CocoapodsXCRemoteCacheModifier
             phase.name != nil && phase.name.start_with?("[XCRC] Postbuild")
           end
         end
-        postbuild_script = existing_postbuild_script || target.new_shell_script_build_phase("[XCRC] Postbuild")
+        postbuild_script = existing_postbuild_script || target.new_shell_script_build_phase("[XCRC] Postbuild #{target.name}")
         postbuild_script.shell_script = "\"$SCRIPT_INPUT_FILE_0\""
         postbuild_script.input_paths = ["$SRCROOT/#{srcroot_relative_xc_location}/xcpostbuild"]
         postbuild_script.output_paths = [
@@ -192,15 +204,25 @@ module CocoapodsXCRemoteCacheModifier
 
       def self.disable_xcremotecache_for_target(target)
         target.build_configurations.each do |config|
-          config.build_settings.delete('CC') if config.build_settings.key?('CC')
-          config.build_settings.delete('SWIFT_EXEC') if config.build_settings.key?('SWIFT_EXEC')
-          config.build_settings.delete('LIBTOOL') if config.build_settings.key?('LIBTOOL')
-          config.build_settings.delete('LD') if config.build_settings.key?('LD')
+          build_settings = config.build_settings
+          if !config.base_configuration_reference.nil?
+            baseconfig = Xcodeproj::Config.new(config.base_configuration_reference.real_path)
+            build_settings = baseconfig.attributes
+          end
+          build_settings.delete('CC') if build_settings.key?('CC')
+          build_settings.delete('SWIFT_EXEC') if build_settings.key?('SWIFT_EXEC')
+          build_settings.delete('LIBTOOL') if build_settings.key?('LIBTOOL')
+          build_settings.delete('LD') if build_settings.key?('LD')
           # Remove Fake src root for ObjC & Swift
-          config.build_settings.delete('XCREMOTE_CACHE_FAKE_SRCROOT')
-          config.build_settings.delete('XCRC_PLATFORM_PREFERRED_ARCH')
-          remove_cflags!(config.build_settings, '-fdebug-prefix-map')
-          remove_swiftflags!(config.build_settings, '-debug-prefix-map')
+          build_settings.delete('XCREMOTE_CACHE_FAKE_SRCROOT')
+          build_settings.delete('XCRC_PLATFORM_PREFERRED_ARCH')
+          remove_cflags!(build_settings, '-fdebug-prefix-map')
+          remove_swiftflags!(build_settings, '-debug-prefix-map')
+
+          if !config.base_configuration_reference.nil?
+            baseconfig = Xcodeproj::Config.new(build_settings)
+            baseconfig.save_as(config.base_configuration_reference.real_path)
+          end
         end
 
         # User project is not generated from scratch (contrary to `Pods`), delete all previous XCRemoteCache phases
@@ -260,14 +282,12 @@ module CocoapodsXCRemoteCacheModifier
       end
 
       def self.add_cflags!(options, key, value)
-        return if options.fetch('OTHER_CFLAGS',[]).include?(value)
-        options['OTHER_CFLAGS'] = remove_cflags!(options, key) << "#{key}=#{value}" 
+        return if options.fetch('OTHER_CFLAGS','').include?(value)
+        options['OTHER_CFLAGS'] = remove_cflags!(options, key) + " #{key}=#{value}" 
       end
 
       def self.remove_cflags!(options, key)
-        cflags_arr = options.fetch('OTHER_CFLAGS', ['$(inherited)'])
-        cflags_arr = [cflags_arr] if cflags_arr.kind_of? String
-        options['OTHER_CFLAGS'] = cflags_arr.delete_if {|flag| flag.include?("#{key}=") }
+        options['OTHER_CFLAGS'] = options.fetch('OTHER_SWIFT_FLAGS', '$(inherited)').gsub(/\s+#{Regexp.escape(key)}=\S+/, '')
         options['OTHER_CFLAGS']
       end
 
