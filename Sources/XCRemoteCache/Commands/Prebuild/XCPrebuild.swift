@@ -127,7 +127,7 @@ public class XCPrebuild {
                 mode: .bestEffort,
                 fileReader: fileManager
             )
-            let overlayRemapper = try OverlayDependenciesRemapper(
+            let overlayRemapper = OverlayDependenciesRemapper(
                 overlayReader: overlayReader
             )
             let pathRemapper = DependenciesRemapperComposite([overlayRemapper, envsRemapper])

@@ -21,7 +21,8 @@ import Foundation
 @testable import XCRemoteCache
 
 class OverlayReaderFake: OverlayReader {
-    private let mappings: [OverlayMapping]
+    var mappings: [OverlayMapping]
+    
     init(mappings: [OverlayMapping]) {
         self.mappings = mappings
     }

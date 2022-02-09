@@ -22,9 +22,9 @@ import Foundation
 /// Replaces paths formats between generic (placeholders-based) and local
 protocol DependenciesRemapper {
     /// Replaces all generic paths (with placeholders) to a local paths
-    func replace(genericPaths: [String]) -> [String]
+    func replace(genericPaths: [String]) throws -> [String]
     /// Replaces all local paths to the generic dependencies paths
-    func replace(localPaths: [String]) -> [String]
+    func replace(localPaths: [String]) throws -> [String]
 }
 
 class DependenciesRemapperComposite: DependenciesRemapper {
@@ -34,15 +34,15 @@ class DependenciesRemapperComposite: DependenciesRemapper {
         self.remappers = remappers
     }
 
-    func replace(genericPaths: [String]) -> [String] {
-        remappers.reversed().reduce(genericPaths) { prev, mapper in
-            mapper.replace(genericPaths: prev)
+    func replace(genericPaths: [String]) throws -> [String] {
+        try remappers.reversed().reduce(genericPaths) { prev, mapper in
+            try mapper.replace(genericPaths: prev)
         }
     }
 
-    func replace(localPaths: [String]) -> [String] {
-        remappers.reduce(localPaths) { prev, mapper in
-            mapper.replace(localPaths: prev)
+    func replace(localPaths: [String]) throws -> [String] {
+        try remappers.reduce(localPaths) { prev, mapper in
+            try mapper.replace(localPaths: prev)
         }
     }
 }
@@ -59,7 +59,7 @@ final class StringDependenciesRemapper: DependenciesRemapper {
         self.mappings = mappings
     }
 
-    func replace(genericPaths: [String]) -> [String] {
+    func replace(genericPaths: [String]) throws -> [String] {
         return genericPaths.map { path in
             let localPath = mappings.reversed().reduce(path) { prevPath, mapping in
                 prevPath.replacingOccurrences(of: mapping.generic, with: mapping.local)
@@ -68,7 +68,7 @@ final class StringDependenciesRemapper: DependenciesRemapper {
         }
     }
 
-    func replace(localPaths: [String]) -> [String] {
+    func replace(localPaths: [String]) throws -> [String] {
         return localPaths.map { path in
             let result = mappings.reduce(path) { prevPath, mapping in
                 prevPath.replacingOccurrences(of: mapping.local, with: mapping.generic)

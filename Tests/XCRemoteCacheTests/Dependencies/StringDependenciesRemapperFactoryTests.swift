@@ -34,7 +34,7 @@ class StringDependenciesRemapperFactoryTests: XCTestCase {
             customMappings: [:]
         )
 
-        let localPaths = remapper.replace(genericPaths: ["$(SRC_ROOT)/some.swift"])
+        let localPaths = try remapper.replace(genericPaths: ["$(SRC_ROOT)/some.swift"])
         XCTAssertEqual(localPaths, ["/tmp/root/some.swift"])
     }
 
@@ -55,7 +55,7 @@ class StringDependenciesRemapperFactoryTests: XCTestCase {
             customMappings: ["TMP": "/tmp"]
         )
 
-        let genericPaths = remapper.replace(localPaths: ["/some/repoFile.swift", "/tmp/externalFile.swift"])
+        let genericPaths = try remapper.replace(localPaths: ["/some/repoFile.swift", "/tmp/externalFile.swift"])
         XCTAssertEqual(genericPaths, ["$(PWD)/repoFile.swift", "$(TMP)/externalFile.swift"])
     }
 
