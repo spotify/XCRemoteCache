@@ -135,7 +135,8 @@ module CocoapodsXCRemoteCacheModifier
               phase.name != nil && phase.name.start_with?("[XCRC] Prebuild")
             end
           end
-          prebuild_script = existing_prebuild_script || target.new_shell_script_build_phase("[XCRC] Prebuild")
+
+          prebuild_script = existing_prebuild_script || target.new_shell_script_build_phase("[XCRC] Prebuild #{target.name}")
           prebuild_script.shell_script = "\"$SCRIPT_INPUT_FILE_0\""
           prebuild_script.input_paths = ["$SRCROOT/#{srcroot_relative_xc_location}/xcprebuild"]
           prebuild_script.output_paths = [
@@ -144,8 +145,9 @@ module CocoapodsXCRemoteCacheModifier
           ]
           prebuild_script.dependency_file = "$(TARGET_TEMP_DIR)/prebuild.d"
 
-          # Move prebuild (last element) to the first position (to make it real 'prebuild')
-          target.build_phases.rotate!(-1) if existing_prebuild_script.nil?
+          # Move prebuild (last element) to the position before compile sources phase (to make it real 'prebuild')
+          compile_phase_index = target.build_phases.index(target.source_build_phase)
+          target.build_phases.insert(compile_phase_index, target.build_phases.delete(prebuild_script))
         elsif mode == 'producer' || mode == 'producer-fast'
           # Delete existing prebuild build phase (to support switching between modes)
           target.build_phases.delete_if do |phase|
@@ -161,7 +163,7 @@ module CocoapodsXCRemoteCacheModifier
             phase.name != nil && phase.name.start_with?("[XCRC] Postbuild")
           end
         end
-        postbuild_script = existing_postbuild_script || target.new_shell_script_build_phase("[XCRC] Postbuild")
+        postbuild_script = existing_postbuild_script || target.new_shell_script_build_phase("[XCRC] Postbuild #{target.name}")
         postbuild_script.shell_script = "\"$SCRIPT_INPUT_FILE_0\""
         postbuild_script.input_paths = ["$SRCROOT/#{srcroot_relative_xc_location}/xcpostbuild"]
         postbuild_script.output_paths = [
