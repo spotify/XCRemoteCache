@@ -60,6 +60,13 @@ class TemplateBasedCCWrapperBuilderTests: FileXCTestCase {
     private var prebuildFile: URL!
     private var arguments: [String]!
 
+    override class func setUp() {
+        // Prepare(compile) xccc and invoke it to get rid of a constant delay that happens if the xccc is invoked
+        // for a first time. For some (unknown) reasons, `shellCall` hangs for ~5s (only once).
+        _ = xccc
+        try? shellCall(xccc.path)
+    }
+
     override func setUpWithError() throws {
         try super.setUpWithError()
 
