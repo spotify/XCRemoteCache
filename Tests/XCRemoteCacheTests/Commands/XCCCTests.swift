@@ -28,7 +28,7 @@ class TemplateBasedCCWrapperBuilderTests: FileXCTestCase {
     private static let history = "history.compile"
     private static let prebuild = "prebuild.d"
     private static let commitSha = "321"
-    private static let timeout = 10.0
+    private static let timeout = 5.0
 
     static let xccc: URL = {
         let fileManager = FileManager.default
