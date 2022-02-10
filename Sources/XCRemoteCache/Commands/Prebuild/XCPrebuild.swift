@@ -120,17 +120,22 @@ public class XCPrebuild {
                 envs: env,
                 customMappings: config.outOfBandMappings
             )
-            // As PrebuildContext assumes file location and its filename (`all-product-headers.yaml`)
-            // do not fail in case of a missing headers overlay file. 
-            let overlayReader = JsonOverlayReader(
-                context.overlayHeadersPath,
-                mode: .bestEffort,
-                fileReader: fileManager
-            )
-            let overlayRemapper = OverlayDependenciesRemapper(
-                overlayReader: overlayReader
-            )
-            let pathRemapper = DependenciesRemapperComposite([overlayRemapper, envsRemapper])
+            var remappers: [DependenciesRemapper] = []
+            if !config.disableVFSOverlay {
+                // As PrebuildContext assumes file location and its filename (`all-product-headers.yaml`)
+                // do not fail in case of a missing headers overlay file.
+                let overlayReader = JsonOverlayReader(
+                    context.overlayHeadersPath,
+                    mode: .bestEffort,
+                    fileReader: fileManager
+                )
+                let overlayRemapper = OverlayDependenciesRemapper(
+                    overlayReader: overlayReader
+                )
+                remappers.append(overlayRemapper)
+            }
+            remappers.append(envsRemapper)
+            let pathRemapper = DependenciesRemapperComposite(remappers)
             let filesFingerprintGenerator = FingerprintAccumulatorImpl(
                 algorithm: MD5Algorithm(),
                 fileManager: fileManager
