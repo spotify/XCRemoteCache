@@ -20,7 +20,7 @@
 @testable import XCRemoteCache
 import XCTest
 
-class JsonOverlayReaderTests: XCTestCase {
+class JsonOverlayReaderTests: FileXCTestCase {
     private static let resourcesSubdirectory = "TestData/Dependencies/JsonOverlayReaderTests"
 
     func testParsingWithSuccess() throws {
@@ -57,6 +57,25 @@ class JsonOverlayReaderTests: XCTestCase {
         let mappings = try reader.provideMappings()
 
         XCTAssertEqual(mappings, [])
+    }
+
+    func testInvalidJsonDoesntThrowForBestEffortMode() throws {
+        let workingDir = try prepareTempDir()
+        let file = workingDir.appendingPathExtension("overlay.json")
+        try fileManager.spt_createEmptyFile(file)
+        let reader = JsonOverlayReader(file, mode: .bestEffort, fileReader: fileManager)
+        let mappings = try reader.provideMappings()
+
+        XCTAssertEqual(mappings, [])
+    }
+
+    func testInvalidJsonThrowsForStrictMode() throws {
+        let workingDir = try prepareTempDir()
+        let file = workingDir.appendingPathExtension("overlay.json")
+        try fileManager.spt_createEmptyFile(file)
+        let reader = JsonOverlayReader(file, mode: .strict, fileReader: fileManager)
+
+        XCTAssertThrowsError(try reader.provideMappings())
     }
 
     private func pathForTestData(name: String) throws -> URL {

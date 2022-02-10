@@ -95,31 +95,39 @@ class JsonOverlayReader: OverlayReader {
                 return []
             }
         }
-
+        do {
         let overlay: Overlay = try jsonDecoder.decode(Overlay.self, from: jsonContent)
-        let mappings: [OverlayMapping] = try overlay.roots.reduce([]) { prev, root in
-            switch root.type {
-            case .directory:
-                //iterate all contents
-                let dir = URL(fileURLWithPath: root.name)
-                let mappings: [OverlayMapping] = try root.contents.map { content in
-                    switch content.type {
-                    case .file:
-                        let virtual = dir.appendingPathComponent(content.name)
-                        let local = URL(fileURLWithPath: content.externalContents)
-                        return .init(virtual: virtual, local: local)
-                    case .directory:
-                        throw JsonOverlayReaderError.unsupportedFormat
-                    }
+            let mappings: [OverlayMapping] = try overlay.roots.reduce([]) { prev, root in
+                switch root.type {
+                case .directory:
+                    //iterate all contents
+                    let dir = URL(fileURLWithPath: root.name)
+                    let mappings: [OverlayMapping] = try root.contents.map { content in
+                        switch content.type {
+                        case .file:
+                            let virtual = dir.appendingPathComponent(content.name)
+                            let local = URL(fileURLWithPath: content.externalContents)
+                            return .init(virtual: virtual, local: local)
+                        case .directory:
+                            throw JsonOverlayReaderError.unsupportedFormat
+                        }
 
+                    }
+                    return prev + mappings
+                case .file:
+                    throw JsonOverlayReaderError.unsupportedFormat
                 }
-                return prev + mappings
-            case .file:
-                throw JsonOverlayReaderError.unsupportedFormat
+            }
+            return mappings
+        } catch {
+            switch mode {
+            case .strict:
+                throw error
+            case .bestEffort:
+                printWarning("Overlay reader has failed with an error \(error). Best-effort mode - skipping an overlay.")
+                return []
             }
         }
-
-        return mappings
     }
 
 }
