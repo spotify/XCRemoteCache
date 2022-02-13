@@ -1,16 +1,14 @@
+---
+name: ⚠️ Bug Report
+about: Something isn't working as expected
+
+---
+
 <!--
 PLEASE HELP US PROCESS GITHUB ISSUES FASTER BY PROVIDING THE FOLLOWING INFORMATION.
 -->
 
-**I'm submitting a ...**  (check one with "x")
-
-[ ] Regression (a behavior that used to work and stopped working in a new release)
-[ ] Bug report  <!-- Please check the repository for a similar issue or PR before submitting -->
-[ ] Feature request
-[ ] Documentation issue or request
-
 **My integration setup**
-<!-- [Bugs] -->
 
 [ ] CocoaPods cocoapods-xcremotecache plugin
 [ ] Automatic integration wusingith `xcprepare integrate ...`
@@ -21,34 +19,30 @@ PLEASE HELP US PROCESS GITHUB ISSUES FASTER BY PROVIDING THE FOLLOWING INFORMATI
 <!-- Describe what the desired behavior would be. -->
 
 **Minimal reproduction of the problem with instructions**
-<!-- [Bugs] reports please provide the *STEPS TO REPRODUCE*. -->
-
-**What is the use case for changing the behavior?**
-<!-- [Feature requests] Describe the motivation or the feature request. -->
+<!-- Please provide the *STEPS TO REPRODUCE*. -->
 
 **Producer Logs**
-<!-- [Bugs] Capture logs from 10 minutes: `log show --predicate 'sender BEGINSWITH "xc"' --style compact --info --debug -last 10m` -->
+<!-- Capture logs from 10 minutes: `log show --predicate 'sender BEGINSWITH "xc"' --style compact --info --debug -last 10m` -->
 
 <details>
   <pre> [REPLACE THIS WITH YOUR INFORMATION] </pre>
 </details>
 
 **Consumer Logs**
-<!-- [Bugs] Capture logs from 10 minutes: `log show --predicate 'sender BEGINSWITH "xc"' --style compact --info --debug -last 10m` -->
+<!-- Capture logs from 10 minutes: `log show --predicate 'sender BEGINSWITH "xc"' --style compact --info --debug -last 10m` -->
 
 <details>
   <pre> [REPLACE THIS WITH YOUR INFORMATION] </pre>
 </details>
 
 **Pods/Carthage file**
-<!-- [Bugs] Delete if you don't use CocoaPods or Carthage -->
+<!-- Delete if you don't use CocoaPods or Carthage -->
 
 <details>
   <pre> [REPLACE THIS WITH YOUR INFORMATION] </pre>
 </details>
 
 **Environment**
-<!-- [Bugs] -->
 
 * **XCRemoteCache:** X.Y.Z
 * **cocoapods-xcremotecache:** X.Y.Z <!-- check with `gem list cocoapods-xcremotecache` >
@@ -56,12 +50,12 @@ PLEASE HELP US PROCESS GITHUB ISSUES FASTER BY PROVIDING THE FOLLOWING INFORMATI
 * **Xcode:** X.Y.Z
 
 **Post build stats**
-<!-- [Bugs] 
-
+<!-- 
 To capture build statistics: 
 * call `xcprepare stats --reset` (or `XCRC/xcprepare stats --reset` for CocoaPods)
 * Build a project in Xcode
-* `xcprepare stats` (or `XCRC/xcprepare stats` for CocoaPods)  -->
+* `xcprepare stats` (or `XCRC/xcprepare stats` for CocoaPods) 
+-->
 
 <details>
   <pre> [REPLACE THIS WITH YOUR INFORMATION] </pre>
