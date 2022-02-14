@@ -145,18 +145,23 @@ public class XCPostbuild {
                 fileDependeciesReaderFactory: fileReaderFactory,
                 dirScanner: fileManager
             )
-            // As the PostbuildContext assumes file location and filename (`all-product-headers.yaml`)
-            // do not fail in case of a missing headers overlay file. In the future, all overlay files could be
-            // captured from the swiftc invocation similarly is stored in the `history.compile` for the consumer mode.
-            let overlayReader = JsonOverlayReader(
-                context.overlayHeadersPath,
-                mode: .bestEffort,
-                fileReader: fileManager
-            )
-            let overlayRemapper = OverlayDependenciesRemapper(
-                overlayReader: overlayReader
-            )
-            let pathRemapper = DependenciesRemapperComposite([overlayRemapper, envsRemapper])
+            var remappers: [DependenciesRemapper] = []
+            if !config.disableVFSOverlay {
+                // As the PostbuildContext assumes file location and filename (`all-product-headers.yaml`)
+                // do not fail in case of a missing headers overlay file. In the future, all overlay files could be
+                // captured from the swiftc invocation similarly is stored in the `history.compile` for the consumer mode.
+                let overlayReader = JsonOverlayReader(
+                    context.overlayHeadersPath,
+                    mode: .bestEffort,
+                    fileReader: fileManager
+                )
+                let overlayRemapper = OverlayDependenciesRemapper(
+                    overlayReader: overlayReader
+                )
+                remappers.append(overlayRemapper)
+            }
+            remappers.append(envsRemapper)
+            let pathRemapper = DependenciesRemapperComposite(remappers)
             let dependencyProcessor = DependencyProcessorImpl(
                 xcode: context.xcodeDir,
                 product: context.productsDir,

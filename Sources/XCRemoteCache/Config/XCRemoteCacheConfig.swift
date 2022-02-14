@@ -131,6 +131,8 @@ public struct XCRemoteCacheConfig: Encodable {
     var outOfBandMappings: [String: String] = [:]
     /// If true, SSL certificate validation is disabled
     var disableCertificateVerification: Bool = false
+    /// A feature flag to disable virtual file system overlay support (temporary)
+    var disableVFSOverlay: Bool = false
 }
 
 extension XCRemoteCacheConfig {
@@ -183,6 +185,7 @@ extension XCRemoteCacheConfig {
         merge.AWSService = scheme.AWSService ?? AWSService
         merge.outOfBandMappings = scheme.outOfBandMappings ?? outOfBandMappings
         merge.disableCertificateVerification = scheme.disableCertificateVerification ?? disableCertificateVerification
+        merge.disableVFSOverlay = scheme.disableVFSOverlay ?? disableVFSOverlay
         return merge
     }
 
@@ -244,6 +247,7 @@ struct ConfigFileScheme: Decodable {
     let AWSService: String?
     let outOfBandMappings: [String: String]?
     let disableCertificateVerification: Bool?
+    let disableVFSOverlay: Bool?
 
     // Yams library doesn't support encoding strategy, see https://github.com/jpsim/Yams/issues/84
     enum CodingKeys: String, CodingKey {
@@ -288,6 +292,7 @@ struct ConfigFileScheme: Decodable {
         case AWSService = "aws_service"
         case outOfBandMappings = "out_of_band_mappings"
         case disableCertificateVerification = "disable_certificate_verification"
+        case disableVFSOverlay = "disable_vfs_overlay"
     }
 }
 
