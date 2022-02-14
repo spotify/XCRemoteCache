@@ -11,7 +11,7 @@ PLEASE HELP US PROCESS GITHUB ISSUES FASTER BY PROVIDING THE FOLLOWING INFORMATI
 **My integration setup**
 
 [ ] CocoaPods cocoapods-xcremotecache plugin
-[ ] Automatic integration wusingith `xcprepare integrate ...`
+[ ] Automatic integration using `xcprepare integrate ...`
 [ ] Manual integration
 [ ] Carthage
 
