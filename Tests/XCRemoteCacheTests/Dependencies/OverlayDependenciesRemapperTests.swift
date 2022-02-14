@@ -40,20 +40,20 @@ class OverlayDependenciesRemapperTests: XCTestCase {
         XCTAssertEqual(dependencies, ["/Intermediate/Some/file.h"])
     }
 
-    func testGenericDependenciesAreMerged() throws {
+    func testGenericDependenciesAreNotMerged() throws {
         let remapper = OverlayDependenciesRemapper(overlayReader: overlayReader)
 
 
         let dependencies = try remapper.replace(localPaths: ["/Intermediate/Some/file.h", "/file.h"])
-        XCTAssertEqual(dependencies, ["/file.h"])
+        XCTAssertEqual(dependencies, ["/file.h", "/file.h"])
     }
 
-    func testLocalDependenciesAreMerged() throws {
+    func testLocalDependenciesAreNotMerged() throws {
         let remapper = OverlayDependenciesRemapper(overlayReader: overlayReader)
 
 
         let dependencies = try remapper.replace(genericPaths: ["/Intermediate/Some/file.h", "/file.h"])
-        XCTAssertEqual(dependencies, ["/Intermediate/Some/file.h"])
+        XCTAssertEqual(dependencies, ["/Intermediate/Some/file.h", "/Intermediate/Some/file.h"])
     }
 
     func testMappingsAreReadOnce() throws {
