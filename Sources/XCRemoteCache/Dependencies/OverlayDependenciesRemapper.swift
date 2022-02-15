@@ -54,14 +54,14 @@ class OverlayDependenciesRemapper: DependenciesRemapper {
     }
 
     func replace(genericPaths: [String]) throws -> [String] {
-        try Set(genericPaths.map {
+        try genericPaths.map {
             try mapPath($0, source: \.virtual, destination: \.local)
-        }).sorted()
+        }
     }
 
     func replace(localPaths: [String]) throws -> [String] {
-        try Set(localPaths.map {
+        try localPaths.map {
             try mapPath($0, source: \.local, destination: \.virtual)
-        }).sorted()
+        }
     }
 }
