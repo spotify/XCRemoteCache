@@ -133,6 +133,9 @@ public struct XCRemoteCacheConfig: Encodable {
     var disableCertificateVerification: Bool = false
     /// A feature flag to disable virtual file system overlay support (temporary)
     var disableVFSOverlay: Bool = false
+    /// A list of extra ENVs that should be used as placeholders in the dependency list.
+    /// ENV rewrite process is optimistic - does nothing if an ENV is not defined in the pre/postbuild process.
+    var customRewriteEnvs: [String] = []
 }
 
 extension XCRemoteCacheConfig {
@@ -186,6 +189,7 @@ extension XCRemoteCacheConfig {
         merge.outOfBandMappings = scheme.outOfBandMappings ?? outOfBandMappings
         merge.disableCertificateVerification = scheme.disableCertificateVerification ?? disableCertificateVerification
         merge.disableVFSOverlay = scheme.disableVFSOverlay ?? disableVFSOverlay
+        merge.customRewriteEnvs = scheme.customRewriteEnvs ?? customRewriteEnvs
         return merge
     }
 
@@ -248,6 +252,7 @@ struct ConfigFileScheme: Decodable {
     let outOfBandMappings: [String: String]?
     let disableCertificateVerification: Bool?
     let disableVFSOverlay: Bool?
+    let customRewriteEnvs: [String]?
 
     // Yams library doesn't support encoding strategy, see https://github.com/jpsim/Yams/issues/84
     enum CodingKeys: String, CodingKey {
@@ -293,6 +298,7 @@ struct ConfigFileScheme: Decodable {
         case outOfBandMappings = "out_of_band_mappings"
         case disableCertificateVerification = "disable_certificate_verification"
         case disableVFSOverlay = "disable_vfs_overlay"
+        case customRewriteEnvs = "custom_rewrite_envs"
     }
 }
 

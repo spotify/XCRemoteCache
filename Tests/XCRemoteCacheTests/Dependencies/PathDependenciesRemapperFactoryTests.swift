@@ -20,11 +20,11 @@
 @testable import XCRemoteCache
 import XCTest
 
-class StringDependenciesRemapperFactoryTests: XCTestCase {
-    private var factory: StringDependenciesRemapperFactory!
+class PathDependenciesRemapperFactoryTests: XCTestCase {
+    private var factory: PathDependenciesRemapperFactory!
 
     override func setUp() {
-        factory = StringDependenciesRemapperFactory()
+        factory = PathDependenciesRemapperFactory()
     }
 
     func testMappingsFromEnvMaps() throws {
@@ -38,8 +38,30 @@ class StringDependenciesRemapperFactoryTests: XCTestCase {
         XCTAssertEqual(localPaths, ["/tmp/root/some.swift"])
     }
 
-    func testInvalidMappingsFromEnvFails() throws {
-        XCTAssertThrowsError(
+    func testMappingsGenericWhenMappingHasParentDir() throws {
+        let remapper = try factory.build(
+            orderKeys: ["SRC_ROOT"],
+            envs: ["SRC_ROOT": "/tmp/root/extra/.."],
+            customMappings: [:]
+        )
+
+        let localPaths = try remapper.replace(genericPaths: ["$(SRC_ROOT)/some.swift"])
+        XCTAssertEqual(localPaths, ["/tmp/root/some.swift"])
+    }
+
+    func testMappingsLocalWhenMappingHasParentDir() throws {
+        let remapper = try factory.build(
+            orderKeys: ["SRC_ROOT"],
+            envs: ["SRC_ROOT": "/tmp/root/excessive/.."],
+            customMappings: [:]
+        )
+
+        let localPaths = try remapper.replace(localPaths: ["/tmp/root/some.swift"])
+        XCTAssertEqual(localPaths, ["$(SRC_ROOT)/some.swift"])
+    }
+
+    func testMissingEnvIsSkipped() throws {
+        XCTAssertNoThrow(
             try factory.build(
                 orderKeys: ["SRC_ROOT"],
                 envs: ["NO_SRC_ROOT": ""],

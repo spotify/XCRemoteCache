@@ -24,8 +24,15 @@ enum EnvironmentError: Error {
 }
 
 extension Dictionary where Key == String, Value == String {
-    func readEnv(key: String) throws -> URL {
+    func readEnv(key: String) -> URL? {
         guard let value = self[key].map(URL.init(fileURLWithPath:)) else {
+            return nil
+        }
+        return value
+    }
+
+    func readEnv(key: String) throws -> URL {
+        guard let value: URL = readEnv(key: key) else {
             throw EnvironmentError.missingEnv(key)
         }
         return value
