@@ -31,6 +31,7 @@ public class XCPrebuild {
         do {
             config = try XCRemoteCacheConfigReader(env: env, fileManager: fileManager).readConfiguration()
             context = try PrebuildContext(config, env: env)
+            updateProcessTag(context.targetName)
         } catch {
             // Fatal error:
             exit(1, "FATAL: Prebuild initialization failed with error: \(error)")

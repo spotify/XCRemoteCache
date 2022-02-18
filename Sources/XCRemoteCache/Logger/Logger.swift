@@ -22,38 +22,44 @@ import Foundation
 import os.log
 
 
+private var processTag: String = ""
+
 public func exit(_ exitCode: Int32, _ message: String) -> Never {
-    os_log("%{public}@", log: OSLog.default, type: .error, message)
+    os_log("%{public}@%{public}@", log: OSLog.default, type: .error, processTag, message)
     printError(errorMessage: message)
     exit(exitCode)
 }
 
 func defaultLog(_ message: String) {
-    os_log("%{public}@", log: OSLog.default, type: .default, message)
+    os_log("%{public}@%{public}@", log: OSLog.default, type: .default, processTag, message)
 }
 
 func errorLog(_ message: String) {
-    os_log("%{public}@", log: OSLog.default, type: .error, message)
+    os_log("%{public}@%{public}@", log: OSLog.default, type: .error, processTag, message)
 }
 
 func infoLog(_ message: String) {
-    os_log("%{public}@", log: OSLog.default, type: .info, message)
+    os_log("%{public}@%{public}@", log: OSLog.default, type: .info, processTag, message)
 }
 
 func debugLog(_ message: String) {
-    os_log("%{public}@", log: OSLog.default, type: .debug, message)
+    os_log("%{public}@%{public}@", log: OSLog.default, type: .debug, processTag, message)
 }
 
 func printError(errorMessage: String) {
-    fputs("error: \(errorMessage)\n", stderr)
+    fputs("error: \(processTag)\(errorMessage)\n", stderr)
 }
 
 func printWarning(_ message: String) {
-    print("warning: \(message)")
+    print("warning: \(processTag)\(message)")
 }
 
 /// Prints a message to the user. It shows in Xcode (if applies) or console output
 /// - Parameter message: message to print
 func printToUser(_ message: String) {
     print("[RC] \(message)")
+}
+
+func updateProcessTag(_ tag: String) {
+    processTag = "(\(tag)) "
 }

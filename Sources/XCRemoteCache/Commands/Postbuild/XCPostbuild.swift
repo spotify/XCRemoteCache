@@ -35,6 +35,7 @@ public class XCPostbuild {
         do {
             config = try XCRemoteCacheConfigReader(env: env, fileManager: fileManager).readConfiguration()
             context = try PostbuildContext(config, env: env)
+            updateProcessTag(context.targetName)
             let counterFactory: FileStatsCoordinator.CountersFactory = { file, count in
                 ExclusiveFileCounter(ExclusiveFile(file, mode: .override), countersCount: count)
             }
