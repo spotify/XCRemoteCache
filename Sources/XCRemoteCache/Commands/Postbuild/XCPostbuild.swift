@@ -67,8 +67,8 @@ public class XCPostbuild {
             // Initialize dependencies
             let primaryGitBranch = GitBranch(repoLocation: config.primaryRepo, branch: config.primaryBranch)
             let gitClient = GitClientImpl(repoRoot: config.repoRoot, primary: primaryGitBranch, shell: shellGetStdout)
-            let envsRemapper = try StringDependenciesRemapperFactory().build(
-                orderKeys: DependenciesMapping.rewrittenEnvs,
+            let envsRemapper = try PathDependenciesRemapperFactory().build(
+                orderKeys: DependenciesMapping.rewrittenEnvs + config.customRewriteEnvs,
                 envs: env,
                 customMappings: config.outOfBandMappings
             )

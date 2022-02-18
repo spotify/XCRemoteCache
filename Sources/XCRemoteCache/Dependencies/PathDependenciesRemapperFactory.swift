@@ -19,24 +19,28 @@
 
 import Foundation
 
-enum StringDependenciesRemapperFactoryError: Error {
+enum PathDependenciesRemapperFactoryError: Error {
     /// Remapping keys are duplicated and can lead to undetermined results
     case mappingKeyDuplication
 }
 
-class StringDependenciesRemapperFactory {
+class PathDependenciesRemapperFactory {
     func build(
         orderKeys: [String],
         envs: [String: String],
         customMappings: [String: String]
     ) throws -> StringDependenciesRemapper {
         let mappingMap = try envs.merging(customMappings) { envValue, outOfBandMapping in
-            throw StringDependenciesRemapperFactoryError.mappingKeyDuplication
+            throw PathDependenciesRemapperFactoryError.mappingKeyDuplication
         }
         let mappingOrderKeys =  orderKeys + customMappings.keys
-        let mappings: [StringDependenciesRemapper.Mapping] = try mappingOrderKeys.map { key in
-            let localValue: String = try mappingMap.readEnv(key: key)
-            return StringDependenciesRemapper.Mapping(generic: "$(\(key))", local: localValue)
+        let mappings: [StringDependenciesRemapper.Mapping] = mappingOrderKeys.compactMap { key in
+            guard let localURL: URL = mappingMap.readEnv(key: key) else {
+                debugLog("\(key) ENV to map a dependency is not defined")
+                return nil
+            }
+            infoLog("Found url to remapp: \(localURL). Remapping: \(localURL.standardized.path)")
+            return StringDependenciesRemapper.Mapping(generic: "$(\(key))", local: localURL.standardized.path)
         }
         return StringDependenciesRemapper(mappings: mappings)
     }

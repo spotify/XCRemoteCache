@@ -119,7 +119,7 @@ extension PostbuildContext {
         dSYMPath = try env.readEnv(key: "DWARF_DSYM_FOLDER_PATH")
             .appendingPathComponent(env.readEnv(key: "DWARF_DSYM_FILE_NAME"))
         builtProductsDir = try env.readEnv(key: "BUILT_PRODUCTS_DIR")
-        if let contentsFolderPath = env.readEnv(key: "CONTENTS_FOLDER_PATH") {
+        if let contentsFolderPath: String = env.readEnv(key: "CONTENTS_FOLDER_PATH") {
             bundleDir = productsDir.appendingPathComponent(contentsFolderPath)
         } else {
             bundleDir = nil
