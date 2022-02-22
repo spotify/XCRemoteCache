@@ -36,6 +36,8 @@ class DefaultURLSessionFactory: URLSessionFactory {
         let configuration = URLSessionConfiguration.default
         configuration.httpAdditionalHeaders = config.requestCustomHeaders
         configuration.timeoutIntervalForRequest = config.timeoutResponseDataChunksInterval
+        configuration.urlCache?.memoryCapacity = 0
+        configuration.urlCache?.diskCapacity = 0
         switch config.disableCertificateVerification {
         case true:
             return URLSession(
