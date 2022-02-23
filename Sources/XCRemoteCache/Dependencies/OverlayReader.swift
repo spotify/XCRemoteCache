@@ -91,7 +91,7 @@ class JsonOverlayReader: OverlayReader {
             case .strict:
                 throw JsonOverlayReaderError.missingSourceFile(json)
             case .bestEffort:
-                printWarning("overlay mapping file \(json) doesn't exist. Skipping overlay for the best-effort mode.")
+                debugLog("overlay mapping file \(json) doesn't exist. Skipping overlay for the best-effort mode.")
                 return []
             }
         }
@@ -124,7 +124,7 @@ class JsonOverlayReader: OverlayReader {
             case .strict:
                 throw error
             case .bestEffort:
-                printWarning("Overlay reader has failed with an error \(error). Best-effort mode - skipping an overlay.")
+                errorLog("Overlay reader has failed with an error \(error). Best-effort mode - skipping an overlay.")
                 return []
             }
         }
