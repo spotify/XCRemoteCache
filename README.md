@@ -404,13 +404,14 @@ Note: This setup is not recommended and may not be supported in future XCRemoteC
 * Recommended: multi-targets Xcode project
 * Recommended: do not use fast-forward PR strategy (use merge or squash instead)
 * Recommended: avoid `DWARF with dSYM File` "Debug Information Format" build setting. Use `DWARF` instead
+* Recommended: avoid having a symbolic link in the source root (e.g. placing a project in `/tmp`) 
 
 ## Limitations
 
 * Swift Package Manager (SPM) dependencies are not supported. _Because SPM does not allow customizing Build Settings, XCRemoteCache cannot specify `clang` and `swiftc` wrappers that control if the local compilation should be skipped (cache hit) or not (cache miss)_
 * Filenames with `_vers.c` suffix are reserved and cannot be used as a source file
 * All compilation files should be referenced via the git repo root. Referencing `/AbsolutePath/someOther.swift` or `../../someOther.swift` that resolve to the location outside of the git repo root is prohibited.
-* Using "Precompiled prefix headers" for Objective-C targets. [PR is welcome]
+* Using "Precompiled prefix headers" for Objective-C targets is not yet supported. [PR is welcome]
 
 ## FAQ
 
