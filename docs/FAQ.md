@@ -50,3 +50,18 @@ log show --predicate 'sender == "xcprepare"' --style compact --info --debug -las
 log show --predicate 'sender BEGINSWITH "xc"' --style compact --info --debug -last 10m
 ```
 </details>
+
+### Troubleshooting cache misses
+
+Here is a non-exhaustive list of steps that may help with troubleshooting poor cache hit rate.
+
+1. [Producer&Consumer] Make sure a producer build uses the same architecture(s) as a consumer. You can inspect `ARCHS` Build Setting in the build output logs. In Xcode, you can find it in the report navigator (⌘+9) by expanding the XCRemoteCache `prebuild` step output using the "collapsed menu icon" (aka hamburger menu) button
+1. [Producer&Consumer] Review XCRemoteCache [limitations](../#limitations)
+1. [Producer] Verify that all Xcode targets have an Build Phase called `postbuild`
+1. [Producer] If you are using optional XCRemoteCahe auto-marking feature (`--final-producer-target` or `final_target`) verify an extra Build Phase called `mark` is added to the specified target
+1. [Producer] After a full build, review logs [as described here](#how-can-i-find-xcremotecache-logs)
+1. [Consumer] Verify that all Xcode targets have extra XCRemoteCache Build Phase called `prebuild` and `postbuild`
+1. [Consumer] After a full build, review logs [as described here](#how-can-i-find-xcremotecache-logs). Find a **first** target that reports a cache miss with a message like `Prebuild step failed with error: ...`. If a target reports a cache miss and is built locally, it may have a knock-on effect where a lot of its consumers (dependant targets) need to be built locally too
+1. [Consumer] **After a full build, review all meta files placed in `~/Library/Caches/XCRemoteCache/{your_host_path}/meta/*.json` and make sure no absolute paths are used in `dependencies`. All paths should start a placeholder, like `$(SRCROOT)` or `$(BUILD_DIR)`**
+1. [Consumer] If you are integrating XCRemoteCache and rebuild artifacts for the same sha, previously downloaded artifacts placed in a local cache may still be used on a consumer side. You can either manually delete your local cache at `~/Library/Caches/XCRemoteCache/` before any consumer build or disable a local cache with `artifact_maximum_age: 0` property in `.rcinfo`
+1. [Consumer] To find an actual cache hit, before building in Xcode reset statistics with `xcprepare stats --reset` and once it is done, call `xcprepare stats` to find a cache hit rate
