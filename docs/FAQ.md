@@ -55,10 +55,10 @@ log show --predicate 'sender BEGINSWITH "xc"' --style compact --info --debug -la
 
 Here is a non-exhaustive list of steps that may help with troubleshooting poor cache hit rate.
 
-1. ***Producer&Consumer:*** Review XCRemoteCache [Requirements](../#Requirements) [Limitations](../#limitations)
+1. ***Producer&Consumer:*** Review XCRemoteCache [Requirements](../#Requirements) and [Limitations](../#limitations)
 1. ***Producer&Consumer:*** Make sure a producer build uses the same architecture(s) as a consumer. You can inspect `ARCHS` Build Setting in Xcode's Script Phase output logs. Navigate to the report navigator (⌘+9) and expand XCRemoteCache's `prebuild` step output using the "collapsed menu icon" (aka hamburger menu)
 1. ***Producer:*** Verify that all Xcode targets have a Build Phase called `postbuild`
-1. ***Producer:*** If you are using optional XCRemoteCahe auto-marking feature (`--final-producer-target` or `final_target`) verify an extra Build Phase called `mark` is added to the specified target
+1. ***Producer:*** If you are using optional XCRemoteCache auto-marking feature (`--final-producer-target` or `final_target`) verify an extra Build Phase called `mark` is added to the specified target
 1. ***Producer:*** After a full build, review logs according to [docs](#how-can-i-find-xcremotecache-logs)
 1. ***Consumer:*** Verify that all Xcode targets have extra XCRemoteCache Build Phase called `prebuild` and `postbuild`
 1. ***Consumer:*** After a full build, review according to [docs](#how-can-i-find-xcremotecache-logs). Find a ***first:*** target that reports a cache miss with a message like `Prebuild step failed with error: ...`. If a target reports faces a cache miss, it may have a knock-on effect where a lot of its consumers (dependant targets) need to be built locally too
