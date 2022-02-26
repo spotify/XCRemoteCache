@@ -47,7 +47,7 @@ class TemplateBasedCCWrapperBuilderTests: FileXCTestCase {
         let app = appDir.appendingPathComponent("xccc")
         try? fileManager.removeItem(at: appDir)
         try? FileManager.default.createDirectory(at: appDir, withIntermediateDirectories: true, attributes: nil)
-        try? builder.compile(to: app, commitSha: commitSha)
+        try! builder.compile(to: app, commitSha: commitSha)
         return app
     }()
 
