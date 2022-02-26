@@ -385,6 +385,8 @@ class TemplateBasedCCWrapperBuilder: CCWrapperBuilder {
             const char *dependency_arg_name = "-MF";
             const char *output_arg_name = "-o";
             const char *serialize_diagnostics_arg_name = "--serialize-diagnostics";
+            const char *language_mode_arg_name = "-x";
+            const char *precompile_header_arg_value = "objective-c-header";
             const char *clang_cmd = "\(clangCommand)";
             const char *markerFile = "\(markerFilename)";
             const char *compilationHistoryFile = "\(compilationHistoryFilename)";
@@ -399,6 +401,7 @@ class TemplateBasedCCWrapperBuilder: CCWrapperBuilder {
             const char *output_file= NULL;
             const char *input_file = NULL;
             const char *diagnostics_file = NULL;
+            const char *language_mode = NULL;
 
             for (int i = 1; i < argc; i++) {
                 if (strcmp(argv[i], dependency_arg_name) == 0 && i < (argc - 1) ) {
@@ -419,6 +422,12 @@ class TemplateBasedCCWrapperBuilder: CCWrapperBuilder {
                     i += 1;
                     clang_args[i] = argv[i];
                     diagnostics_file = argv[i];
+                } if (strcmp(argv[i], language_mode_arg_name) == 0 && i < (argc - 1) ) {
+                    // called with "-x path" pattern and not the last argument
+                    clang_args[i] = argv[i];
+                    i += 1;
+                    clang_args[i] = argv[i];
+                    language_mode = argv[i];
                 } else if (
                     isSuffixed(argv[i],".m") ||
                     isSuffixed(argv[i],".mm") ||
@@ -437,6 +446,14 @@ class TemplateBasedCCWrapperBuilder: CCWrapperBuilder {
                     clang_args[i] = argv[i];
                 }
             }
+
+           // null-terminating the args array needed for local compilation fallback
+           clang_args[argc] = NULL;
+
+           // Verify mode. If caching this mode is not supported, fallback to local compilation
+           if (language_mode != NULL && strcmp(language_mode, precompile_header_arg_value) == 0) {
+               return execvp(clang_cmd, (char *const*) clang_args);
+           }
 
            // Verify all input arguments
            if (dependency_file == NULL) {
@@ -508,8 +525,6 @@ class TemplateBasedCCWrapperBuilder: CCWrapperBuilder {
                }
            }
 
-           // null-terminating the args array
-           clang_args[argc] = NULL;
            #pragma GCC diagnostic push
            #pragma GCC diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
            /// execvp takes $PATH to consideration
