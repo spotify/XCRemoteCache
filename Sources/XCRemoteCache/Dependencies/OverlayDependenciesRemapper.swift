@@ -42,8 +42,8 @@ class OverlayDependenciesRemapper: DependenciesRemapper {
 
     private func mapPath(
         _ path: String,
-        source: KeyPath<OverlayMapping,URL>,
-        destination: KeyPath<OverlayMapping,URL>
+        source: KeyPath<OverlayMapping, URL>,
+        destination: KeyPath<OverlayMapping, URL>
     ) throws -> String {
         guard let mapping = try getMappings().first(where: { $0[keyPath: source].path == path }) else {
             // TODO: support partial mappings, where a directory path can be replaced with some other directory

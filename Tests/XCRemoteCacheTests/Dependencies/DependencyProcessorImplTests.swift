@@ -136,7 +136,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
         let intermediateFileSymlink = createSymlink(filename: someFilename, sourceDir: symlink, destinationDir: intermediateDirReal)
 
         let dependencies = processor.process([
-            intermediateFileSymlink
+            intermediateFileSymlink,
         ])
 
         XCTAssertEqual(dependencies, [])
@@ -160,7 +160,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
         let sourceFileSymlink = createSymlink(filename: someFilename, sourceDir: symlink, destinationDir: sourceDirReal)
 
         let dependencies = processor.process([
-            sourceFileSymlink
+            sourceFileSymlink,
         ])
 
         XCTAssertEqual(dependencies, [.init(url: sourceFileSymlink, type: .source)])

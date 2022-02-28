@@ -25,7 +25,7 @@ final class IgnoringCertificatesTrustManager: NSObject, URLSessionDelegate {
             completionHandler(.performDefaultHandling, nil)
             return
         }
-        
+
         let urlCredential = URLCredential(trust: serverTrust)
         completionHandler(.useCredential, urlCredential)
     }

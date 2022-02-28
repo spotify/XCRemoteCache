@@ -30,7 +30,7 @@ class JsonOverlayReaderTests: FileXCTestCase {
 
         let expectedMappings = [
             OverlayMapping(virtual: "/DerivedDataProducts/Target1.framework/Headers/Target1.h", local: "/Path/Target1/Target1.h"),
-            OverlayMapping(virtual: "/DerivedDataProducts/Target2.framework/Modules/module.modulemap", local: "/DerivedDataIntermediate/Target2.build/module.modulemap")
+            OverlayMapping(virtual: "/DerivedDataProducts/Target2.framework/Modules/module.modulemap", local: "/DerivedDataIntermediate/Target2.build/module.modulemap"),
         ]
         XCTAssertEqual(Set(mappings), Set(expectedMappings))
     }

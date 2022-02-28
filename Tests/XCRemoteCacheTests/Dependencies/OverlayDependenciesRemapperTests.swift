@@ -68,4 +68,3 @@ class OverlayDependenciesRemapperTests: XCTestCase {
         XCTAssertEqual(secondDependencies, ["/file.h"])
     }
 }
-

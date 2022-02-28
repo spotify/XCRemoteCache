@@ -82,7 +82,7 @@ class DependenciesRemapperCompositeTests: XCTestCase {
     func testRemapsMultipleMatchingMappers() throws {
         let remapper = DependenciesRemapperComposite([
             StringDependenciesRemapper(mappings: [StringDependenciesRemapper.Mapping(generic: "$(ROOT)", local: "/root")]),
-            StringDependenciesRemapper(mappings: [StringDependenciesRemapper.Mapping(generic: "$(SPECIFIC)", local: "$(ROOT)/specific")])
+            StringDependenciesRemapper(mappings: [StringDependenciesRemapper.Mapping(generic: "$(SPECIFIC)", local: "$(ROOT)/specific")]),
         ])
         let localPaths = ["/root/specific/file"]
 
@@ -94,7 +94,7 @@ class DependenciesRemapperCompositeTests: XCTestCase {
     func testRemapsBackToLocalWithRevertedRemappersOrder() throws {
         let remapper = DependenciesRemapperComposite([
             StringDependenciesRemapper(mappings: [StringDependenciesRemapper.Mapping(generic: "$(ROOT)", local: "/root")]),
-            StringDependenciesRemapper(mappings: [StringDependenciesRemapper.Mapping(generic: "$(SPECIFIC)", local: "$(ROOT)/specific")])
+            StringDependenciesRemapper(mappings: [StringDependenciesRemapper.Mapping(generic: "$(SPECIFIC)", local: "$(ROOT)/specific")]),
         ])
         let genericPaths = ["$(SPECIFIC)/file"]
 
@@ -106,7 +106,7 @@ class DependenciesRemapperCompositeTests: XCTestCase {
     func testRemappingTwoMappingsBackAndForthIsIdentical() throws {
         let remapper = DependenciesRemapperComposite([
             StringDependenciesRemapper(mappings: [StringDependenciesRemapper.Mapping(generic: "$(ROOT)", local: "/root")]),
-            StringDependenciesRemapper(mappings: [StringDependenciesRemapper.Mapping(generic: "$(SPECIFIC)", local: "$(ROOT)/specific")])
+            StringDependenciesRemapper(mappings: [StringDependenciesRemapper.Mapping(generic: "$(SPECIFIC)", local: "$(ROOT)/specific")]),
         ])
         let localPaths = ["/root/specific/file"]
 

@@ -30,10 +30,10 @@ class PathDependenciesRemapperFactory {
         envs: [String: String],
         customMappings: [String: String]
     ) throws -> StringDependenciesRemapper {
-        let mappingMap = try envs.merging(customMappings) { envValue, outOfBandMapping in
+        let mappingMap = try envs.merging(customMappings) { _, _ in
             throw PathDependenciesRemapperFactoryError.mappingKeyDuplication
         }
-        let mappingOrderKeys =  orderKeys + customMappings.keys
+        let mappingOrderKeys = orderKeys + customMappings.keys
         let mappings: [StringDependenciesRemapper.Mapping] = mappingOrderKeys.compactMap { key in
             guard let localURL: URL = mappingMap.readEnv(key: key) else {
                 debugLog("\(key) ENV to map a dependency is not defined")
