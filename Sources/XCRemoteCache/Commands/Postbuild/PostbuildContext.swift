@@ -79,11 +79,13 @@ public struct PostbuildContext {
     /// Action type: build, indexbuild etc.
     var action: BuildActionType
     let modeMarkerPath: String
-    /// location of the json file that define virtual files system overlay (mappings of the virtual location file -> local file path)
+    /// location of the json file that define virtual files system overlay
+    /// (mappings of the virtual location file -> local file path)
     let overlayHeadersPath: URL
 }
 
 extension PostbuildContext {
+    // swiftlint:disable:next function_body_length
     init(_ config: XCRemoteCacheConfig, env: [String: String]) throws {
         mode = config.mode
         let targetNameValue: String = try env.readEnv(key: "TARGET_NAME")

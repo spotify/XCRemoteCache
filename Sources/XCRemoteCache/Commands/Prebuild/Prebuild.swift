@@ -63,7 +63,9 @@ class Prebuild {
         do {
             let metaData = try networkClient.fetch(.meta(commit: commit))
             let meta = try metaReader.read(data: metaData)
-            let localDependencies = try remapper.replace(genericPaths: meta.dependencies).map(URL.init(fileURLWithPath:))
+            let localDependencies = try remapper.replace(
+                genericPaths: meta.dependencies
+            ).map(URL.init(fileURLWithPath:))
             let localFingerprint = try generateFingerprint(for: localDependencies)
             if localFingerprint.raw != meta.rawFingerprint {
                 if context.forceCached {

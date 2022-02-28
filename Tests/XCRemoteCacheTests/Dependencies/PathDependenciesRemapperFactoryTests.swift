@@ -24,6 +24,7 @@ class PathDependenciesRemapperFactoryTests: XCTestCase {
     private var factory: PathDependenciesRemapperFactory!
 
     override func setUp() {
+        super.setUp()
         factory = PathDependenciesRemapperFactory()
     }
 
