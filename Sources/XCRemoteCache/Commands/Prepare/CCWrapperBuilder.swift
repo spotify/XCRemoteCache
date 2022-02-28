@@ -450,7 +450,7 @@ class TemplateBasedCCWrapperBuilder: CCWrapperBuilder {
            // null-terminating the args array needed for local compilation fallback
            clang_args[argc] = NULL;
 
-           // Verify mode. If caching this mode is not supported, fallback to local compilation
+           // Verify mode. Even a target is cached, this mode is not supported. Fallback to the local compilation
            if (language_mode != NULL && strcmp(language_mode, precompile_header_arg_value) == 0) {
                return execvp(clang_cmd, (char *const*) clang_args);
            }
