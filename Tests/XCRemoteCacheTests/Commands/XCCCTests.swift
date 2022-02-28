@@ -47,6 +47,7 @@ class TemplateBasedCCWrapperBuilderTests: FileXCTestCase {
         let app = appDir.appendingPathComponent("xccc")
         try? fileManager.removeItem(at: appDir)
         try? FileManager.default.createDirectory(at: appDir, withIntermediateDirectories: true, attributes: nil)
+        // swiftlint:disable:next force_try
         try! builder.compile(to: app, commitSha: commitSha)
         return app
     }()
@@ -350,7 +351,11 @@ class TemplateBasedCCWrapperBuilderTests: FileXCTestCase {
 
     /// Creates a simple PCH code in the location
     private func createValidPCCFile(_ location: URL) {
-        fileManager.createFile(atPath: location.path, contents: "#import <Availability.h>".data(using: .utf8), attributes: nil)
+        fileManager.createFile(
+            atPath: location.path,
+            contents: "#import <Availability.h>".data(using: .utf8),
+            attributes: nil
+        )
     }
 
     /// Creates a C code that requires extra CUSTOM_STR clang macro to compile
