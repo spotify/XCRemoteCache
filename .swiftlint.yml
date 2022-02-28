@@ -64,6 +64,7 @@ excluded:
   - docs/
   - fastlane/
   - DerivedData/
+  - e2eTests/XCRemoteCacheSample/Pods
 
 attributes:
   always_on_same_line:
