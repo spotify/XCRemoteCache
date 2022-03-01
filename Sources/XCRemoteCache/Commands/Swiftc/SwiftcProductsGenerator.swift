@@ -20,7 +20,7 @@
 import Foundation
 
 enum DiskSwiftcProductsGeneratorError: Error {
-    /// When a generator was asked to generate unknown swiftmodule extension file.
+    /// When a generator was asked to generate unknown swiftmodule extension file
     /// Probably a programmer error: asking to generate excessive extensions, not listed in
     /// `SwiftmoduleFileExtension.SwiftmoduleExtensions`
     case unknownSwiftmoduleFile

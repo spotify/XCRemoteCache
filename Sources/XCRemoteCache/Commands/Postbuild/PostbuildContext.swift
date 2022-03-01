@@ -76,7 +76,7 @@ public struct PostbuildContext {
     let derivedSourcesDir: URL
     /// List of all targets to downloaded from the thinning aggregation target
     var thinnedTargets: [String]
-    /// Action type: build, indexbuild etc.
+    /// Action type: build, indexbuild etc
     var action: BuildActionType
     let modeMarkerPath: String
     /// location of the json file that define virtual files system overlay

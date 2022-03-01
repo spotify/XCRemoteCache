@@ -152,7 +152,7 @@ public class XCPostbuild {
                 // As the PostbuildContext assumes file location and filename (`all-product-headers.yaml`)
                 // do not fail in case of a missing headers overlay file. In the future, all overlay files could be
                 // captured from the swiftc invocation similarly is stored in the `history.compile`
-                // for the consumer mode.
+                // for the consumer mode
                 let overlayReader = JsonOverlayReader(
                     context.overlayHeadersPath,
                     mode: .bestEffort,

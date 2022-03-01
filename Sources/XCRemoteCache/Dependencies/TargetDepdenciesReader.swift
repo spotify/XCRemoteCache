@@ -42,7 +42,7 @@ class TargetDependenciesReader: DependenciesReader {
         let allURLs = try dirScanner.items(at: directory)
         let mergedDependencies = try allURLs.reduce(Set<String>()) { (prev: Set<String>, file) in
             // include only these .d files that either have corresponding .o file (incremental) or end
-            // with '-master' (whole-module).
+            // with '-master' (whole-module)
             // Otherwise .d is probably just a leftover from previous builds
             let correspondingOutputURL = file.deletingPathExtension().appendingPathExtension("o")
             let isDependencyFile = file.pathExtension == "d"
