@@ -5,7 +5,6 @@ disabled_rules:
   - superfluous_disable_command # Disabled since we disable some rules pre-emptively to avoid issues in the future
   - todo                        # Temporarily disabled. We have too many right now hiding real issues :(
   - nesting                     # Does not make sense anymore since Swift 4 uses nested `CodingKeys` enums for example
-  - trailing_dot_in_comments    # Triggers warnings for generated file headers
 
 opt_in_rules:
   - anyobject_protocol
@@ -125,6 +124,6 @@ custom_rules:
     severity: warning
   trailing_dot_in_comments:
     name: "Trailing dot in comments"
-    regex: '^[ ]*///?[^\n]*\.\n'
+    regex: '^(?!\/\/\ Copyright\ \(c\)\ \d{4}\ Spotify AB\.|\/\/\ under\ the\ License\.)[ ]*///?[^\n]*\.\n'
     message: "There shouldn't be trailing dot in comments"
     severity: warning
