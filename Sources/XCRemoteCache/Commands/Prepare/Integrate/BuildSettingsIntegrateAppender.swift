@@ -62,7 +62,10 @@ class XcodeProjBuildSettingsIntegrateAppender: BuildSettingsIntegrateAppender {
         result["OTHER_CFLAGS"] = clangFlags.settingValue
 
         result["XCRC_FAKE_SRCROOT"] = "/\(String(repeating: "x", count: 10))"
-        result["XCRC_PLATFORM_PREFERRED_ARCH"] = "$(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)"
+        result["XCRC_PLATFORM_PREFERRED_ARCH"] =
+        """
+        $(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)
+        """
         return result
     }
 }

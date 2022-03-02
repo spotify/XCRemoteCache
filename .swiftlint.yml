@@ -5,7 +5,6 @@ disabled_rules:
   - superfluous_disable_command # Disabled since we disable some rules pre-emptively to avoid issues in the future
   - todo                        # Temporarily disabled. We have too many right now hiding real issues :(
   - nesting                     # Does not make sense anymore since Swift 4 uses nested `CodingKeys` enums for example
-  - trailing_dot_in_comments    # Triggers warnings for generated file headers
 
 opt_in_rules:
   - anyobject_protocol
@@ -64,6 +63,7 @@ excluded:
   - docs/
   - fastlane/
   - DerivedData/
+  - e2eTests/XCRemoteCacheSample/Pods
 
 attributes:
   always_on_same_line:
@@ -88,6 +88,25 @@ file_header:
                      \/\/  Created by .*? on .*\.
                      \/\/  Copyright © \d{4} .*\. All rights reserved\.
                      \/\/
+  required_pattern: |
+                     \/\/ Copyright \(c\) \d{4} Spotify AB\.
+                     \/\/
+                     \/\/ Licensed to the Apache Software Foundation \(ASF\) under one
+                     \/\/ or more contributor license agreements\.  See the NOTICE file
+                     \/\/ distributed with this work for additional information
+                     \/\/ regarding copyright ownership\.  The ASF licenses this file
+                     \/\/ to you under the Apache License, Version 2.0 \(the
+                     \/\/ "License"\); you may not use this file except in compliance
+                     \/\/ with the License\.  You may obtain a copy of the License at
+                     \/\/
+                     \/\/ http:\/\/www.apache.org\/licenses\/LICENSE-2\.0
+                     \/\/
+                     \/\/ Unless required by applicable law or agreed to in writing,
+                     \/\/ software distributed under the License is distributed on an
+                     \/\/ \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+                     \/\/ KIND, either express or implied\.  See the License for the
+                     \/\/ specific language governing permissions and limitations
+                     \/\/ under the License\.
 force_cast: warning
 force_try: warning
 implicit_getter: warning
@@ -124,6 +143,6 @@ custom_rules:
     severity: warning
   trailing_dot_in_comments:
     name: "Trailing dot in comments"
-    regex: '^[ ]*///?[^\n]*\.\n'
+    regex: '^(?!\/\/\ Copyright\ \(c\)\ \d{4}\ Spotify AB\.|\/\/\ under\ the\ License\.)[ ]*///?[^\n]*\.\n'
     message: "There shouldn't be trailing dot in comments"
     severity: warning

@@ -95,10 +95,10 @@ public struct XCRemoteCacheConfig: Encodable {
     ///  Disable cache for http requests to fecth metadata and download artifacts
     var disableHttpCache: Bool = false
     /// Path, relative to $TARGET_TEMP_DIR which gathers all compilation commands that should be e
-    /// xecuted if a target switches to local compilation.
+    /// xecuted if a target switches to local compilation
     /// Example: A new `.swift` file invalidates remote arXcodeProjIntegrate.swifttifact and triggers local compilation
     /// When that happens, all previously skipped clang build steps
-    /// need to be eventually called locally - this file lists all these commands.
+    /// need to be eventually called locally - this file lists all these commands
     var compilationHistoryFile: String = "history.compile"
     /// Timeout for remote response data interval (in seconds). If an interval between data chunks is
     /// longer than a timeout, a request fails
@@ -122,19 +122,19 @@ public struct XCRemoteCacheConfig: Encodable {
     var AWSRegion: String = ""
     /// Service for AWS V4 Signature (e.g. `storage`)
     var AWSService: String = ""
-    /// A dictionary of files path remapping that should be applied to make it absolute path agnostic on a list of dependencies.
-    /// Useful if a project refers files out of repo root, either compilation files or precompiled dependencies.
-    /// Keys represent generic replacement and values are substrings that should be replaced.
+    /// A dictionary of files path remapping that should be applied to make it absolute path agnostic on a list of
+    /// dependencies. Useful if a project refers files out of repo root, either compilation files or precompiled
+    /// dependencies. Keys represent generic replacement and values are substrings that should be replaced
     /// Example: for mapping `["COOL_LIBRARY": "/CoolLibrary"]`
-    /// `/CoolLibrary/main.swift`will be represented as `$(COOL_LIBRARY)/main.swift`).
-    /// Warning: remapping order is not-deterministic so avoid remappings with multiple matchings.
+    /// `/CoolLibrary/main.swift`will be represented as `$(COOL_LIBRARY)/main.swift`)
+    /// Warning: remapping order is not-deterministic so avoid remappings with multiple matchings
     var outOfBandMappings: [String: String] = [:]
     /// If true, SSL certificate validation is disabled
     var disableCertificateVerification: Bool = false
     /// A feature flag to disable virtual file system overlay support (temporary)
     var disableVFSOverlay: Bool = false
-    /// A list of extra ENVs that should be used as placeholders in the dependency list.
-    /// ENV rewrite process is optimistic - does nothing if an ENV is not defined in the pre/postbuild process.
+    /// A list of extra ENVs that should be used as placeholders in the dependency list
+    /// ENV rewrite process is optimistic - does nothing if an ENV is not defined in the pre/postbuild process
     var customRewriteEnvs: [String] = []
 }
 

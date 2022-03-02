@@ -131,7 +131,7 @@ class ThinningCreatorPluginTests: FileXCTestCase {
 
         XCTAssertEqual(extraKeys, [
             "thinning_Generated": "000",
-            "thinning_Reused": "999"
+            "thinning_Reused": "999",
         ])
     }
 }

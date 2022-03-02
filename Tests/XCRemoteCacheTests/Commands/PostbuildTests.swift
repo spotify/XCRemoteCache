@@ -20,6 +20,7 @@
 @testable import XCRemoteCache
 import XCTest
 
+// swiftlint:disable file_length
 // swiftlint:disable:next type_body_length
 class PostbuildTests: FileXCTestCase {
     private var postbuildContext = PostbuildContext(
@@ -639,4 +640,3 @@ class PostbuildTests: FileXCTestCase {
         XCTAssertEqual(downloadedMeta, expectedMeta)
     }
 }
-// swiftlint:disable:next file_length

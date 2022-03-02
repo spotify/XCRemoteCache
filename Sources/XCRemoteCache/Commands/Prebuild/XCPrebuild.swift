@@ -124,7 +124,7 @@ public class XCPrebuild {
             var remappers: [DependenciesRemapper] = []
             if !config.disableVFSOverlay {
                 // As PrebuildContext assumes file location and its filename (`all-product-headers.yaml`)
-                // do not fail in case of a missing headers overlay file.
+                // do not fail in case of a missing headers overlay file
                 let overlayReader = JsonOverlayReader(
                     context.overlayHeadersPath,
                     mode: .bestEffort,

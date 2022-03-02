@@ -22,7 +22,7 @@ import Foundation
 
 class OverlayReaderFake: OverlayReader {
     var mappings: [OverlayMapping]
-    
+
     init(mappings: [OverlayMapping]) {
         self.mappings = mappings
     }

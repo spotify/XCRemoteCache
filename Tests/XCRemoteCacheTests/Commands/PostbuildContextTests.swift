@@ -42,7 +42,7 @@ class PostbuildContextTests: FileXCTestCase {
         "DWARF_DSYM_FILE_NAME": "DWARF_DSYM_FILE_NAME",
         "BUILT_PRODUCTS_DIR": "BUILT_PRODUCTS_DIR",
         "DERIVED_SOURCES_DIR": "DERIVED_SOURCES_DIR",
-        "CURRENT_VARIANT": "normal"
+        "CURRENT_VARIANT": "normal",
     ]
 
     override func setUpWithError() throws {

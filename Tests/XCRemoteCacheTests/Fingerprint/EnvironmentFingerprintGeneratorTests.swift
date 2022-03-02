@@ -33,7 +33,7 @@ class EnvironmentFingerprintGeneratorTests: XCTestCase {
         "DYLIB_COMPATIBILITY_VERSION": "2",
         "DYLIB_CURRENT_VERSION": "3",
         "PRODUCT_MODULE_NAME": "4",
-        "ARCHS": "AR"
+        "ARCHS": "AR",
     ]
     /// Corresponds to EnvironmentFingerprintGenerator.version
     private static let currentVersion = "5"

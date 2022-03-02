@@ -20,7 +20,7 @@
 import Foundation
 
 protocol MetaWriter {
-    func write<T>(_ meta: T, locationDir : URL) throws -> URL where T : Meta
+    func write<T>(_ meta: T, locationDir: URL) throws -> URL where T: Meta
 }
 
 class JsonMetaWriter: MetaWriter {
@@ -36,7 +36,7 @@ class JsonMetaWriter: MetaWriter {
         self.metaEncoder = encoder
     }
 
-    func write<T>(_ meta: T, locationDir : URL) throws -> URL where T : Meta {
+    func write<T>(_ meta: T, locationDir: URL) throws -> URL where T: Meta {
         let metaURL = locationDir.appendingPathComponent(meta.fileKey).appendingPathExtension("json")
         let metaData = try metaEncoder.encode(meta)
         try fileWriter.write(toPath: metaURL.path, contents: metaData)

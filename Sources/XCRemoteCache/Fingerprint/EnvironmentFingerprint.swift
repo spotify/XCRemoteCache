@@ -31,7 +31,7 @@ class EnvironmentFingerprintGenerator {
         "DYLIB_COMPATIBILITY_VERSION",
         "DYLIB_CURRENT_VERSION",
         "PRODUCT_MODULE_NAME",
-        "ARCHS"
+        "ARCHS",
     ]
     private let version: String
     private let customFingerprintEnvs: [String]
