@@ -437,7 +437,8 @@ class TemplateBasedCCWrapperBuilder: CCWrapperBuilder {
                     isSuffixed(argv[i],".cpp") ||
                     isSuffixed(argv[i],".c++") ||
                     isSuffixed(argv[i],".cxx") ||
-                    isSuffixed(argv[i],".s")
+                    isSuffixed(argv[i],".S") ||
+                    isSuffixed(argv[i],".s") 
                 ) {
                     // a full list of extensions is taken from https://clang.llvm.org/docs/ClangFormatStyleOptions.html
                     // support for .m,.mm,.c,.cc,.cpp,.c++,.cxx input files
