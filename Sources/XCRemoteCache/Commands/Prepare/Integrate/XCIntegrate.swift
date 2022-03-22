@@ -97,7 +97,8 @@ public class XCIntegrate {
             )
             let buildSettingsAppender = XcodeProjBuildSettingsIntegrateAppender(
                 mode: context.mode,
-                repoRoot: context.repoRoot
+                repoRoot: context.repoRoot,
+                fakeSrcRoot: context.fakeSrcRoot
             )
             let lldbPatcher: LLDBInitPatcher
             switch lldbMode {
