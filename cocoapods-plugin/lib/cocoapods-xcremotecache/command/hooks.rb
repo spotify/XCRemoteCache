@@ -180,7 +180,7 @@ module CocoapodsXCRemoteCacheModifier
             end
           end
           mark_script = existing_mark_script || target.new_shell_script_build_phase("[XCRC] Mark")
-          mark_script.shell_script = "\"$SCRIPT_INPUT_FILE_0\" mark --configuration $CONFIGURATION --platform $PLATFORM_NAME"
+          mark_script.shell_script = "\"$SCRIPT_INPUT_FILE_0\" mark --configuration \"$CONFIGURATION\" --platform $PLATFORM_NAME"
           mark_script.input_paths = ["$SRCROOT/#{srcroot_relative_xc_location}/xcprepare"]
         else
           # Delete existing mark build phase (to support switching between modes or changing the final target)
