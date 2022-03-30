@@ -203,6 +203,7 @@ class NetworkClientImplTests: XCTestCase {
         let signature = AWSV4Signature(
             secretKey: "wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
             accessKey: "AKIDEXAMPLE",
+            securityToken: "IQoJb3JpZ2luX2VjENv//////////wEaCXVzLWVhc3Q+bsHwqnovXtl/1JVe61XHMnAw3AIXwOAOxqMvhw==",
             region: "us-east-1",
             service: "iam",
             date: Date(timeIntervalSince1970: 1_440_938_160)
@@ -213,8 +214,8 @@ class NetworkClientImplTests: XCTestCase {
 
         XCTAssertEqual(
             "AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/20150830/us-east-1/iam/aws4_request, " +
-                "SignedHeaders=host;x-amz-content-sha256;x-amz-date, " +
-                "Signature=acdb223475463b6ce711b063f199387a7a12bd638e4dccaaeb5efcbf159b6454",
+                "SignedHeaders=host;x-amz-content-sha256;x-amz-date;x-amz-security-token, " +
+                "Signature=e5578464567fb97fd26e871702e4ec4ff7d61cb87eb72a40d22b80e12da30c34",
             try requests[0].allHTTPHeaderFields?["Authorization"].unwrap()
         )
     }
