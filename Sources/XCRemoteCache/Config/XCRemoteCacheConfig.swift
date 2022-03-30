@@ -118,6 +118,8 @@ public struct XCRemoteCacheConfig: Encodable {
     var AWSSecretKey: String = ""
     /// Access key for AWS V4 Signature
     var AWSAccessKey: String = ""
+    /// Temporary security token provided by the AWS Security Token Service
+    var AWSSecurityToken: String?
     /// Region for AWS V4 Signature (e.g. `eu`)
     var AWSRegion: String = ""
     /// Service for AWS V4 Signature (e.g. `storage`)
@@ -184,6 +186,7 @@ extension XCRemoteCacheConfig {
         merge.prettifyMetaFiles = scheme.prettifyMetaFiles ?? prettifyMetaFiles
         merge.AWSAccessKey = scheme.AWSAccessKey ?? AWSAccessKey
         merge.AWSSecretKey = scheme.AWSSecretKey ?? AWSSecretKey
+        merge.AWSSecurityToken = scheme.AWSSecurityToken ?? AWSSecurityToken
         merge.AWSRegion = scheme.AWSRegion ?? AWSRegion
         merge.AWSService = scheme.AWSService ?? AWSService
         merge.outOfBandMappings = scheme.outOfBandMappings ?? outOfBandMappings
@@ -247,6 +250,7 @@ struct ConfigFileScheme: Decodable {
     let prettifyMetaFiles: Bool?
     let AWSSecretKey: String?
     let AWSAccessKey: String?
+    let AWSSecurityToken: String?
     let AWSRegion: String?
     let AWSService: String?
     let outOfBandMappings: [String: String]?
@@ -293,6 +297,7 @@ struct ConfigFileScheme: Decodable {
         case prettifyMetaFiles = "prettify_meta_files"
         case AWSSecretKey = "aws_secret_key"
         case AWSAccessKey = "aws_access_key"
+        case AWSSecurityToken = "aws_security_token"
         case AWSRegion = "aws_region"
         case AWSService = "aws_service"
         case outOfBandMappings = "out_of_band_mappings"

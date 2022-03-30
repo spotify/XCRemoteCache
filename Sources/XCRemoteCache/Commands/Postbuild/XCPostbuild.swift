@@ -114,6 +114,7 @@ public class XCPostbuild {
                 awsV4Signature = AWSV4Signature(
                     secretKey: config.AWSSecretKey,
                     accessKey: config.AWSAccessKey,
+                    securityToken: config.AWSSecurityToken,
                     region: config.AWSRegion,
                     service: config.AWSService,
                     date: Date(timeIntervalSinceNow: 0)
