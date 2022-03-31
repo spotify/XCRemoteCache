@@ -33,7 +33,7 @@ struct AWSV4Signature {
         request.setValue(request.url?.host, forHTTPHeaderField: "host")
         request.setValue(StringToSign.ISO8601BasicFormatter.string(from: date), forHTTPHeaderField: "x-amz-date")
         request.setValue((request.httpBody ?? Data()).sha256(), forHTTPHeaderField: "x-amz-content-sha256")
-        
+
         if let securityToken = securityToken {
             request.setValue(securityToken, forHTTPHeaderField: "x-amz-security-token")
         }
