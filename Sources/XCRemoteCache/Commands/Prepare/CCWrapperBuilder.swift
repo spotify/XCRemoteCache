@@ -451,6 +451,7 @@ class TemplateBasedCCWrapperBuilder: CCWrapperBuilder {
                 ) {
                     // a full list of extensions is taken from https://clang.llvm.org/docs/ClangFormatStyleOptions.html
                     // support for .m,.mm,.c,.cc,.cpp,.c++,.cxx input files
+                    // .s and .S are assembly files
                     clang_args[i] = argv[i];
                     input_file = argv[i];
                 } else {
@@ -462,7 +463,7 @@ class TemplateBasedCCWrapperBuilder: CCWrapperBuilder {
            // null-terminating the args array needed for local compilation fallback
            clang_args[argc] = NULL;
 
-           // Verify mode. Even a target is cached, this mode is not supported. Fallback to the local compilation
+           // Verify mode. Even a target is cached, pch mode is not supported. Fallback to the local compilation
            if (language_mode != NULL && strcmp(language_mode, precompile_header_arg_value) == 0) {
                return execvp(clang_cmd, (char *const*) clang_args);
            }
