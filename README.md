@@ -308,6 +308,7 @@ _Note that for the `producer` mode, the prebuild build phase and `xccc`, `xcld`,
 | `prettify_meta_files` | A Boolean value that opts-in pretty JSON formatting for meta files | `false` | ⬜️ |
 | `aws_secret_key` | Secret key for AWS V4 Signature Authorization. If this is set to a non-empty String - an Authentication Header will be added based on this and the other `aws_*` parameters.| `""` | ⬜️ |
 | `aws_access_key` | Access key for AWS V4 Signature Authorization. | `""` | ⬜️ |
+| `aws_security_token` | Temporary security token provided by the AWS Security Token Service. | `nil` | ⬜️ |
 | `aws_region` | Region for AWS V4 Signature Authorization. E.g. `eu`.  | `""` | ⬜️ |
 | `aws_service` | Service for AWS V4 Signature Authorization. E.g. `storage`. | `""` | ⬜️ |
 | `out_of_band_mappings` | A dictionary of files path remapping that should be applied to make it absolute path agnostic on a list of dependencies. Useful if a project refers files out of repo root, either compilation files or precompiled dependencies. Keys represent generic replacement and values are substrings that should be replaced. Example: for mapping `["COOL_LIBRARY": "/CoolLibrary"]` `/CoolLibrary/main.swift`will be represented as `$(COOL_LIBRARY)/main.swift`). Warning: remapping order is not-deterministic so avoid remappings with multiple matchings. | `[:]` | ⬜️ |
@@ -350,6 +351,8 @@ docker exec -w /tmp/cache -it xcremotecache /bin/bash
 XCRemoteCache supports Amazon S3 and Google Cloud Storage buckets to be used as cache servers using the Amazon v4 Signature Authorization.
 
 To set it up use the configuration parameters `aws_secret_key`, `aws_access_key`, `aws_region`, and `aws_service` in the `.rcinfo` file. Specify the URL to the bucket in cache-addresses field in the same file.
+
+XCRemoteCache also supports [AWS Temporary Access Keys](https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html#temporary-access-keys). Use additional `aws_security_token` parameter combined with `aws_secret_key`, `aws_access_key` to set it up. [This page](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html) describes how to receive a security token. 
 
 Example
 ```yaml
