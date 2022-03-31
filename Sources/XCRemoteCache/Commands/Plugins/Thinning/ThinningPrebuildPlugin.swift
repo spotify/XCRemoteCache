@@ -25,7 +25,7 @@ class ThinningConsumerPlugin {
 
     deinit {
         // initialised but never run plugin suggests that standard target fallbacks to the local development
-        // and DerivedData still misses build artifacts.
+        // and DerivedData still misses build artifacts
         guard wasRun else {
             let errorMessage = """
             \(type(of: self)) plugin has never been run, thinning cannot be supported. Verify you \

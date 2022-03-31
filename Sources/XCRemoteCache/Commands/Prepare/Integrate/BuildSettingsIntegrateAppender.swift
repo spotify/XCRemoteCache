@@ -33,10 +33,12 @@ protocol BuildSettingsIntegrateAppender {
 class XcodeProjBuildSettingsIntegrateAppender: BuildSettingsIntegrateAppender {
     private let mode: Mode
     private let repoRoot: URL
+    private let fakeSrcRoot: URL
 
-    init(mode: Mode, repoRoot: URL) {
+    init(mode: Mode, repoRoot: URL, fakeSrcRoot: URL) {
         self.mode = mode
         self.repoRoot = repoRoot
+        self.fakeSrcRoot = fakeSrcRoot
     }
 
     func appendToBuildSettings(buildSettings: BuildSettings, wrappers: XCRCBinariesPaths) -> BuildSettings {
@@ -61,8 +63,11 @@ class XcodeProjBuildSettingsIntegrateAppender: BuildSettingsIntegrateAppender {
         result["OTHER_SWIFT_FLAGS"] = swiftFlags.settingValue
         result["OTHER_CFLAGS"] = clangFlags.settingValue
 
-        result["XCRC_FAKE_SRCROOT"] = "/\(String(repeating: "x", count: 10))"
-        result["XCRC_PLATFORM_PREFERRED_ARCH"] = "$(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)"
+        result["XCRC_FAKE_SRCROOT"] = "\(fakeSrcRoot.path)"
+        result["XCRC_PLATFORM_PREFERRED_ARCH"] =
+        """
+        $(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)
+        """
         return result
     }
 }

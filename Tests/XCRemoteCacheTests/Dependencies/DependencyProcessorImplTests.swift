@@ -133,10 +133,14 @@ class DependencyProcessorImplTests: FileXCTestCase {
             bundle: "/Bundle"
         )
 
-        let intermediateFileSymlink = createSymlink(filename: someFilename, sourceDir: symlink, destinationDir: intermediateDirReal)
+        let intermediateFileSymlink = createSymlink(
+            filename: someFilename,
+            sourceDir: symlink,
+            destinationDir: intermediateDirReal
+        )
 
         let dependencies = processor.process([
-            intermediateFileSymlink
+            intermediateFileSymlink,
         ])
 
         XCTAssertEqual(dependencies, [])
@@ -157,10 +161,14 @@ class DependencyProcessorImplTests: FileXCTestCase {
             bundle: "/Bundle"
         )
 
-        let sourceFileSymlink = createSymlink(filename: someFilename, sourceDir: symlink, destinationDir: sourceDirReal)
+        let sourceFileSymlink = createSymlink(
+            filename: someFilename,
+            sourceDir: symlink,
+            destinationDir: sourceDirReal
+        )
 
         let dependencies = processor.process([
-            sourceFileSymlink
+            sourceFileSymlink,
         ])
 
         XCTAssertEqual(dependencies, [.init(url: sourceFileSymlink, type: .source)])
@@ -173,8 +181,10 @@ class DependencyProcessorImplTests: FileXCTestCase {
     fileprivate func createSymlink(filename: String, sourceDir: URL, destinationDir: URL) -> URL {
         let fileMng = FileManager.default
 
-        XCTAssertNoThrow(try fileMng.spt_forceSymbolicLink(at: sourceDir,
-                                                           withDestinationURL: destinationDir))
+        XCTAssertNoThrow(try fileMng.spt_forceSymbolicLink(
+            at: sourceDir,
+            withDestinationURL: destinationDir
+        ))
         XCTAssertNoThrow(try fileMng.spt_createEmptyFile(destinationDir.appendingPathComponent(filename)))
 
         return sourceDir.appendingPathComponent(filename)

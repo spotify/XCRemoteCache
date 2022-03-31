@@ -19,6 +19,7 @@
 
 import Foundation
 
+// swiftlint:disable type_body_length
 /// Checks current mode from a configuration and based on that:
 /// * triggers build completion
 /// * triggers uploading artifacts to the server for a 'producer' mode
@@ -113,6 +114,7 @@ public class XCPostbuild {
                 awsV4Signature = AWSV4Signature(
                     secretKey: config.AWSSecretKey,
                     accessKey: config.AWSAccessKey,
+                    securityToken: config.AWSSecurityToken,
                     region: config.AWSRegion,
                     service: config.AWSService,
                     date: Date(timeIntervalSinceNow: 0)
@@ -150,7 +152,8 @@ public class XCPostbuild {
             if !config.disableVFSOverlay {
                 // As the PostbuildContext assumes file location and filename (`all-product-headers.yaml`)
                 // do not fail in case of a missing headers overlay file. In the future, all overlay files could be
-                // captured from the swiftc invocation similarly is stored in the `history.compile` for the consumer mode.
+                // captured from the swiftc invocation similarly is stored in the `history.compile`
+                // for the consumer mode
                 let overlayReader = JsonOverlayReader(
                     context.overlayHeadersPath,
                     mode: .bestEffort,
@@ -319,3 +322,4 @@ public class XCPostbuild {
         }
     }
 }
+// swiftlint:enable type_body_length

@@ -100,7 +100,7 @@ class JsonOverlayReader: OverlayReader {
             let mappings: [OverlayMapping] = try overlay.roots.reduce([]) { prev, root in
                 switch root.type {
                 case .directory:
-                    //iterate all contents
+                    // iterate all contents
                     let dir = URL(fileURLWithPath: root.name)
                     let mappings: [OverlayMapping] = try root.contents.map { content in
                         switch content.type {

@@ -110,8 +110,8 @@ class SwiftcOrchestrator {
                     try invocationStorage.store(args: invocationArgs)
                 }
             } catch {
-                // The critical section is protected by a lock. Some other process already called compilation history.
-                // We only need to call our current step then.
+                // The critical section is protected by a lock. Some other process already called compilation history
+                // We only need to call our current step then
                 fallbackToDefault(command: swiftcCommand)
             }
         case .consumer:

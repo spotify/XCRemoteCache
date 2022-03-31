@@ -35,7 +35,7 @@ struct IncludeExcludeOracle: IncludeOracle {
 
 
     func shouldInclude(identifier: OracleIdentifierType) -> Bool {
-        // exclude array has precedence.
+        // exclude array has precedence
         if excludes.contains(identifier) {
             return false
         }

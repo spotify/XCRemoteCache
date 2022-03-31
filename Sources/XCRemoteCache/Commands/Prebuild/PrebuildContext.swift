@@ -43,7 +43,8 @@ public struct PrebuildContext {
     let targetName: String
     /// List of all targets to downloaded from the thinning aggregation target
     var thinnedTargets: [String]?
-    /// location of the json file that define virtual files system overlay (mappings of the virtual location file -> local file path)
+    /// location of the json file that define virtual files system overlay
+    /// (mappings of the virtual location file -> local file path)
     let overlayHeadersPath: URL
 }
 

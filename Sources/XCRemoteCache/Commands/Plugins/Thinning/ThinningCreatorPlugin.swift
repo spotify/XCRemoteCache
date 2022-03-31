@@ -38,7 +38,7 @@ class ThinningCreatorPlugin: ArtifactCreatorPlugin {
 
     /// Default Initializer
     /// - Parameter targetTempDir: Location of current target-specific temp dir (TARGET_TEMP_DIR)
-    /// - Parameter modeMarkerPath: path of maker file that informs if a given target can reuse remote artifacts.
+    /// - Parameter modeMarkerPath: path of maker file that informs if a given target can reuse remote artifacts
     /// - Parameter dirScanner: scanner to access disk and read files and directories hierarchy
     init(targetTempDir: URL, modeMarkerPath: String, dirScanner: DirScanner) {
         self.targetTempDir = targetTempDir
@@ -94,7 +94,7 @@ class ThinningCreatorPlugin: ArtifactCreatorPlugin {
         // ProducerFast mode:
         // If a target reused already existing artifact, it still has `$(TARGET_TEMP_DIR)/rc.enabled` marker file
         // and the reused zip is placed in:
-        // `$(TARGET_TEMP_DIR)/xccache/{{fileKey}}.zip` location.
+        // `$(TARGET_TEMP_DIR)/xccache/{{fileKey}}.zip` location
 
         let targetEnabledMarker = tempDir.appendingPathComponent(modeMarkerPath)
         let targetReusedArtifactRootDir = tempDir.appendingPathComponent("xccache")

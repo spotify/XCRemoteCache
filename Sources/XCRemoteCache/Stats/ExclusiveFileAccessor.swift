@@ -76,8 +76,8 @@ class ExclusiveFile: ExclusiveFileAccessor {
         guard flock(fd, LOCK_EX) == 0 else {
             throw FileAccessorError.lockingFailure
         }
-        // While having a lock, make sure the file still exists.
-        // It might delete it while we were waiting for a lock.
+        // While having a lock, make sure the file still exists
+        // It might delete it while we were waiting for a lock
         guard access(fileURL.path, F_OK) == 0 else {
             throw FileAccessorError.lockingFailure
         }

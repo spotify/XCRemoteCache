@@ -23,6 +23,34 @@ If you prefer to edit in Xcode, run `swift package generate-xcodeproj`. Do **not
 
 The generated Xcode project contains schemes for each output application (like `xcswiftc`, `xcprebuild` etc.) so to build a single app, just select the appropriate scheme and build (⌘+B). If you want to build all applications at once, select `Aggregator` scheme that automatically builds all apps. `Aggregator` target in `Package.swift` is defined only for development convenience, it shouldn't be ever used as a dependency.   
 
+#### Debugging the app in a real project
+
+Debugging XCRemoteCache in a real project is simple:
+* Open XCRemoteCache's `Package.swift` in Xcode and select a scheme that corresponds to the process you want to debug, e.g. `xcpostbuild`
+
+![Select scheme](./img/debug-scheme.png)
+
+* Build the app with Product->Build (or ⌘+B)
+* Open the scheme's settings (⌘+⇧+<) and for the "Run" action, select "Wait for the executable to be launched"
+
+![Configure scheme](./img/debug-scheme-wait.png)
+
+* Find the produced binary in your DerivedData. The default location would be `~/Library/Developer/Xcode/DerivedData/XCRemoteCache-{hash}/Build/Products/Debug/xcpostbuild`
+* In the project you want to debug, pick the target you want to inspect and expand the build phase that calls the process
+* Replace the Input Files path so it points the locally built binary placed in DerivedData
+
+![Update phase](./img/debug-phase-update.png)
+
+* Now, you can run the **XCRemoteCache** project (not the project you want to debug). Because Xcode will not initiate a new process, it will just wait until someone else triggers it.
+
+![LLDB waiting](./img/debug-wait.png)
+
+* Finally, build the project to want to debug and expect your XCRemoteCache breakpoints to hit
+
+![Breakpoint hit](./img/debug-breakpoint.png)
+
+> Tip: If your breakpoints don't hit, try adding a dummy `sleep(1)` in the process entry point (e.g. at the top of `XCPostbuild.main` function)  
+
 #### Running tests in Xcode
 
 All unit tests are placed in `XCRemoteCacheTests`. To run them from Xcode, just pick any application scheme and run tests (⌘+U).

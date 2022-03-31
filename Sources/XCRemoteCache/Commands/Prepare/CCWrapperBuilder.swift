@@ -72,7 +72,17 @@ class TemplateBasedCCWrapperBuilder: CCWrapperBuilder {
         )
         infoLog("ClangWrapperBuilder compiles file at \(compilationFile).")
         // -O3: optimize for faster execution
-        let args = [clangCommand, "-arch", "arm64", "-arch", "x86_64", "-O3", compilationFile.path, "-o", destination.path]
+        let args = [
+            clangCommand,
+            "-arch",
+            "arm64",
+            "-arch",
+            "x86_64",
+            "-O3",
+            compilationFile.path,
+            "-o",
+            destination.path,
+        ]
         let compilationOutput = try shell("xcrun", args, URL(fileURLWithPath: "").path, nil)
         infoLog("Clang compilation output: \(compilationOutput)")
     }
@@ -435,7 +445,9 @@ class TemplateBasedCCWrapperBuilder: CCWrapperBuilder {
                     isSuffixed(argv[i],".cc") ||
                     isSuffixed(argv[i],".cpp") ||
                     isSuffixed(argv[i],".c++") ||
-                    isSuffixed(argv[i],".cxx")
+                    isSuffixed(argv[i],".cxx") ||
+                    isSuffixed(argv[i],".S") ||
+                    isSuffixed(argv[i],".s")
                 ) {
                     // a full list of extensions is taken from https://clang.llvm.org/docs/ClangFormatStyleOptions.html
                     // support for .m,.mm,.c,.cc,.cpp,.c++,.cxx input files

@@ -23,16 +23,20 @@ struct AWSV4Signature {
 
     let secretKey: String
     let accessKey: String
+    let securityToken: String?
     let region: String
     let service: String
     let date: Date
-
 
     func addSignatureHeaderTo(request: inout URLRequest) {
 
         request.setValue(request.url?.host, forHTTPHeaderField: "host")
         request.setValue(StringToSign.ISO8601BasicFormatter.string(from: date), forHTTPHeaderField: "x-amz-date")
         request.setValue((request.httpBody ?? Data()).sha256(), forHTTPHeaderField: "x-amz-content-sha256")
+
+        if let securityToken = securityToken {
+            request.setValue(securityToken, forHTTPHeaderField: "x-amz-security-token")
+        }
 
         let canonicalRequest = CanonicalRequest(request: request)
         let stringToSign = StringToSign(

@@ -72,7 +72,7 @@ public class FileDependenciesReader: DependenciesReader {
                 return Set(splitDependencyFileList(value))
             case let s where s.hasSuffix(".o") || s.hasSuffix(".bc"):
                 // 'swiftc' output formatting
-                // take dependencies from any .o or .bc file.
+                // take dependencies from any .o or .bc file
                 // Note: For WMO, all .{o|bc} files have the same dependencies
                 return Set(splitDependencyFileList(value))
             default:
