@@ -336,7 +336,7 @@ class TemplateBasedCCWrapperBuilderTests: FileXCTestCase {
     func testPCHCompilationFallbacks() throws {
         // Marker is empty to mimic the new file scenario
         let pchFile = directory.appendingPathComponent("input.pch")
-        createValidPCCFile(pchFile)
+        createValidPCHFile(pchFile)
         arguments = ["-x", "objective-c-header", "-MF", dependencyFile.path, "-o", outputFile.path, pchFile.path]
 
         try shellExec(Self.xccc.path, args: arguments, inDir: directory.path)
@@ -350,7 +350,7 @@ class TemplateBasedCCWrapperBuilderTests: FileXCTestCase {
     }
 
     /// Creates a simple PCH code in the location
-    private func createValidPCCFile(_ location: URL) {
+    private func createValidPCHFile(_ location: URL) {
         fileManager.createFile(
             atPath: location.path,
             contents: "#import <Availability.h>".data(using: .utf8),
