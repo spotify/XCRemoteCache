@@ -47,7 +47,8 @@ class TemplateBasedCCWrapperBuilderTests: FileXCTestCase {
         let app = appDir.appendingPathComponent("xccc")
         try? fileManager.removeItem(at: appDir)
         try? FileManager.default.createDirectory(at: appDir, withIntermediateDirectories: true, attributes: nil)
-        try? builder.compile(to: app, commitSha: commitSha)
+        // swiftlint:disable:next force_try
+        try! builder.compile(to: app, commitSha: commitSha)
         return app
     }()
 
@@ -332,9 +333,29 @@ class TemplateBasedCCWrapperBuilderTests: FileXCTestCase {
         XCTAssertNotEqual(newFileOutputData, Data())
     }
 
+    func testPCHCompilationFallbacks() throws {
+        // Marker is empty to mimic the new file scenario
+        let pchFile = directory.appendingPathComponent("input.pch")
+        createValidPCHFile(pchFile)
+        arguments = ["-x", "objective-c-header", "-MF", dependencyFile.path, "-o", outputFile.path, pchFile.path]
+
+        try shellExec(Self.xccc.path, args: arguments, inDir: directory.path)
+
+        XCTAssertTrue(fileManager.fileExists(atPath: outputFile.path))
+    }
+
     /// Creates a simple C code in the location
     private func createValidCFile(_ location: URL) {
         fileManager.createFile(atPath: location.path, contents: "int main(){}".data(using: .utf8), attributes: nil)
+    }
+
+    /// Creates a simple PCH code in the location
+    private func createValidPCHFile(_ location: URL) {
+        fileManager.createFile(
+            atPath: location.path,
+            contents: "#import <Availability.h>".data(using: .utf8),
+            attributes: nil
+        )
     }
 
     /// Creates a C code that requires extra CUSTOM_STR clang macro to compile
