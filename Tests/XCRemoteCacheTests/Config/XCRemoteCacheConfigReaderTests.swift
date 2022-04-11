@@ -22,64 +22,62 @@ import XCTest
 
 class XCRemoteCacheConfigReaderTests: XCTestCase {
 
+    private var fileReader: FileAccessorFake!
+    private var reader: XCRemoteCacheConfigReader!
+
+    override func setUp() {
+        fileReader = FileAccessorFake(mode: .normal)
+        reader = XCRemoteCacheConfigReader(srcRootPath: "/", fileReader: fileReader)
+    }
+
     func testReadsFromExtraConfig() throws {
-        let fileReader = FileAccessorFake(mode: .normal)
         try fileReader.write(toPath: "/.rcinfo", contents: "cache_addresses: [test]")
-        let reader = XCRemoteCacheConfigReader(srcRootPath: "/", fileReader: fileReader)
 
         let config = try reader.readConfiguration()
 
         XCTAssertEqual(config.cacheAddresses, ["test"])
     }
 
-    func testOverridesExtraConfigFromExtra() throws {
-        let fileReader = FileAccessorFake(mode: .normal)
+    func testOverridesExtraConfigFromExtraFile() throws {
         try fileReader.write(toPath: "/.rcinfo", contents: "cache_addresses: [test]")
         try fileReader.write(toPath: "/user.rcinfo", contents: "cache_addresses: [user]")
-        let reader = XCRemoteCacheConfigReader(srcRootPath: "/", fileReader: fileReader)
 
         let config = try reader.readConfiguration()
 
         XCTAssertEqual(config.cacheAddresses, ["user"])
     }
 
-    func testReadsExtraMultipleTimes() throws {
-        let fileReader = FileAccessorFake(mode: .normal)
+    func testReadsExtraConfigMultipleTimes() throws {
         try fileReader.write(toPath: "/.rcinfo", contents: "cache_addresses: [test]")
         try fileReader.write(toPath: "/user.rcinfo", contents: """
         cache_addresses: [user]
         extra_configuration_file: user2.rcinfo
         """)
         try fileReader.write(toPath: "/user2.rcinfo", contents: "cache_addresses: [user2]")
-        let reader = XCRemoteCacheConfigReader(srcRootPath: "/", fileReader: fileReader)
 
         let config = try reader.readConfiguration()
 
         XCTAssertEqual(config.cacheAddresses, ["user2"])
     }
 
-    func testBreaksImportingIfReachingALoop() throws {
-        let fileReader = FileAccessorFake(mode: .normal)
+    func testBreaksImportingExtraConfigIfReachingALoop() throws {
         try fileReader.write(toPath: "/.rcinfo", contents: "cache_addresses: [test]")
         try fileReader.write(toPath: "/user.rcinfo", contents: """
         cache_addresses: [user]
         extra_configuration_file: .rcinfo
         """)
-        let reader = XCRemoteCacheConfigReader(srcRootPath: "/", fileReader: fileReader)
 
         let config = try reader.readConfiguration()
 
         XCTAssertEqual(config.cacheAddresses, ["user"])
     }
 
-    func testBreaksImportingIfExtraFileDoesntExist() throws {
-        let fileReader = FileAccessorFake(mode: .normal)
+    func testBreaksImportingExtraConfigIfFileDoesntExist() throws {
         try fileReader.write(toPath: "/.rcinfo", contents: "cache_addresses: [test]")
         try fileReader.write(toPath: "/user.rcinfo", contents: """
         cache_addresses: [user]
         extra_configuration_file: nonexisting.rcinfo
         """)
-        let reader = XCRemoteCacheConfigReader(srcRootPath: "/", fileReader: fileReader)
 
         let config = try reader.readConfiguration()
 
