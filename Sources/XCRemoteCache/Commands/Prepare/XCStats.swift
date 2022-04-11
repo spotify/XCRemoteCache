@@ -36,7 +36,7 @@ public class XCStats {
         let config: XCRemoteCacheConfig
         let context: XCStatsContext
         do {
-            config = try XCRemoteCacheConfigReader(env: env, fileManager: fileManager).readConfiguration()
+            config = try XCRemoteCacheConfigReader(env: env, fileReader: fileManager).readConfiguration()
             try context = XCStatsContext(config, fileManager: fileManager)
         } catch {
             exit(1, "FATAL: Prepare initialization failed with error: \(error)")

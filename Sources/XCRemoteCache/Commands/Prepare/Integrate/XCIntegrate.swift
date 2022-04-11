@@ -74,7 +74,7 @@ public class XCIntegrate {
             let binariesDir = commandURL.deletingLastPathComponent()
 
             let srcRoot: URL = URL(fileURLWithPath: projectPath).deletingLastPathComponent()
-            let config = try XCRemoteCacheConfigReader(srcRootPath: srcRoot.path, fileManager: fileManager)
+            let config = try XCRemoteCacheConfigReader(srcRootPath: srcRoot.path, fileReader: fileManager)
                 .readConfiguration()
 
             let context = try IntegrateContext(

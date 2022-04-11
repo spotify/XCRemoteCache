@@ -70,7 +70,7 @@ public class XCCreateBinary {
         let config: XCRemoteCacheConfig
         do {
             let srcRoot: URL = URL(fileURLWithPath: fileManager.currentDirectoryPath)
-            config = try XCRemoteCacheConfigReader(srcRootPath: srcRoot.path, fileManager: fileManager)
+            config = try XCRemoteCacheConfigReader(srcRootPath: srcRoot.path, fileReader: fileManager)
                 .readConfiguration()
         } catch {
             errorLog("\(stepDescription) initialization failed with error: \(error). Fallbacking to \(fallbackCommand)")

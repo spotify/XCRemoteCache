@@ -316,31 +316,41 @@ class XCRemoteCacheConfigReader {
     /// Name of the configuration file, required in $(SRCROOT) location
     private static let configurationFile = ".rcinfo"
     private let srcRoot: String
-    private let fileManager: FileManager
+    private let fileReader: FileReader
     private lazy var yamlDecorer = YAMLDecoder(encoding: .utf8)
 
-    init(env: [String: String], fileManager: FileManager) throws {
+    init(env: [String: String], fileReader: FileReader) throws {
         let explicitSrcRoot: String? = env.readEnv(key: "SRCROOT")
-        srcRoot = explicitSrcRoot ?? fileManager.currentDirectoryPath
-        self.fileManager = fileManager
+        srcRoot = explicitSrcRoot ?? FileManager.default.currentDirectoryPath
+        self.fileReader = fileReader
     }
 
-    init(srcRootPath srcRoot: String, fileManager: FileManager) {
+    init(srcRootPath srcRoot: String, fileReader: FileReader) {
         self.srcRoot = srcRoot
-        self.fileManager = fileManager
+        self.fileReader = fileReader
     }
 
+    // Reads the final configuration by loading all extra configs
+    // until reaching a config that doesn't override `extraConfigurationFile`
     func readConfiguration() throws -> XCRemoteCacheConfig {
         let rootURL = URL(fileURLWithPath: srcRoot)
         let configURL = URL(fileURLWithPath: Self.configurationFile, relativeTo: rootURL)
         let userConfigs = try readUserConfig(configURL)
         var config = XCRemoteCacheConfig(sourceRoot: srcRoot).merged(with: userConfigs)
-        let extraConfURL = URL(fileURLWithPath: config.extraConfigurationFile, relativeTo: rootURL)
-        do {
-            let extraConfig = try readUserConfig(extraConfURL)
-            config = config.merged(with: extraConfig)
-        } catch {
-            infoLog("Extra config override failed with \(error). Skipping extra configuration")
+        var extraConfURL = URL(fileURLWithPath: config.extraConfigurationFile, relativeTo: rootURL)
+        var visitedFiles = Set([configURL])
+        while !visitedFiles.contains(extraConfURL) {
+            do {
+                let extraConfig = try readUserConfig(extraConfURL)
+                debugLog("Reading extra configuration from \(extraConfURL)")
+                config = config.merged(with: extraConfig)
+                visitedFiles.insert(extraConfURL)
+                // Advance extra configuration
+                extraConfURL = URL(fileURLWithPath: config.extraConfigurationFile, relativeTo: rootURL)
+            } catch {
+                infoLog("Extra config override failed with \(error). Skipping extra configuration")
+                break
+            }
         }
 
         return try config.verifyAndApplyDefaults()
@@ -348,7 +358,7 @@ class XCRemoteCacheConfigReader {
 
     /// Reads user configuration from a file
     private func readUserConfig(_ file: URL) throws -> ConfigFileScheme {
-        let configurationContent = fileManager.contents(atPath: file.path)
+        let configurationContent = try fileReader.contents(atPath: file.path)
         guard let configurationData = configurationContent else {
             throw XCRemoteCacheConfigReaderError.missingConfigurationFile(file)
         }
