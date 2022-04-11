@@ -26,6 +26,7 @@ class XCRemoteCacheConfigReaderTests: XCTestCase {
     private var reader: XCRemoteCacheConfigReader!
 
     override func setUp() {
+        super.setUp()
         fileReader = FileAccessorFake(mode: .normal)
         reader = XCRemoteCacheConfigReader(srcRootPath: "/", fileReader: fileReader)
     }
