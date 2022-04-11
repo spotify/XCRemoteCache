@@ -288,7 +288,7 @@ _Note that for the `producer` mode, the prebuild build phase and `xccc`, `xcld`,
 | `cache_commit_history` | Number of historical git commits to look for cache artifacts | `10` | ⬜️ |
 | `source_root` | Source root of the Xcode project | `""` | ⬜️ |
 | `fingerprint_override_extension` | Fingerprint override extension (sample override `Module.swiftmodule/x86_64.swiftmodule.md5`) | `md5` | ⬜️ |
-| `extra_configuration_file` | Configuration file that overrides project configuration | `user.rcinfo` | ⬜️ |
+| `extra_configuration_file` | Configuration file that overrides project configuration (this property can be overriden multiple times in different files to chain extra configuration files) | `user.rcinfo` | ⬜️ |
 | `publishing_sha` | Custom commit sha to publish artifact (producer only) | `nil` | ⬜️ |
 | `artifact_maximum_age` | Maximum age in days HTTP response should be locally cached before being evicted | `30` | ⬜️ |
 | `custom_fingerprint_envs` | Extra ENV keys that should be convoluted into the environment fingerprint | `[]` | ⬜️ |
