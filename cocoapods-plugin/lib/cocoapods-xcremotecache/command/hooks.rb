@@ -146,8 +146,10 @@ module CocoapodsXCRemoteCacheModifier
           prebuild_script.dependency_file = "$(TARGET_TEMP_DIR)/prebuild.d"
 
           # Move prebuild (last element) to the position before compile sources phase (to make it real 'prebuild')
-          compile_phase_index = target.build_phases.index(target.source_build_phase)
-          target.build_phases.insert(compile_phase_index, target.build_phases.delete(prebuild_script))
+          if !existing_prebuild_script 
+            compile_phase_index = target.build_phases.index(target.source_build_phase)
+            target.build_phases.insert(compile_phase_index, target.build_phases.delete(prebuild_script))
+          end
         elsif mode == 'producer' || mode == 'producer-fast'
           # Delete existing prebuild build phase (to support switching between modes)
           target.build_phases.delete_if do |phase|
