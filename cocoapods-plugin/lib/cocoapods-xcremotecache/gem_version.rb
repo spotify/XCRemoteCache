@@ -13,5 +13,5 @@
 # limitations under the License.
 
 module CocoapodsXcremotecache
-  VERSION = "0.0.8"
+  VERSION = "0.0.9"
 end
