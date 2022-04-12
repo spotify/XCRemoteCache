@@ -46,7 +46,7 @@ public class XCPrepareMark {
         let context: PrepareMarkContext
         let xcodeVersion: String
         do {
-            config = try XCRemoteCacheConfigReader(env: env, fileManager: fileManager).readConfiguration()
+            config = try XCRemoteCacheConfigReader(env: env, fileReader: fileManager).readConfiguration()
             context = try PrepareMarkContext(config)
             xcodeVersion = try xcode ?? XcodeProbeImpl(shell: shellGetStdout).read().buildVersion
         } catch {

@@ -61,7 +61,7 @@ public class XCPrepare {
         var context: PrepareContext
         let xcodeVersion: String
         do {
-            config = try XCRemoteCacheConfigReader(env: env, fileManager: fileManager).readConfiguration()
+            config = try XCRemoteCacheConfigReader(env: env, fileReader: fileManager).readConfiguration()
             context = try PrepareContext(config, offline: offline)
             xcodeVersion = try customXcodeBuildNumber ?? XcodeProbeImpl(shell: shellGetStdout).read().buildVersion
         } catch {

@@ -29,7 +29,7 @@ public class XCPrebuild {
         let config: XCRemoteCacheConfig
         let context: PrebuildContext
         do {
-            config = try XCRemoteCacheConfigReader(env: env, fileManager: fileManager).readConfiguration()
+            config = try XCRemoteCacheConfigReader(env: env, fileReader: fileManager).readConfiguration()
             context = try PrebuildContext(config, env: env)
             updateProcessTag(context.targetName)
         } catch {

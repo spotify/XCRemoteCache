@@ -70,7 +70,7 @@ public class XCSwiftc {
         let context: SwiftcContext
         do {
             let srcRoot: URL = URL(fileURLWithPath: fileManager.currentDirectoryPath)
-            config = try XCRemoteCacheConfigReader(srcRootPath: srcRoot.path, fileManager: fileManager)
+            config = try XCRemoteCacheConfigReader(srcRootPath: srcRoot.path, fileReader: fileManager)
                 .readConfiguration()
             context = try SwiftcContext(config: config, input: inputArgs)
         } catch {

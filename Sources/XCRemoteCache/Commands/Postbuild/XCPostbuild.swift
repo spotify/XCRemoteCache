@@ -34,7 +34,7 @@ public class XCPostbuild {
         let context: PostbuildContext
         let cacheHitLogger: CacheHitLogger
         do {
-            config = try XCRemoteCacheConfigReader(env: env, fileManager: fileManager).readConfiguration()
+            config = try XCRemoteCacheConfigReader(env: env, fileReader: fileManager).readConfiguration()
             context = try PostbuildContext(config, env: env)
             updateProcessTag(context.targetName)
             let counterFactory: FileStatsCoordinator.CountersFactory = { file, count in

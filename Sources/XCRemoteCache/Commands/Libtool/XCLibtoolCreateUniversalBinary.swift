@@ -52,7 +52,7 @@ class XCLibtoolCreateUniversalBinary: XCLibtoolLogic {
         let config: XCRemoteCacheConfig
         do {
             let srcRoot: URL = URL(fileURLWithPath: fileManager.currentDirectoryPath)
-            config = try XCRemoteCacheConfigReader(srcRootPath: srcRoot.path, fileManager: fileManager)
+            config = try XCRemoteCacheConfigReader(srcRootPath: srcRoot.path, fileReader: fileManager)
                 .readConfiguration()
         } catch {
             errorLog("Libtool initialization failed with error: \(error). Fallbacking to libtool")

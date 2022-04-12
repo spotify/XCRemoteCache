@@ -32,7 +32,7 @@ public class XCConfig {
         let fileManager = FileManager.default
         let config: XCRemoteCacheConfig
         do {
-            config = try XCRemoteCacheConfigReader(env: env, fileManager: fileManager).readConfiguration()
+            config = try XCRemoteCacheConfigReader(env: env, fileReader: fileManager).readConfiguration()
         } catch {
             exit(1, "FATAL: Prepare initialization failed with error: \(error)")
         }
