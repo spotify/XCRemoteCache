@@ -40,6 +40,7 @@ public struct PostbuildContext {
     var mode: Mode
     var targetName: String
     var targetTempDir: URL
+    var derivedFilesDir: URL
     /// Location where all compilation outputs (.o) are placed
     var compilationTempDir: URL
     var configuration: String
@@ -91,6 +92,7 @@ extension PostbuildContext {
         let targetNameValue: String = try env.readEnv(key: "TARGET_NAME")
         targetName = targetNameValue
         targetTempDir = try env.readEnv(key: "TARGET_TEMP_DIR")
+        derivedFilesDir = try env.readEnv(key: "DERIVED_FILE_DIR")
         let archs: [String] = try env.readEnv(key: "ARCHS").split(separator: " ").map(String.init)
         guard let firstArch = archs.first, !firstArch.isEmpty else {
             throw PostbuildContextError.missingArchitecture

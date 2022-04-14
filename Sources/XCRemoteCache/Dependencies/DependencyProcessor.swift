@@ -27,6 +27,7 @@ public struct Dependency: Equatable {
         case source
         case fingerprint
         case intermediate
+        case derivedFile
         // Product of the target itself
         case ownProduct
         case unknown
@@ -55,13 +56,15 @@ class DependencyProcessorImpl: DependencyProcessor {
     private let productPath: String
     private let sourcePath: String
     private let intermediatePath: String
+    private let derivedFilesPath: String
     private let bundlePath: String?
 
-    init(xcode: URL, product: URL, source: URL, intermediate: URL, bundle: URL?) {
+    init(xcode: URL, product: URL, source: URL, intermediate: URL, derivedFiles: URL, bundle: URL?) {
         xcodePath = xcode.path.dirPath()
         productPath = product.path.dirPath()
         sourcePath = source.path.dirPath()
         intermediatePath = intermediate.path.dirPath()
+        derivedFilesPath = derivedFiles.path.dirPath()
         bundlePath = bundle?.path.dirPath()
     }
 
@@ -85,6 +88,8 @@ class DependencyProcessorImpl: DependencyProcessor {
                 return Dependency(url: file, type: .product)
             } else if filePath.hasPrefix(sourcePath) {
                 return Dependency(url: file, type: .source)
+            } else if filePath.hasPrefix(derivedFilesPath) {
+                return Dependency(url: file, type: .derivedFile)
             } else {
                 return Dependency(url: file, type: .unknown)
             }
@@ -99,6 +104,10 @@ class DependencyProcessorImpl: DependencyProcessor {
         // TODO: Recognize if the generated module was actually imported and only then it should be considered
         // as a valid Dependency
         if dependency.type == .product && dependency.url.pathExtension == "modulemap" {
+            return false
+        }
+
+        if dependency.type == .derivedFile && dependency.url.lastPathComponent.contains("-Swift.h") {
             return false
         }
 
