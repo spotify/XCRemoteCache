@@ -107,16 +107,14 @@ class DependencyProcessorImpl: DependencyProcessor {
             return false
         }
 
-        if dependency.type == .derivedFile && dependency.url.lastPathComponent.contains("-Swift.h") {
-            return false
-        }
-
         // Skip:
         // - A fingerprint generated includes Xcode version build number so no need to analyze prepackaged Xcode files
         // - All files in `*/Interemediates/*` - this file are created on-fly for a given target
         // - Some files may depend on its own product (e.g. .m may #include *-Swift.h) - we know products will match
         //   because in case of a hit, these will be taken from the artifact
-        let irrelevantDependenciesType: [Dependency.Kind] = [.xcode, .intermediate, .ownProduct]
+        // - Customized DERIVED_FILE_DIR may change a directory of
+        //   derived files, which by default is under `*/Interemediates`
+        let irrelevantDependenciesType: [Dependency.Kind] = [.xcode, .intermediate, .ownProduct, .derivedFile]
         return !irrelevantDependenciesType.contains(dependency.type)
     }
 }

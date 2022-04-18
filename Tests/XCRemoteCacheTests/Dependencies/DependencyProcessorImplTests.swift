@@ -73,6 +73,14 @@ class DependencyProcessorImplTests: FileXCTestCase {
         XCTAssertEqual(dependencies, [])
     }
 
+    func testFiltersOutDerivedFile() throws {
+        let dependencies = processor.process([
+            "/DerivedFiles/output.h",
+        ])
+
+        XCTAssertEqual(dependencies, [])
+    }
+
     func testFiltersOutProductModulemap() throws {
         let dependencies = processor.process([
             "/Product/some.modulemap",
