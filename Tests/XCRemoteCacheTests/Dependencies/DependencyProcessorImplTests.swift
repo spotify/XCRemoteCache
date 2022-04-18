@@ -210,4 +210,21 @@ class DependencyProcessorImplTests: FileXCTestCase {
 
         return sourceDir.appendingPathComponent(filename)
     }
+
+    func testSkipsCustomizedDerivedDirFileUnderSources() {
+        let derivedFile: URL = "/DerivedFiles/Module-Swift.h"
+        let processor = DependencyProcessorImpl(
+            xcode: "/Xcode",
+            product: "/",
+            source: "/",
+            intermediate: "/Intermediate",
+            derivedFiles: "/DerivedFiles",
+            bundle: nil
+        )
+
+        XCTAssertEqual(
+            processor.process([derivedFile]),
+            []
+        )
+    }
 }

@@ -80,6 +80,8 @@ class DependencyProcessorImpl: DependencyProcessor {
                 return Dependency(url: file, type: .xcode)
             } else if filePath.hasPrefix(intermediatePath) {
                 return Dependency(url: file, type: .intermediate)
+            } else if filePath.hasPrefix(derivedFilesPath) {
+                return Dependency(url: file, type: .derivedFile)
             } else if let bundle = bundlePath, filePath.hasPrefix(bundle) {
                 // If a target produces a bundle, explicitly classify all
                 // of products to distinguish from other targets products
@@ -88,8 +90,6 @@ class DependencyProcessorImpl: DependencyProcessor {
                 return Dependency(url: file, type: .product)
             } else if filePath.hasPrefix(sourcePath) {
                 return Dependency(url: file, type: .source)
-            } else if filePath.hasPrefix(derivedFilesPath) {
-                return Dependency(url: file, type: .derivedFile)
             } else {
                 return Dependency(url: file, type: .unknown)
             }
