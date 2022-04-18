@@ -27,6 +27,7 @@ class PostbuildTests: FileXCTestCase {
         mode: .producer,
         targetName: "",
         targetTempDir: "",
+        derivedFilesDir: "",
         compilationTempDir: "",
         configuration: "",
         platform: "",
@@ -78,6 +79,7 @@ class PostbuildTests: FileXCTestCase {
         product: "/Product",
         source: "/Source",
         intermediate: "/Intermediate",
+        derivedFiles: "/DerivedFiles",
         bundle: nil
     )
     private var overrideManager = FingerprintOverrideManagerImpl(

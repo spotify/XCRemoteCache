@@ -26,6 +26,7 @@ class PostbuildContextTests: FileXCTestCase {
     private static let SampleEnvs = [
         "TARGET_NAME": "TARGET_NAME",
         "TARGET_TEMP_DIR": "TARGET_TEMP_DIR",
+        "DERIVED_FILE_DIR": "DERIVED_FILE_DIR",
         "ARCHS": "x86_64",
         "OBJECT_FILE_DIR_normal": "/OBJECT_FILE_DIR_normal" ,
         "CONFIGURATION": "CONFIGURATION",

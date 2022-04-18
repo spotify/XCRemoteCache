@@ -27,6 +27,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
         product: "/Product",
         source: "/Source",
         intermediate: "/Intermediate",
+        derivedFiles: "/DerivedFiles",
         bundle: "/Bundle"
     )
 
@@ -37,6 +38,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
             product: "/",
             source: "/",
             intermediate: "/Intermediate",
+            derivedFiles: "/DerivedFiles",
             bundle: nil
         )
 
@@ -53,6 +55,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
             product: "/",
             source: "/",
             intermediate: "/Intermediate",
+            derivedFiles: "/DerivedFiles",
             bundle: "/Bundle"
         )
 
@@ -60,6 +63,14 @@ class DependencyProcessorImplTests: FileXCTestCase {
             processor.process([bundleFile]),
             []
         )
+    }
+
+    func testFiltersOutGeneratedSwiftHeaders() throws {
+        let dependencies = processor.process([
+            "/DerivedFiles/ModuleName-Swift.h",
+        ])
+
+        XCTAssertEqual(dependencies, [])
     }
 
     func testFiltersOutProductModulemap() throws {
@@ -130,6 +141,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
             product: "/Product",
             source: "/Source",
             intermediate: intermediateDirReal,
+            derivedFiles: "/DerivedFiles",
             bundle: "/Bundle"
         )
 
@@ -158,6 +170,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
             product: "/Product",
             source: sourceDirReal,
             intermediate: "/Intermediate",
+            derivedFiles: "/DerivedFiles",
             bundle: "/Bundle"
         )
 
