@@ -73,6 +73,14 @@ class DependencyProcessorImplTests: FileXCTestCase {
         XCTAssertEqual(dependencies, [])
     }
 
+    func testFiltersOutDerivedFile() throws {
+        let dependencies = processor.process([
+            "/DerivedFiles/output.h",
+        ])
+
+        XCTAssertEqual(dependencies, [])
+    }
+
     func testFiltersOutProductModulemap() throws {
         let dependencies = processor.process([
             "/Product/some.modulemap",
@@ -201,5 +209,22 @@ class DependencyProcessorImplTests: FileXCTestCase {
         XCTAssertNoThrow(try fileMng.spt_createEmptyFile(destinationDir.appendingPathComponent(filename)))
 
         return sourceDir.appendingPathComponent(filename)
+    }
+
+    func testSkipsCustomizedDerivedDirFileUnderSources() {
+        let derivedFile: URL = "/DerivedFiles/Module-Swift.h"
+        let processor = DependencyProcessorImpl(
+            xcode: "/Xcode",
+            product: "/",
+            source: "/",
+            intermediate: "/Intermediate",
+            derivedFiles: "/DerivedFiles",
+            bundle: nil
+        )
+
+        XCTAssertEqual(
+            processor.process([derivedFile]),
+            []
+        )
     }
 }
