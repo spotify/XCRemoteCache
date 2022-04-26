@@ -48,7 +48,16 @@ public class XCLDMain {
             i += 1
         }
         guard let outputInput = output, let filelistInput = filelist, let dependencyInfoInput = dependencyInfo else {
-            exit(1, "Missing 'output' argument. Args: \(args)")
+            let ldCommand = "clang"
+            print("Fallbacking to compilation using \(ldCommand).")
+
+            let args = ProcessInfo().arguments
+            let paramList = [ldCommand] + args.dropFirst()
+            let cargs = paramList.map { strdup($0) } + [nil]
+            execvp(ldCommand, cargs)
+
+            /// C-function `execv` returns only when the command fails
+            exit(1)
         }
 
 

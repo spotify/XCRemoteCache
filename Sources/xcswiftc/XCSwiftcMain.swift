@@ -60,8 +60,16 @@ public class XCSwiftcMain {
             let targetInputInput = target,
             let swiftFileListInput = swiftFileList
             else {
-                print("Missing argument. Args: \(args)")
-                exit(1)
+            let swiftcCommand = "swiftc"
+            print("Fallbacking to compilation using \(swiftcCommand).")
+
+            let args = ProcessInfo().arguments
+            let paramList = [swiftcCommand] + args.dropFirst()
+            let cargs = paramList.map { strdup($0) } + [nil]
+            execvp(swiftcCommand, cargs)
+
+            /// C-function `execv` returns only when the command fails
+            exit(1)
         }
         let swiftcArgsInput = SwiftcArgInput(
             objcHeaderOutput: objcHeaderOutputInput,
