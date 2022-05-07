@@ -31,9 +31,28 @@ jobs:
   docs:
     runs-on: macOS-latest
     env:
-      XCODE_VERSION: ${{ '13.3' }}
+      XCODE_VERSION: ${{ '13.3.1' }}
     steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
+          fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
       - name: Select Xcode
         run: "sudo xcode-select -s /Applications/Xcode_$XCODE_VERSION.app"
-      - name:
-        run: swift package generate-documentation --target XCRemoteCache --disable-indexing --transform-for-static-hosting --output-path ./build --hosting-base-path polac24.github.io
+      - name: Configure git
+        run: |
+          git config --local user.email "xcremotecache-bot@spotify.com"
+          git config --local user.name "XCRemoteCache documentation[bot]"
+      - name: "Generate documentation"
+        run: "swift package --allow-writing-to-directory ./docs  generate-documentation --target XCRemoteCache --disable-indexing --transform-for-static-hosting --output-path ./docs  --hosting-base-path XCRemoteCache/"
+      - name: "Add ./docs to git"
+        run: "git add docs"
+      - name: "Commit new docs"
+        run: "git commit -m "Update documentation"
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: documentation
+      # - name: "Push to the 'documentation' branch"
+      #   run: "git push --force origin $(git rev-parse --abbrev-ref HEAD):documentation"
