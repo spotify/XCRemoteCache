@@ -30,6 +30,8 @@ public struct Dependency: Equatable {
         case derivedFile
         // Product of the target itself
         case ownProduct
+        // User-excluded path
+        case customSkipped
         case unknown
     }
 
@@ -58,14 +60,16 @@ class DependencyProcessorImpl: DependencyProcessor {
     private let intermediatePath: String
     private let derivedFilesPath: String
     private let bundlePath: String?
+    private let skippedPaths: [String]
 
-    init(xcode: URL, product: URL, source: URL, intermediate: URL, derivedFiles: URL, bundle: URL?) {
+    init(xcode: URL, product: URL, source: URL, intermediate: URL, derivedFiles: URL, bundle: URL?, skipped: [URL]) {
         xcodePath = xcode.path.dirPath()
         productPath = product.path.dirPath()
         sourcePath = source.path.dirPath()
         intermediatePath = intermediate.path.dirPath()
         derivedFilesPath = derivedFiles.path.dirPath()
         bundlePath = bundle?.path.dirPath()
+        skippedPaths = skipped.map { $0.path.dirPath() }
     }
 
     func process(_ files: [URL]) -> [Dependency] {
@@ -90,6 +94,8 @@ class DependencyProcessorImpl: DependencyProcessor {
                 return Dependency(url: file, type: .product)
             } else if filePath.hasPrefix(sourcePath) {
                 return Dependency(url: file, type: .source)
+            } else if skippedPaths.contains(where: { filePath.hasPrefix($0) }){
+                return Dependency(url: file, type: .customSkipped)
             } else {
                 return Dependency(url: file, type: .unknown)
             }

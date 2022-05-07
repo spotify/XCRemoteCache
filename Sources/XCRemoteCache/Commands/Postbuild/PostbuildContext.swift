@@ -83,6 +83,7 @@ public struct PostbuildContext {
     /// location of the json file that define virtual files system overlay
     /// (mappings of the virtual location file -> local file path)
     let overlayHeadersPath: URL
+    let skippedDependenciesPaths: [String]
 }
 
 extension PostbuildContext {
@@ -135,5 +136,6 @@ extension PostbuildContext {
         modeMarkerPath = config.modeMarkerPath
         /// Note: The file has yaml extension, even it is in the json format
         overlayHeadersPath = targetTempDir.appendingPathComponent("all-product-headers.yaml")
+        skippedDependenciesPaths = config.irrelevantDependenciesPaths
     }
 }

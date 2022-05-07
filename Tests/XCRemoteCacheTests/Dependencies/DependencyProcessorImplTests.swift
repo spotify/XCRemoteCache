@@ -28,7 +28,8 @@ class DependencyProcessorImplTests: FileXCTestCase {
         source: "/Source",
         intermediate: "/Intermediate",
         derivedFiles: "/DerivedFiles",
-        bundle: "/Bundle"
+        bundle: "/Bundle",
+        skipped: []
     )
 
     func testIntermediateFileIsSkippedForProductAndSourceSubdirectory() {
@@ -39,7 +40,8 @@ class DependencyProcessorImplTests: FileXCTestCase {
             source: "/",
             intermediate: "/Intermediate",
             derivedFiles: "/DerivedFiles",
-            bundle: nil
+            bundle: nil,
+            skipped: []
         )
 
         XCTAssertEqual(
@@ -56,7 +58,8 @@ class DependencyProcessorImplTests: FileXCTestCase {
             source: "/",
             intermediate: "/Intermediate",
             derivedFiles: "/DerivedFiles",
-            bundle: "/Bundle"
+            bundle: "/Bundle",
+            skipped: []
         )
 
         XCTAssertEqual(
@@ -150,7 +153,8 @@ class DependencyProcessorImplTests: FileXCTestCase {
             source: "/Source",
             intermediate: intermediateDirReal,
             derivedFiles: "/DerivedFiles",
-            bundle: "/Bundle"
+            bundle: "/Bundle",
+            skipped: []
         )
 
         let intermediateFileSymlink = createSymlink(
@@ -179,7 +183,8 @@ class DependencyProcessorImplTests: FileXCTestCase {
             source: sourceDirReal,
             intermediate: "/Intermediate",
             derivedFiles: "/DerivedFiles",
-            bundle: "/Bundle"
+            bundle: "/Bundle",
+            skipped: []
         )
 
         let sourceFileSymlink = createSymlink(
@@ -219,7 +224,8 @@ class DependencyProcessorImplTests: FileXCTestCase {
             source: "/",
             intermediate: "/Intermediate",
             derivedFiles: "/DerivedFiles",
-            bundle: nil
+            bundle: nil,
+            skipped: []
         )
 
         XCTAssertEqual(

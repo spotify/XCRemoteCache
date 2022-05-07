@@ -138,6 +138,9 @@ public struct XCRemoteCacheConfig: Encodable {
     /// A list of extra ENVs that should be used as placeholders in the dependency list
     /// ENV rewrite process is optimistic - does nothing if an ENV is not defined in the pre/postbuild process
     var customRewriteEnvs: [String] = []
+    /// Paths that should not be included in a list of dependencies
+    /// Note: Can contain ENV placeholders, e.g. `[$(COOL_LIBRARY)]`
+    var irrelevantDependenciesPaths: [String] = []
 }
 
 extension XCRemoteCacheConfig {
@@ -193,6 +196,7 @@ extension XCRemoteCacheConfig {
         merge.disableCertificateVerification = scheme.disableCertificateVerification ?? disableCertificateVerification
         merge.disableVFSOverlay = scheme.disableVFSOverlay ?? disableVFSOverlay
         merge.customRewriteEnvs = scheme.customRewriteEnvs ?? customRewriteEnvs
+        merge.irrelevantDependenciesPaths = scheme.irrelevantDependenciesPaths ?? irrelevantDependenciesPaths
         return merge
     }
 
@@ -257,6 +261,7 @@ struct ConfigFileScheme: Decodable {
     let disableCertificateVerification: Bool?
     let disableVFSOverlay: Bool?
     let customRewriteEnvs: [String]?
+    let irrelevantDependenciesPaths: [String]?
 
     // Yams library doesn't support encoding strategy, see https://github.com/jpsim/Yams/issues/84
     enum CodingKeys: String, CodingKey {
@@ -304,6 +309,7 @@ struct ConfigFileScheme: Decodable {
         case disableCertificateVerification = "disable_certificate_verification"
         case disableVFSOverlay = "disable_vfs_overlay"
         case customRewriteEnvs = "custom_rewrite_envs"
+        case irrelevantDependenciesPaths = "irrelevant_dependencies_paths"
     }
 }
 
