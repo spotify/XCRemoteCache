@@ -48,7 +48,7 @@ jobs:
       - name: "Add ./docs to git"
         run: "git add docs"
       - name: "Commit new docs"
-        run: "git commit -m "Update documentation"
+        run: "git commit -m \"Update documentation\""
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
