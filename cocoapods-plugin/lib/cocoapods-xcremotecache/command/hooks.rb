@@ -24,7 +24,6 @@ module CocoapodsXCRemoteCacheModifier
   # Registers for CocoaPods plugin hooks
   module Hooks
     BIN_DIR = '.rc'
-    FAKE_SRCROOT = "/#{'x' * 10 }"
     LLDB_INIT_COMMENT="#RemoteCacheCustomSourceMap"
     LLDB_INIT_PATH = "#{ENV['HOME']}/.lldbinit"
     FAT_ARCHIVE_NAME_INFIX = 'arm64-x86_64'
@@ -40,6 +39,7 @@ module CocoapodsXCRemoteCacheModifier
       'check_platform', 
       'modify_lldb_init',
       'prettify_meta_files',
+      'fake_src_root',
       'disable_certificate_verification'
     ]
 
@@ -63,6 +63,7 @@ module CocoapodsXCRemoteCacheModifier
           'remote_commit_file' => "#{BIN_DIR}/arc.rc",
           'exclude_targets' => [],
           'prettify_meta_files' => false,
+          'fake_src_root' => "/#{'x' * 10 }",
           'disable_certificate_verification' => false
         }
         @@configuration.merge! default_values.select { |k, v| !@@configuration.key?(k) }
@@ -106,7 +107,7 @@ module CocoapodsXCRemoteCacheModifier
       # @param mode [String] mode name ('consumer', 'producer', 'producer-fast' etc.)
       # @param exclude_build_configurations [String[]] list of targets that should have disabled remote cache
       # @param final_target [String] name of target that should trigger marking
-      def self.enable_xcremotecache(target, repo_distance, xc_location, xc_cc_path, mode, exclude_build_configurations, final_target)
+      def self.enable_xcremotecache(target, repo_distance, xc_location, xc_cc_path, mode, exclude_build_configurations, final_target, fake_src_root)
         srcroot_relative_xc_location = parent_dir(xc_location, repo_distance)
 
         target.build_configurations.each do |config|
@@ -121,7 +122,7 @@ module CocoapodsXCRemoteCacheModifier
           config.build_settings['LIBTOOL'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xclibtool"]
           config.build_settings['LD'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xcld"]
 
-          config.build_settings['XCREMOTE_CACHE_FAKE_SRCROOT'] = FAKE_SRCROOT
+          config.build_settings['XCREMOTE_CACHE_FAKE_SRCROOT'] = fake_src_root
           config.build_settings['XCRC_PLATFORM_PREFERRED_ARCH'] = ["$(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)"]
           debug_prefix_map_replacement = '$(SRCROOT' + ':dir:standardizepath' * repo_distance + ')'
           add_cflags!(config.build_settings, '-fdebug-prefix-map', "#{debug_prefix_map_replacement}=$(XCREMOTE_CACHE_FAKE_SRCROOT)")
@@ -330,17 +331,17 @@ module CocoapodsXCRemoteCacheModifier
       end
 
       # Append source rewrite command to the lldbinit content
-      def self.add_lldbinit_rewrite(lines_content, user_proj_directory)
+      def self.add_lldbinit_rewrite(lines_content, user_proj_directory,fake_src_root)
         all_lines = lines_content.clone
         all_lines << LLDB_INIT_COMMENT
-        all_lines << "settings set target.source-map #{FAKE_SRCROOT} #{user_proj_directory}"    
+        all_lines << "settings set target.source-map #{fake_src_root} #{user_proj_directory}"    
         all_lines << ""
         all_lines
       end
 
-      def self.save_lldbinit_rewrite(user_proj_directory)
+      def self.save_lldbinit_rewrite(user_proj_directory,fake_src_root)
         lldbinit_lines = clean_lldbinit_content(LLDB_INIT_PATH)
-        lldbinit_lines = add_lldbinit_rewrite(lldbinit_lines, user_proj_directory) unless user_proj_directory.nil?
+        lldbinit_lines = add_lldbinit_rewrite(lldbinit_lines, user_proj_directory,fake_src_root) unless user_proj_directory.nil?
         File.write(LLDB_INIT_PATH, lldbinit_lines.join("\n"), mode: "w")
       end
 
@@ -372,6 +373,7 @@ module CocoapodsXCRemoteCacheModifier
           final_target = @@configuration['final_target']
           check_build_configuration = @@configuration['check_build_configuration']
           check_platform = @@configuration['check_platform']
+          fake_src_root = @@configuration['fake_src_root']
 
           xccc_location_absolute = "#{user_proj_directory}/#{xccc_location}"
           xcrc_location_absolute = "#{user_proj_directory}/#{xcrc_location}"
@@ -403,7 +405,7 @@ module CocoapodsXCRemoteCacheModifier
                 next if target.name.start_with?("Pods-")
                 next if target.name.end_with?("Tests")
                 next if exclude_targets.include?(target.name)
-                enable_xcremotecache(target, 1, xcrc_location, xccc_location, mode, exclude_build_configurations, final_target)
+                enable_xcremotecache(target, 1, xcrc_location, xccc_location, mode, exclude_build_configurations, final_target,fake_src_root)
             end
 
             # Create .rcinfo into `Pods` directory as that .xcodeproj reads configuration from .xcodeproj location
@@ -416,7 +418,7 @@ module CocoapodsXCRemoteCacheModifier
                     next if target.source_build_phase.files_references.empty?
                     next if target.name.end_with?("Tests")
                     next if exclude_targets.include?(target.name)
-                    enable_xcremotecache(target, 1, xcrc_location, xccc_location, mode, exclude_build_configurations, final_target)
+                    enable_xcremotecache(target, 1, xcrc_location, xccc_location, mode, exclude_build_configurations, final_target,fake_src_root)
                 end
                 generated_project.save()
             end
@@ -456,15 +458,15 @@ module CocoapodsXCRemoteCacheModifier
           # Attach XCRC to the app targets
           user_project.targets.each do |target|
               next if exclude_targets.include?(target.name)
-              enable_xcremotecache(target, 0, xcrc_location, xccc_location, mode, exclude_build_configurations, final_target)
+              enable_xcremotecache(target, 0, xcrc_location, xccc_location, mode, exclude_build_configurations, final_target,fake_src_root)
           end
 
           # Set Target sourcemap
           if @@configuration['modify_lldb_init']
-            save_lldbinit_rewrite(user_proj_directory)
+            save_lldbinit_rewrite(user_proj_directory,fake_src_root)
           else
             Pod::UI.puts "[XCRC] lldbinit modification is disabled. Debugging may behave weirdly"
-            Pod::UI.puts "[XCRC] put \"settings set target.source-map #{FAKE_SRCROOT} \#{your_project_directory}\" to your \".lldbinit\" "
+            Pod::UI.puts "[XCRC] put \"settings set target.source-map #{fake_src_root} \#{your_project_directory}\" to your \".lldbinit\" "
           end
 
           user_project.save()
