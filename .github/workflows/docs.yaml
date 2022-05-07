@@ -1,0 +1,24 @@
+name: Docs
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  docs:
+    runs-on: macos-12
+    env:
+      XCODE_VERSION: ${{ '13.3.1' }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Select Xcode
+        run: "sudo xcode-select -s /Applications/Xcode_$XCODE_VERSION.app"
+      - name: "Generate documentation"
+        run: "swift package --allow-writing-to-directory ./docs  generate-documentation --target XCRemoteCache --disable-indexing --transform-for-static-hosting --output-path ./docs  --hosting-base-path XCRemoteCache/"
+      - name: Deploy GH-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          keep_files: false

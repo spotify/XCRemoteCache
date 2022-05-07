@@ -1,5 +1,7 @@
 ## Development - How to build
 
+Generated [docs](https://spotify.github.io/XCRemoteCache/documentation/xcremotecache/).
+
 ### Building the library:
 
 `CONFIG=Debug rake build`
