@@ -139,9 +139,9 @@ public struct XCRemoteCacheConfig: Encodable {
     /// ENV rewrite process is optimistic - does nothing if an ENV is not defined in the pre/postbuild process
     var customRewriteEnvs: [String] = []
     /// Regexes of files that should not be included in a list of dependencies. Warning! Be caution when adding
-    /// entries here - excluding relevant dependencies might lead to targets overcaching.
+    /// entries here - excluding relevant dependencies might lead to targets overcaching
     /// The regex can match either partially of fully the filepath, e.g. `\\.modulemap$` will exclude
-    /// all `.modulemap` files.
+    /// all `.modulemap` files
     var irrelevantDependenciesPaths: [String] = []
 }
 
