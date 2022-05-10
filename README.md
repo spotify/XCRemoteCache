@@ -315,7 +315,7 @@ _Note that for the `producer` mode, the prebuild build phase and `xccc`, `xcld`,
 | `disable_certificate_verification` | A Boolean value that opts-in SSL certificate validation is disabled | `false` | ⬜️ |
 | `disable_vfs_overlay` | A feature flag to disable virtual file system overlay support (temporary) | `false` | ⬜️ |
 | `custom_rewrite_envs` | A list of extra ENVs that should be used as placeholders in the dependency list. ENV rewrite process is optimistic - does nothing if an ENV is not defined in the pre/postbuild process. | `[]` | ⬜️ |
-| `irrelevant_dependencies_paths` | Paths that should not be included in a list of dependencies Note: Can contain ENV placeholders, e.g. `[$(COOL_LIBRARY)]`. | `[]` | ⬜️ |
+| `irrelevant_dependencies_paths` | Regexes of files that should not be included in a list of dependencies. Warning! Be caution when adding entries here - excluding relevant dependencies might lead to targets overcaching. The regex can match either partially of fully the filepath, e.g. `\\.modulemap$` will exclude all `.modulemap` files.. | `[]` | ⬜️ |
 
 ## Backend cache server
 

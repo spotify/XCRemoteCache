@@ -29,10 +29,10 @@ class DependencyProcessorImplTests: FileXCTestCase {
         intermediate: "/Intermediate",
         derivedFiles: "/DerivedFiles",
         bundle: "/Bundle",
-        skipped: []
+        skippedRegexes: []
     )
 
-    func testIntermediateFileIsSkippedForProductAndSourceSubdirectory() {
+    func testIntermediateFileIsskippedRegexesForProductAndSourceSubdirectory() {
         let intermediateFile: URL = "/Intermediate/some"
         let processor = DependencyProcessorImpl(
             xcode: "/Xcode",
@@ -41,7 +41,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
             intermediate: "/Intermediate",
             derivedFiles: "/DerivedFiles",
             bundle: nil,
-            skipped: []
+            skippedRegexes: []
         )
 
         XCTAssertEqual(
@@ -50,7 +50,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
         )
     }
 
-    func testBundleFileIsSkippedForProductAndSourceSubdirectory() {
+    func testBundleFileIsskippedRegexesForProductAndSourceSubdirectory() {
         let bundleFile: URL = "/Bundle/some"
         let processor = DependencyProcessorImpl(
             xcode: "/Xcode",
@@ -59,7 +59,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
             intermediate: "/Intermediate",
             derivedFiles: "/DerivedFiles",
             bundle: "/Bundle",
-            skipped: []
+            skippedRegexes: []
         )
 
         XCTAssertEqual(
@@ -154,7 +154,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
             intermediate: intermediateDirReal,
             derivedFiles: "/DerivedFiles",
             bundle: "/Bundle",
-            skipped: []
+            skippedRegexes: []
         )
 
         let intermediateFileSymlink = createSymlink(
@@ -184,7 +184,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
             intermediate: "/Intermediate",
             derivedFiles: "/DerivedFiles",
             bundle: "/Bundle",
-            skipped: []
+            skippedRegexes: []
         )
 
         let sourceFileSymlink = createSymlink(
@@ -225,12 +225,66 @@ class DependencyProcessorImplTests: FileXCTestCase {
             intermediate: "/Intermediate",
             derivedFiles: "/DerivedFiles",
             bundle: nil,
-            skipped: []
+            skippedRegexes: []
         )
 
         XCTAssertEqual(
             processor.process([derivedFile]),
             []
+        )
+    }
+
+    func testSkippsFilesWithFullMatch() {
+        let source: URL = "/someFile.m"
+        let processor = DependencyProcessorImpl(
+            xcode: "/Xcode",
+            product: "/",
+            source: "/",
+            intermediate: "/Intermediate",
+            derivedFiles: "/DerivedFiles",
+            bundle: nil,
+            skippedRegexes: ["/someFile\\.m"]
+        )
+
+        XCTAssertEqual(
+            processor.process([source]),
+            []
+        )
+    }
+
+    func testSkippsFilesWithPartialMatch() {
+        let derivedModulemap: URL = "/module.modulemap"
+        let processor = DependencyProcessorImpl(
+            xcode: "/Xcode",
+            product: "/product",
+            source: "/",
+            intermediate: "/Intermediate",
+            derivedFiles: "/DerivedFiles",
+            bundle: nil,
+            skippedRegexes: ["\\.modulemap$"]
+        )
+
+        XCTAssertEqual(
+            processor.process([derivedModulemap]),
+            []
+        )
+    }
+
+    func testDoesntSkipFileIfInvalidRegex() {
+        let source: URL = "/someFile.m"
+        let processor = DependencyProcessorImpl(
+            xcode: "/Xcode",
+            product: "/product",
+            source: "/",
+            intermediate: "/Intermediate",
+            derivedFiles: "/DerivedFiles",
+            bundle: nil,
+            skippedRegexes: ["\\"]
+        )
+
+        XCTAssertEqual(
+            processor.process([source]),
+            [.init(url: source, type: .source)]
         )
     }
 }

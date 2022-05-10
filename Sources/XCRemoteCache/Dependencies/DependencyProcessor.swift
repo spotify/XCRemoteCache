@@ -60,16 +60,16 @@ class DependencyProcessorImpl: DependencyProcessor {
     private let intermediatePath: String
     private let derivedFilesPath: String
     private let bundlePath: String?
-    private let skippedPaths: [String]
+    private let skippedRegexes: [String]
 
-    init(xcode: URL, product: URL, source: URL, intermediate: URL, derivedFiles: URL, bundle: URL?, skipped: [URL]) {
+    init(xcode: URL, product: URL, source: URL, intermediate: URL, derivedFiles: URL, bundle: URL?, skippedRegexes: [String]) {
         xcodePath = xcode.path.dirPath()
         productPath = product.path.dirPath()
         sourcePath = source.path.dirPath()
         intermediatePath = intermediate.path.dirPath()
         derivedFilesPath = derivedFiles.path.dirPath()
         bundlePath = bundle?.path.dirPath()
-        skippedPaths = skipped.map { $0.path.dirPath() }
+        self.skippedRegexes = skippedRegexes
     }
 
     func process(_ files: [URL]) -> [Dependency] {
@@ -80,7 +80,9 @@ class DependencyProcessorImpl: DependencyProcessor {
     private func classify(_ files: [URL]) -> [Dependency] {
         return files.map { file -> Dependency in
             let filePath = file.resolvingSymlinksInPath().path
-            if filePath.hasPrefix(xcodePath) {
+            if skippedRegexes.contains(where: { filePath.range(of: $0, options: .regularExpression) != nil }) {
+                return Dependency(url: file, type: .customSkipped)
+            } else if filePath.hasPrefix(xcodePath) {
                 return Dependency(url: file, type: .xcode)
             } else if filePath.hasPrefix(intermediatePath) {
                 return Dependency(url: file, type: .intermediate)
@@ -94,8 +96,6 @@ class DependencyProcessorImpl: DependencyProcessor {
                 return Dependency(url: file, type: .product)
             } else if filePath.hasPrefix(sourcePath) {
                 return Dependency(url: file, type: .source)
-            } else if skippedPaths.contains(where: { filePath.hasPrefix($0) }){
-                return Dependency(url: file, type: .customSkipped)
             } else {
                 return Dependency(url: file, type: .unknown)
             }
@@ -120,7 +120,9 @@ class DependencyProcessorImpl: DependencyProcessor {
         //   because in case of a hit, these will be taken from the artifact
         // - Customized DERIVED_FILE_DIR may change a directory of
         //   derived files, which by default is under `*/Interemediates`
-        let irrelevantDependenciesType: [Dependency.Kind] = [.xcode, .intermediate, .ownProduct, .derivedFile]
+        let irrelevantDependenciesType: [Dependency.Kind] = [
+            .xcode, .intermediate, .ownProduct, .derivedFile, .customSkipped,
+        ]
         return !irrelevantDependenciesType.contains(dependency.type)
     }
 }

@@ -166,8 +166,6 @@ public class XCPostbuild {
             }
             remappers.append(envsRemapper)
             let pathRemapper = DependenciesRemapperComposite(remappers)
-            let skippedDependenciesPaths = try pathRemapper.replace(genericPaths: context.skippedDependenciesPaths)
-            let skippedDependenciesURLs = skippedDependenciesPaths.map(URL.init(fileURLWithPath:))
             let dependencyProcessor = DependencyProcessorImpl(
                 xcode: context.xcodeDir,
                 product: context.productsDir,
@@ -175,7 +173,7 @@ public class XCPostbuild {
                 intermediate: context.targetTempDir,
                 derivedFiles: context.derivedFilesDir,
                 bundle: context.bundleDir,
-                skipped: skippedDependenciesURLs
+                skippedRegexes: context.skippedDependenciesRegexes
             )
             // Override fingerprints for all produced '.swiftmodule' files
             let fingerprintOverrideManager = FingerprintOverrideManagerImpl(
