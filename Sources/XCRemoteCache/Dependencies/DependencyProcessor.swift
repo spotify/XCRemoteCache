@@ -31,7 +31,7 @@ public struct Dependency: Equatable {
         // Product of the target itself
         case ownProduct
         // User-excluded path
-        case customSkipped
+        case userExcluded
         case unknown
     }
 
@@ -81,7 +81,7 @@ class DependencyProcessorImpl: DependencyProcessor {
         return files.map { file -> Dependency in
             let filePath = file.resolvingSymlinksInPath().path
             if skippedRegexes.contains(where: { filePath.range(of: $0, options: .regularExpression) != nil }) {
-                return Dependency(url: file, type: .customSkipped)
+                return Dependency(url: file, type: .userExcluded)
             } else if filePath.hasPrefix(xcodePath) {
                 return Dependency(url: file, type: .xcode)
             } else if filePath.hasPrefix(intermediatePath) {
@@ -120,8 +120,9 @@ class DependencyProcessorImpl: DependencyProcessor {
         //   because in case of a hit, these will be taken from the artifact
         // - Customized DERIVED_FILE_DIR may change a directory of
         //   derived files, which by default is under `*/Interemediates`
+        // - User-specified (in .rcinfo) files to exclude
         let irrelevantDependenciesType: [Dependency.Kind] = [
-            .xcode, .intermediate, .ownProduct, .derivedFile, .customSkipped,
+            .xcode, .intermediate, .ownProduct, .derivedFile, .userExcluded,
         ]
         return !irrelevantDependenciesType.contains(dependency.type)
     }
