@@ -309,7 +309,7 @@ module CocoapodsXCRemoteCacheModifier
         end
 
         # Remove .lldbinit rewrite
-        save_lldbinit_rewrite(nil) unless !@@configuration['modify_lldb_init']
+        save_lldbinit_rewrite(nil,nil) unless !@@configuration['modify_lldb_init']
       end
 
       # Returns the content (array of lines) of the lldbinit with stripped XCRemoteCache rewrite
