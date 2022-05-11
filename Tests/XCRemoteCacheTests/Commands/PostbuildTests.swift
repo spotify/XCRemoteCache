@@ -55,7 +55,7 @@ class PostbuildTests: FileXCTestCase {
         action: .build,
         modeMarkerPath: "",
         overlayHeadersPath: "",
-        skippedDependenciesRegexes: []
+        irrelevantDependenciesPaths: []
     )
     private var network = RemoteNetworkClientImpl(
         NetworkClientFake(fileManager: .default),
