@@ -84,7 +84,7 @@ public struct PostbuildContext {
     /// (mappings of the virtual location file -> local file path)
     let overlayHeadersPath: URL
     /// Regexes of files that should not be included in the dependency list
-    let skippedDependenciesRegexes: [String]
+    let irrelevantDependenciesPaths: [String]
 }
 
 extension PostbuildContext {
@@ -137,6 +137,6 @@ extension PostbuildContext {
         modeMarkerPath = config.modeMarkerPath
         /// Note: The file has yaml extension, even it is in the json format
         overlayHeadersPath = targetTempDir.appendingPathComponent("all-product-headers.yaml")
-        skippedDependenciesRegexes = config.irrelevantDependenciesPaths
+        irrelevantDependenciesPaths = config.irrelevantDependenciesPaths
     }
 }
