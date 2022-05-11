@@ -172,7 +172,8 @@ public class XCPostbuild {
                 source: context.srcRoot,
                 intermediate: context.targetTempDir,
                 derivedFiles: context.derivedFilesDir,
-                bundle: context.bundleDir
+                bundle: context.bundleDir,
+                skippedRegexes: context.irrelevantDependenciesPaths
             )
             // Override fingerprints for all produced '.swiftmodule' files
             let fingerprintOverrideManager = FingerprintOverrideManagerImpl(

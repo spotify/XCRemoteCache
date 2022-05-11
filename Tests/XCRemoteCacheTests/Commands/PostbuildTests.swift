@@ -54,7 +54,8 @@ class PostbuildTests: FileXCTestCase {
         thinnedTargets: [],
         action: .build,
         modeMarkerPath: "",
-        overlayHeadersPath: ""
+        overlayHeadersPath: "",
+        irrelevantDependenciesPaths: []
     )
     private var network = RemoteNetworkClientImpl(
         NetworkClientFake(fileManager: .default),
@@ -80,7 +81,8 @@ class PostbuildTests: FileXCTestCase {
         source: "/Source",
         intermediate: "/Intermediate",
         derivedFiles: "/DerivedFiles",
-        bundle: nil
+        bundle: nil,
+        skippedRegexes: []
     )
     private var overrideManager = FingerprintOverrideManagerImpl(
         overridingFileExtensions: ["swiftmodule"],
