@@ -189,8 +189,8 @@ public class XCPrebuild {
             case .compatible(localDependencies: let dependencies):
                 // TODO: pass `allowedInputFiles` observed in the build time
                 try modeController.enable(allowedInputFiles: dependencies, dependencies: dependencies)
-                compilationHistoryOrganizer.reset()
             }
+            compilationHistoryOrganizer.reset()
         } catch {
             disableRemoteCache(
                 modeController: modeController,
