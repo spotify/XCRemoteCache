@@ -77,9 +77,9 @@ class PhaseCacheModeController: CacheModeController {
         // and should invalidate all other target steps (swiftc,libtool etc.)
         let targetSensitiveFiles = dependencies + [modeMarker, Self.xcodeSelectLink]
         try markerWriter.enable(dependencies: targetSensitiveFiles)
-        // All rc-phases (prebuid & postbuild) should be reenabled when a new remote
-        // merge commit is used, the target is forced to compile locally or other Xcode is used
-        let allDependencies = dependencies + [mergeCommitFile, modeMarker, Self.xcodeSelectLink]
+        // All rc-phases (prebuid & postbuild) should be reenabled when new remote
+        // merge commit or other Xcode is used
+        let allDependencies = dependencies + [mergeCommitFile, Self.xcodeSelectLink]
         try dependenciesWriter.writeGeneric(dependencies: allDependencies)
     }
 
