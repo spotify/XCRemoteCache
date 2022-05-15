@@ -78,6 +78,10 @@ public class XCPrebuild {
             exit(0)
         }
 
+        let compilationHistoryOrganizer = CompilationHistoryFileOrganizer(
+            context.compilationHistoryFile,
+            fileManager: fileManager
+        )
         do {
             let envFingerprint = try EnvironmentFingerprintGenerator(
                 configuration: config,
@@ -148,10 +152,6 @@ public class XCPrebuild {
                 algorithm: MD5Algorithm()
             )
             let organizer = ZipArtifactOrganizer(targetTempDir: context.targetTempDir, fileManager: fileManager)
-            let compilationHistoryOrganizer = CompilationHistoryFileOrganizer(
-                context.compilationHistoryFile,
-                fileManager: fileManager
-            )
             let metaReader = JsonMetaReader(fileAccessor: fileManager)
             var consumerPlugins: [ArtifactConsumerPrebuildPlugin] = []
 
@@ -189,7 +189,6 @@ public class XCPrebuild {
             case .compatible(localDependencies: let dependencies):
                 // TODO: pass `allowedInputFiles` observed in the build time
                 try modeController.enable(allowedInputFiles: dependencies, dependencies: dependencies)
-                compilationHistoryOrganizer.reset()
             }
         } catch {
             disableRemoteCache(
@@ -197,6 +196,7 @@ public class XCPrebuild {
                 errorMessage: "Prebuild step failed with error: \(error)"
             )
         }
+        compilationHistoryOrganizer.reset()
     }
 
     private func disableRemoteCache(modeController: PhaseCacheModeController, errorMessage: String?) {
