@@ -27,8 +27,9 @@ module CocoapodsXCRemoteCacheModifier
     LLDB_INIT_COMMENT="#RemoteCacheCustomSourceMap"
     LLDB_INIT_PATH = "#{ENV['HOME']}/.lldbinit"
     FAT_ARCHIVE_NAME_INFIX = 'arm64-x86_64'
+    XCRC_COOCAPODS_ROOT_KEY = 'XCRC_COOCAPODS_ROOT'
 
-    # List of plugins' user properties that should be copied to .rcinfo 
+    # List of plugins' user properties that should not be copied to .rcinfo 
     CUSTOM_CONFIGURATION_KEYS = [
       'enabled', 
       'xcrc_location',
@@ -38,9 +39,7 @@ module CocoapodsXCRemoteCacheModifier
       'check_build_configuration', 
       'check_platform', 
       'modify_lldb_init',
-      'prettify_meta_files',
       'fake_src_root',
-      'disable_certificate_verification'
     ]
 
     class XCRemoteCache
@@ -64,9 +63,14 @@ module CocoapodsXCRemoteCacheModifier
           'exclude_targets' => [],
           'prettify_meta_files' => false,
           'fake_src_root' => "/#{'x' * 10 }",
-          'disable_certificate_verification' => false
+          'disable_certificate_verification' => false,
+          'custom_rewrite_envs' => []
         }
         @@configuration.merge! default_values.select { |k, v| !@@configuration.key?(k) }
+        # Always include XCRC_COOCAPODS_ROOT_KEY in custom_rewrite_envs
+        unless @@configuration['custom_rewrite_envs'].include?(XCRC_COOCAPODS_ROOT_KEY)
+          @@configuration['custom_rewrite_envs'] << XCRC_COOCAPODS_ROOT_KEY
+        end
       end
 
       def self.validate_configuration()
@@ -109,6 +113,8 @@ module CocoapodsXCRemoteCacheModifier
       # @param final_target [String] name of target that should trigger marking
       def self.enable_xcremotecache(target, repo_distance, xc_location, xc_cc_path, mode, exclude_build_configurations, final_target, fake_src_root)
         srcroot_relative_xc_location = parent_dir(xc_location, repo_distance)
+        # location of the entrite CocoaPods project, relative to SRCROOT
+        srcroot_relative_project_location = parent_dir('', repo_distance)
 
         target.build_configurations.each do |config|
           # apply only for relevant Configurations
@@ -124,6 +130,7 @@ module CocoapodsXCRemoteCacheModifier
 
           config.build_settings['XCREMOTE_CACHE_FAKE_SRCROOT'] = fake_src_root
           config.build_settings['XCRC_PLATFORM_PREFERRED_ARCH'] = ["$(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)"]
+          config.build_settings[XCRC_COOCAPODS_ROOT_KEY] = ["$SRCROOT/#{srcroot_relative_project_location}"]
           debug_prefix_map_replacement = '$(SRCROOT' + ':dir:standardizepath' * repo_distance + ')'
           add_cflags!(config.build_settings, '-fdebug-prefix-map', "#{debug_prefix_map_replacement}=$(XCREMOTE_CACHE_FAKE_SRCROOT)")
           add_swiftflags!(config.build_settings, '-debug-prefix-map', "#{debug_prefix_map_replacement}=$(XCREMOTE_CACHE_FAKE_SRCROOT)")
@@ -204,6 +211,7 @@ module CocoapodsXCRemoteCacheModifier
           # Remove Fake src root for ObjC & Swift
           config.build_settings.delete('XCREMOTE_CACHE_FAKE_SRCROOT')
           config.build_settings.delete('XCRC_PLATFORM_PREFERRED_ARCH')
+          config.build_settings.delete(XCRC_COOCAPODS_ROOT_KEY)
           remove_cflags!(config.build_settings, '-fdebug-prefix-map')
           remove_swiftflags!(config.build_settings, '-debug-prefix-map')
         end
