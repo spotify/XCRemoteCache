@@ -108,8 +108,9 @@ public class FileDependenciesReader: DependenciesReader {
         return yaml
     }
 
-    /// Parses the String to get the list of files.
-    /// It iterates over the String using its UTF8View since it is more performant (String type operates in a higher abstraction level and includes features that impact the performance)
+    /// Parses the String to get the list of files
+    /// It iterates over the String using its UTF8View since it is more performant (String type operates
+    /// in a higher abstraction level and supports features that have a negative impact in the performance)
     /// It supports escaping whitespace charaters, prefixed with "\\"
     /// - Parameter string: string of whitespace charaters separated file paths
     /// - Returns: Array of all file paths
@@ -117,8 +118,9 @@ public class FileDependenciesReader: DependenciesReader {
         var result: [String] = []
         var prevChar: UTF8.CodeUnit?
 
-        // These index are used to move over the UTF8View of the string.
-        // The goal is to optimize the memory used, since UTF8View uses the same memory as the original String without copying it.
+        // These index are used to move over the UTF8View of the string
+        // The goal is to optimize the memory used, since UTF8View uses
+        // the same memory as the original String without copying it
         var startIndex = string.utf8.startIndex
         var endIndex = startIndex
 
@@ -151,7 +153,8 @@ public class FileDependenciesReader: DependenciesReader {
               startIndex = string.utf8.index(after: endIndex)
               endIndex = startIndex
           default:
-              // As long as it is possible the indexes are used to track the range of the string that will be included in the file path (until it ends or until a backslash is found)
+              // As long as it is possible the indexes are used to track the range of the string that
+              // will be included in the file path (until it ends or until a backslash is found)
               endIndex = string.utf8.index(after: endIndex)
               // The char is assigned as the previous char
               prevChar = c
@@ -164,46 +167,5 @@ public class FileDependenciesReader: DependenciesReader {
         }
 
         return result
-    }
-
-
-    /// Splits space or new line separated files into a set of files
-    /// It supports escaping whitespace charaters, prefixed with "\\"
-    /// - Parameter string: string of whitespace charaters separated file paths
-    /// - Returns: Array of all file paths
-    @available(*, deprecated, message: "Deprecated in favor of parseDependencyFileList which is more performant")
-    func splitDependencyFileList(_ string: String) -> [String] {
-        struct ParseState {
-            var buffer: String = ""
-            var prevChar: Character?
-            var result: [String] = []
-            func with(buffer: String? = nil, prevChar: Character? = nil, result: [String]? = nil) -> ParseState {
-                var new = self
-                new.buffer = buffer ?? new.buffer
-                new.prevChar = prevChar ?? new.prevChar
-                new.result = result ?? new.result
-                return new
-            }
-        }
-        let parseResult = string.reduce(ParseState()) { total, char in
-            switch char {
-            case "\n" where total.prevChar == "\\":
-                return total
-            case " " where total.buffer.isEmpty:
-                return total
-            case " " where total.prevChar == "\\":
-                return total.with(buffer: "\(total.buffer) ")
-            case " ":
-                return total.with(buffer: "", prevChar: nil, result: total.result + [total.buffer])
-            case "\\":
-                return total.with(prevChar: "\\")
-            default:
-                return total.with(buffer: "\(total.buffer)\(char)", prevChar: char, result: total.result)
-            }
-        }
-        if !parseResult.buffer.isEmpty {
-            return parseResult.result + [parseResult.buffer]
-        }
-        return parseResult.result
     }
 }

@@ -23,7 +23,7 @@ import XCTest
 
 class DependenciesReaderPerformanceTest: XCTestCase {
 
-    private static let resourcesSubdirectory = "TestData/Dependencies/DependenciesReaderTests"
+    private static let resourcesSubdirectory = "TestData/Dependencies/DependenciesReaderPerformanceTest"
 
     private func pathForTestData(name: String) throws -> URL {
         return try XCTUnwrap(Bundle.module.url(
@@ -101,21 +101,6 @@ class DependenciesReaderPerformanceTest: XCTestCase {
         }
     }
 
-    func testDeprecatedParseDependenciesFilesList() throws {
-        let file = try pathForTestData(name: "dependencies")
-        let reader = FileDependenciesReader(file, accessor: FileManager.default)
-        let fileData = try reader.getFileData()
-        let fileString = try reader.getFileStringFromData(fileData: fileData)
-        let yaml = try reader.getYaml(fileString: fileString)
-
-        guard let dependencies = yaml["dependencies"] else { XCTAssertTrue(false); return }
-
-        self.measure { // 0.039
-            let deps = reader.splitDependencyFileList(dependencies)
-            XCTAssertTrue(deps.count == 1000)
-        }
-    }
-
     func testParseDependencyFileListUsingUTF8View() throws {
         let file = try pathForTestData(name: "dependencies")
         let reader = FileDependenciesReader(file, accessor: FileManager.default)
@@ -123,49 +108,16 @@ class DependenciesReaderPerformanceTest: XCTestCase {
         let fileString = try reader.getFileStringFromData(fileData: fileData)
         let yaml = try reader.getYaml(fileString: fileString)
 
-        guard let dependencies = yaml["dependencies"] else { XCTAssertTrue(false); return }
+        guard let dependencies = yaml["dependencies"] else {
+            XCTAssertTrue(false)
+            return
+        }
 
         self.measure { // 0.004
             let deps = reader.parseDependencyFileList(dependencies)
             XCTAssertTrue(deps.count == 1000)
         }
     }
-
-    func testResultsFromBothParsersAreEqual() throws {
-        let file = try pathForTestData(name: "dependencies")
-        let reader = FileDependenciesReader(file, accessor: FileManager.default)
-        let fileData = try reader.getFileData()
-        let fileString = try reader.getFileStringFromData(fileData: fileData)
-        let yaml = try reader.getYaml(fileString: fileString)
-
-        guard let dependencies = yaml["dependencies"] else { XCTAssertTrue(false); return }
-
-        let deps1 = reader.splitDependencyFileList(dependencies)
-        let deps2 = reader.parseDependencyFileList(dependencies)
-
-        XCTAssertEqual(deps1.count, deps2.count)
-        for i in 0..<deps1.count {
-            if deps1[i] != deps2[i] {
-                XCTAssertTrue(false)
-            }
-        }
-    }
-
-    func testDeprecatedParseDependenciesFilesListOfAnObject() throws {
-        let file = try pathForTestData(name: "dependencies")
-        let reader = FileDependenciesReader(file, accessor: FileManager.default)
-        let fileData = try reader.getFileData()
-        let fileString = try reader.getFileStringFromData(fileData: fileData)
-        let yaml = try reader.getYaml(fileString: fileString)
-
-        guard let dependencies = yaml["/This/Is/A/Path/To/Some/Object/objectfile.o"] else { XCTAssertTrue(false); return }
-
-        self.measure { // 0.0037
-            let deps = reader.splitDependencyFileList(dependencies)
-            XCTAssertTrue(deps.count == 100)
-        }
-    }
-
 
     func testDeprecatedParseDependenciesFilesListOfAnObjectUsingUTF8View() throws {
         let file = try pathForTestData(name: "dependencies")
@@ -174,31 +126,14 @@ class DependenciesReaderPerformanceTest: XCTestCase {
         let fileString = try reader.getFileStringFromData(fileData: fileData)
         let yaml = try reader.getYaml(fileString: fileString)
 
-        guard let dependencies = yaml["/This/Is/A/Path/To/Some/Object/objectfile.o"] else { XCTAssertTrue(false); return }
+        guard let dependencies = yaml["/This/Is/A/Path/To/Some/Object/objectfile.o"] else {
+            XCTAssertTrue(false)
+            return
+        }
 
         self.measure { // 0.00048
             let deps = reader.parseDependencyFileList(dependencies)
             XCTAssertTrue(deps.count == 100)
-        }
-    }
-
-    func testGotDependenciesOfAnObjectFromBothParsersAreEqual() throws {
-        let file = try pathForTestData(name: "dependencies")
-        let reader = FileDependenciesReader(file, accessor: FileManager.default)
-        let fileData = try reader.getFileData()
-        let fileString = try reader.getFileStringFromData(fileData: fileData)
-        let yaml = try reader.getYaml(fileString: fileString)
-
-        guard let dependencies = yaml["/This/Is/A/Path/To/Some/Object/objectfile.o"] else { XCTAssertTrue(false); return }
-
-        let deps1 = reader.splitDependencyFileList(dependencies)
-        let deps2 = reader.parseDependencyFileList(dependencies)
-
-        XCTAssertEqual(deps1.count, deps2.count)
-        for i in 0..<deps1.count {
-            if deps1[i] != deps2[i] {
-                XCTAssertTrue(false)
-            }
         }
     }
 }
