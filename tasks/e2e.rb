@@ -44,8 +44,9 @@ namespace :e2e do
 
     # run E2E tests for standalone (non-CocoaPods) projects
     task :run_standalone do
+        clean_server
         start_nginx
-        # configure_git
+        configure_git
         # Prepare binaries for the standalone mode
         prepare_for_standalone(E2E_STANDALONE_SAMPLE_DIR)
 
@@ -65,20 +66,25 @@ namespace :e2e do
         puts 'Building standalone consumer...'
         
         ####### Consumer #########
-        
         # new dir to emulate different srcroot
         consumer_srcroot = "#{E2E_STANDALONE_SAMPLE_DIR}_consumer"
         system("mv #{E2E_STANDALONE_SAMPLE_DIR} #{consumer_srcroot}")
+        at_exit { puts("reverting #{E2E_STANDALONE_SAMPLE_DIR}"); system("mv #{consumer_srcroot} #{E2E_STANDALONE_SAMPLE_DIR}") }
+
         prepare_for_standalone(consumer_srcroot)
         Dir.chdir(consumer_srcroot) do
             system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode consumer")
             build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
             valide_hit_rate
+
+            puts 'Building standalone consumer with local change...'
+            # Extra: validate local compilation of the Standalone ObjC code
+            system("echo '' >> StandaloneApp/StandaloneObjc.m")
+            build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer_local"})
         end
 
-
         # Revert all side effects
-        # clean
+        clean
     end
 
     # Build and install a plugin
