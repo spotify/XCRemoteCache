@@ -5,6 +5,7 @@ namespace :e2e do
     COCOAPODS_DIR = 'cocoapods-plugin'
     COCOAPODS_GEMSPEC_FILENAME = "cocoapods-xcremotecache.gemspec"
     E2E_COCOAPODS_SAMPLE_DIR = 'e2eTests/XCRemoteCacheSample'
+    E2E_STANDALONE_SAMPLE_DIR = 'e2eTests/StandaloneSampleApp'
     GIT_REMOTE_NAME = 'self'
     # Location of the remote address that points to itself
     GIT_REMOTE_ADDRESS = '.'
@@ -37,6 +38,38 @@ namespace :e2e do
         for podfile_path in Dir.glob('e2eTests/**/*.Podfile')
             run_cocoapods_scenario(podfile_path)
         end
+        # Revert all side effects
+        clean
+    end
+
+    # run E2E tests for standalone (non-CocoaPods) projects
+    task :run_standalone do
+        start_nginx
+        # configure_git
+        # Prepare binaries for the standalone mode
+        prepare_for_standalone
+
+        puts 'Building standalone producer...'
+        ####### Producer #########
+        Dir.chdir(E2E_STANDALONE_SAMPLE_DIR) do
+            clean_git
+            system("ln -s $(pwd)/releases #{E2E_STANDALONE_SAMPLE_DIR}/#{XCRC_BINARIES}")
+            # Run integrate the project
+            system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode producer --final-producer-target StandaloneApp")
+            # Build the project to fill in the cache
+            build_project("StandaloneApp.xcodeproj", 'StandaloneApp')
+            system("#{XCRC_BINARIES}/xcprepare stats --reset --format json")
+        end
+
+        puts 'Building standalone consumer...'
+        prepare_for_standalone
+        ####### Consumer #########
+        Dir.chdir(E2E_STANDALONE_SAMPLE_DIR) do
+            system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode consumer")
+            build_project("StandaloneApp.xcodeproj", 'StandaloneApp')
+            valide_hit_rate
+        end
+
         # Revert all side effects
         clean
     end
@@ -114,11 +147,10 @@ namespace :e2e do
         end
     end
 
-    def self.build_project(extra_args = {})
-        system('pod install')
+    def self.build_project(workspace, scheme, extra_args = {})
         xcodebuild_args = {
-            'workspace' => 'XCRemoteCacheSample.xcworkspace',
-            'scheme' => 'XCRemoteCacheSample',
+            'workspace' => workspace,
+            'scheme' => scheme,
             'configuration' => 'Debug',
             'sdk' => 'iphonesimulator',
             'destination' => 'generic/platform=iOS Simulator',
@@ -138,6 +170,11 @@ namespace :e2e do
             system("tail #{LOG_NAME}")
             raise "xcodebuild failed."
         end
+    end
+
+    def self.build_project_cocoapods(extra_args = {})
+        system('pod install')
+        build_project('XCRemoteCacheSample.xcworkspace', 'XCRemoteCacheSample', extra_args)
     end
 
     def self.read_stats 
@@ -169,7 +206,7 @@ namespace :e2e do
         dump_podfile(producer_configuration, template_path)
         puts('Building producer ...')
         Dir.chdir(E2E_COCOAPODS_SAMPLE_DIR) do
-            build_project
+            build_project_cocoapods
             # reset XCRemoteCache stats
             system("#{XCRC_BINARIES}/xcprepare stats --reset --format json")
         end
@@ -179,8 +216,13 @@ namespace :e2e do
         dump_podfile(consumer_configuration, template_path)
         puts('Building consumer ...')
         Dir.chdir(E2E_COCOAPODS_SAMPLE_DIR) do
-            build_project({'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
+            build_project_cocoapods({'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
             valide_hit_rate
         end
+    end
+
+    def self.prepare_for_standalone
+        clean_git
+        system("ln -s $(pwd)/releases #{E2E_STANDALONE_SAMPLE_DIR}/#{XCRC_BINARIES}")
     end
 end
