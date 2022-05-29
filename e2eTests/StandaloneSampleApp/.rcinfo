@@ -1,0 +1,7 @@
+---
+cache_addresses: 
+  - 'http://localhost:8080/cache/pods'
+primary_repo: '.'
+primary_branch: 'e2e-test-branch'
+mode: 'consumer'
+final_target': XCRemoteCacheSample'
