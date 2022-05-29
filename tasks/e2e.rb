@@ -26,7 +26,7 @@ namespace :e2e do
     Stats = Struct.new(:hits, :misses, :hit_rate)
 
     # run E2E tests
-    task :run => [:run_cocoapods]
+    task :run => [:run_cocoapods, :run_standalone]
 
     # run E2E tests for CocoaPods-powered projects
     task :run_cocoapods do
