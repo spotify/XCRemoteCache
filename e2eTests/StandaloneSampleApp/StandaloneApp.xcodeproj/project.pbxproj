@@ -15,6 +15,7 @@
 		36201A1C2843B3C7002FF70F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 36201A1A2843B3C7002FF70F /* LaunchScreen.storyboard */; };
 		36201A2A2843B3D3002FF70F /* MixedTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36201A292843B3D3002FF70F /* MixedTarget.swift */; };
 		36201A362843B435002FF70F /* libMixedTarget.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 36201A272843B3D3002FF70F /* libMixedTarget.a */; };
+		36201A392843BDDC002FF70F /* StandaloneObjc.m in Sources */ = {isa = PBXBuildFile; fileRef = 36201A382843BDDC002FF70F /* StandaloneObjc.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +53,8 @@
 		36201A292843B3D3002FF70F /* MixedTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MixedTarget.swift; sourceTree = "<group>"; };
 		36201A2F2843B413002FF70F /* MixedTarget-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MixedTarget-Bridging-Header.h"; sourceTree = "<group>"; };
 		36201A302843B414002FF70F /* SomeObjC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SomeObjC.h; sourceTree = "<group>"; };
+		36201A372843BDDC002FF70F /* StandaloneObjc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StandaloneObjc.h; sourceTree = "<group>"; };
+		36201A382843BDDC002FF70F /* StandaloneObjc.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = StandaloneObjc.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +105,8 @@
 				36201A182843B3C7002FF70F /* Assets.xcassets */,
 				36201A1A2843B3C7002FF70F /* LaunchScreen.storyboard */,
 				36201A1D2843B3C7002FF70F /* Info.plist */,
+				36201A372843BDDC002FF70F /* StandaloneObjc.h */,
+				36201A382843BDDC002FF70F /* StandaloneObjc.m */,
 			);
 			path = StandaloneApp;
 			sourceTree = "<group>";
@@ -151,6 +156,7 @@
 				36201A232843B3D3002FF70F /* Sources */,
 				36201A242843B3D3002FF70F /* Frameworks */,
 				36201A252843B3D3002FF70F /* CopyFiles */,
+				36201A3A2843BE0E002FF70F /* Copy Swift Objective-C Interface Header */,
 			);
 			buildRules = (
 			);
@@ -173,6 +179,7 @@
 				TargetAttributes = {
 					36201A0B2843B3C3002FF70F = {
 						CreatedOnToolsVersion = 13.2.1;
+						LastSwiftMigration = 1320;
 					};
 					36201A262843B3D3002FF70F = {
 						CreatedOnToolsVersion = 13.2.1;
@@ -212,6 +219,29 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		36201A3A2843BE0E002FF70F /* Copy Swift Objective-C Interface Header */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(DERIVED_SOURCES_DIR)/$(SWIFT_OBJC_INTERFACE_HEADER_NAME)",
+			);
+			name = "Copy Swift Objective-C Interface Header";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/include/$(PRODUCT_MODULE_NAME)/$(SWIFT_OBJC_INTERFACE_HEADER_NAME)",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "ditto \"${SCRIPT_INPUT_FILE_0}\" \"${SCRIPT_OUTPUT_FILE_0}\"\n\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		36201A082843B3C3002FF70F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -219,6 +249,7 @@
 			files = (
 				36201A142843B3C3002FF70F /* ViewController.swift in Sources */,
 				36201A102843B3C3002FF70F /* AppDelegate.swift in Sources */,
+				36201A392843BDDC002FF70F /* StandaloneObjc.m in Sources */,
 				36201A122843B3C3002FF70F /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -382,9 +413,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/include/";
 				INFOPLIST_FILE = StandaloneApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -399,6 +432,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.xcremotecache.StandaloneApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -409,9 +443,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/include/";
 				INFOPLIST_FILE = StandaloneApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;

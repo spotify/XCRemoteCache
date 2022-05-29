@@ -47,31 +47,38 @@ namespace :e2e do
         start_nginx
         # configure_git
         # Prepare binaries for the standalone mode
-        prepare_for_standalone
+        prepare_for_standalone(E2E_STANDALONE_SAMPLE_DIR)
 
         puts 'Building standalone producer...'
         ####### Producer #########
         Dir.chdir(E2E_STANDALONE_SAMPLE_DIR) do
             clean_git
-            system("ln -s $(pwd)/releases #{E2E_STANDALONE_SAMPLE_DIR}/#{XCRC_BINARIES}")
             # Run integrate the project
+            p "#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode producer --final-producer-target StandaloneApp"
+            system("pwd")
             system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode producer --final-producer-target StandaloneApp")
             # Build the project to fill in the cache
-            build_project("StandaloneApp.xcodeproj", 'StandaloneApp')
+            build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp')
             system("#{XCRC_BINARIES}/xcprepare stats --reset --format json")
         end
 
         puts 'Building standalone consumer...'
-        prepare_for_standalone
+        
         ####### Consumer #########
-        Dir.chdir(E2E_STANDALONE_SAMPLE_DIR) do
+        
+        # new dir to emulate different srcroot
+        consumer_srcroot = "#{E2E_STANDALONE_SAMPLE_DIR}_consumer"
+        system("mv #{E2E_STANDALONE_SAMPLE_DIR} #{consumer_srcroot}")
+        prepare_for_standalone(consumer_srcroot)
+        Dir.chdir(consumer_srcroot) do
             system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode consumer")
-            build_project("StandaloneApp.xcodeproj", 'StandaloneApp')
+            build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
             valide_hit_rate
         end
 
+
         # Revert all side effects
-        clean
+        # clean
     end
 
     # Build and install a plugin
@@ -147,15 +154,16 @@ namespace :e2e do
         end
     end
 
-    def self.build_project(workspace, scheme, extra_args = {})
+    def self.build_project(workspace, project, scheme, extra_args = {})
         xcodebuild_args = {
             'workspace' => workspace,
+            'project' => project,
             'scheme' => scheme,
             'configuration' => 'Debug',
             'sdk' => 'iphonesimulator',
             'destination' => 'generic/platform=iOS Simulator',
             'derivedDataPath' => DERIVED_DATA_PATH,
-        }.merge(extra_args)
+        }.merge(extra_args).compact
         xcodebuild_vars = {
             'EXCLUDED_ARCHS' => 'arm64 i386'
         }
@@ -174,7 +182,7 @@ namespace :e2e do
 
     def self.build_project_cocoapods(extra_args = {})
         system('pod install')
-        build_project('XCRemoteCacheSample.xcworkspace', 'XCRemoteCacheSample', extra_args)
+        build_project('XCRemoteCacheSample.xcworkspace', nil, 'XCRemoteCacheSample', extra_args)
     end
 
     def self.read_stats 
@@ -221,8 +229,8 @@ namespace :e2e do
         end
     end
 
-    def self.prepare_for_standalone
+    def self.prepare_for_standalone(dir)
         clean_git
-        system("ln -s $(pwd)/releases #{E2E_STANDALONE_SAMPLE_DIR}/#{XCRC_BINARIES}")
+        system("ln -s $(pwd)/releases #{dir}/#{XCRC_BINARIES}")
     end
 end
