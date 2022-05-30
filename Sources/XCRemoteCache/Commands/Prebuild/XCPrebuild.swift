@@ -151,7 +151,15 @@ public class XCPrebuild {
                 filesFingerprintGenerator,
                 algorithm: MD5Algorithm()
             )
-            let organizer = ZipArtifactOrganizer(targetTempDir: context.targetTempDir, fileManager: fileManager)
+            let fileRemapper = TextFileDependenciesRemapper(
+                remapper: envsRemapper,
+                fileAccessor: fileManager
+            )
+            let organizer = ZipArtifactOrganizer(
+                targetTempDir: context.targetTempDir,
+                artifactProcessor: DownloadedArtifactProcessor(fileRemapper: fileRemapper, dirScanner: fileManager),
+                fileManager: fileManager
+            )
             let metaReader = JsonMetaReader(fileAccessor: fileManager)
             var consumerPlugins: [ArtifactConsumerPrebuildPlugin] = []
 

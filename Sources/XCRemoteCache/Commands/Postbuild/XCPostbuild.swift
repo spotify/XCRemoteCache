@@ -87,7 +87,11 @@ public class XCPostbuild {
                 fingerprintFilesGenerator,
                 algorithm: MD5Algorithm()
             )
-            let organizer = ZipArtifactOrganizer(targetTempDir: context.targetTempDir, fileManager: fileManager)
+            let organizer = ZipArtifactOrganizer(
+                targetTempDir: context.targetTempDir,
+                artifactProcessor: NoopArtifactProcessor(),
+                fileManager: fileManager
+            )
             let metaWriter = JsonMetaWriter(fileWriter: fileManager, pretty: config.prettifyMetaFiles)
             let artifactCreator = BuildArtifactCreator(
                 buildDir: context.productsDir,

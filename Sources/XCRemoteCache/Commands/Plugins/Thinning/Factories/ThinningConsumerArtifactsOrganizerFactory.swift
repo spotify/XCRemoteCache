@@ -34,6 +34,10 @@ class ThinningConsumerZipArtifactsOrganizerFactory: ThinningConsumerArtifactsOrg
     }
 
     func build(targetTempDir: URL) -> ArtifactOrganizer {
-        ZipArtifactOrganizer(targetTempDir: targetTempDir, fileManager: fileManager)
+        ZipArtifactOrganizer(
+            targetTempDir: targetTempDir,
+            artifactProcessor: NoopArtifactProcessor(),
+            fileManager: fileManager
+        )
     }
 }

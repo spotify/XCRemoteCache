@@ -48,10 +48,12 @@ protocol ArtifactOrganizer {
 
 class ZipArtifactOrganizer: ArtifactOrganizer {
     private let cacheDir: URL
+    private let artifactProcessor: ArtifactProcessor
     private let fileManager: FileManager
 
-    init(targetTempDir: URL, fileManager: FileManager) {
+    init(targetTempDir: URL, artifactProcessor: ArtifactProcessor, fileManager: FileManager) {
         cacheDir = targetTempDir.appendingPathComponent("xccache")
+        self.artifactProcessor = artifactProcessor
         self.fileManager = fileManager
     }
 
@@ -93,6 +95,7 @@ class ZipArtifactOrganizer: ArtifactOrganizer {
         // when the command was interrupted (internal crash or `kill -9` signal)
         let tempDestination = destinationURL.appendingPathExtension("tmp")
         try Zip.unzipFile(artifact, destination: tempDestination, overwrite: true, password: nil)
+        try artifactProcessor.process(rawArtifact: tempDestination)
         try fileManager.moveItem(at: tempDestination, to: destinationURL)
         return destinationURL
     }

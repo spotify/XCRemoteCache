@@ -78,7 +78,11 @@ public class XCCreateBinary {
         }
         let markerURL = tempDir.appendingPathComponent(config.modeMarkerPath)
         do {
-            let organizer = ZipArtifactOrganizer(targetTempDir: tempDir, fileManager: fileManager)
+            let organizer = ZipArtifactOrganizer(
+                targetTempDir: tempDir,
+                artifactProcessor: NoopArtifactProcessor(),
+                fileManager: fileManager
+            )
             let dependenciesWriter = FileDatWriter(dependencyInfo, fileManager: fileManager)
             let markerReader = FileMarkerReader(markerURL, fileManager: fileManager)
             guard fileManager.fileExists(atPath: markerURL.path) else {

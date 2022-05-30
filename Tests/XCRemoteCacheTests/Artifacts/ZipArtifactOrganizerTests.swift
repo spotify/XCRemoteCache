@@ -24,6 +24,7 @@ import Zip
 
 class ZipArtifactOrganizerTests: XCTestCase {
 
+    private let noopArtifactProcessor = NoopArtifactProcessor()
     private let fileManager = FileManager.default
     private let workingDirectory = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(#file)
 
@@ -54,7 +55,11 @@ class ZipArtifactOrganizerTests: XCTestCase {
 
     func testPreparePlacesArtifactInTheActiveLocation() throws {
         let zipURL = try prepareZipFile(content: "Magic", fileName: "content.txt")
-        let organizer = ZipArtifactOrganizer(targetTempDir: workingDirectory, fileManager: fileManager)
+        let organizer = ZipArtifactOrganizer(
+            targetTempDir: workingDirectory,
+            artifactProcessor: noopArtifactProcessor,
+            fileManager: fileManager
+        )
 
         let preparedArtifact = try organizer.prepare(artifact: zipURL)
 
@@ -64,7 +69,11 @@ class ZipArtifactOrganizerTests: XCTestCase {
 
     func testPreparingExistingArtifact() throws {
         let zipURL = try prepareZipFile(content: "Magic", fileName: "content.txt")
-        let organizer = ZipArtifactOrganizer(targetTempDir: workingDirectory, fileManager: fileManager)
+        let organizer = ZipArtifactOrganizer(
+            targetTempDir: workingDirectory,
+            artifactProcessor: noopArtifactProcessor,
+            fileManager: fileManager
+        )
 
         _ = try organizer.prepare(artifact: zipURL)
         let preparedArtifact = try organizer.prepare(artifact: zipURL)
@@ -75,7 +84,11 @@ class ZipArtifactOrganizerTests: XCTestCase {
 
     func testPreparePlacesArtifactInTheFileKeyRelatedLocation() throws {
         let zipURL = try prepareZipFile(content: "Magic", fileName: "content.txt", zipFileName: "abb32_fileKey")
-        let organizer = ZipArtifactOrganizer(targetTempDir: workingDirectory, fileManager: fileManager)
+        let organizer = ZipArtifactOrganizer(
+            targetTempDir: workingDirectory,
+            artifactProcessor: noopArtifactProcessor,
+            fileManager: fileManager
+        )
         let expectedArtifactLocation = workingDirectory.appendingPathComponent("abb32_fileKey")
 
         let preparedArtifact = try organizer.prepare(artifact: zipURL)
@@ -89,7 +102,11 @@ class ZipArtifactOrganizerTests: XCTestCase {
         let artifactLocation = workingDirectory.appendingPathComponent("xccache")
             .appendingPathComponent(sampleFileKey, isDirectory: true)
         try fileManager.createDirectory(at: artifactLocation, withIntermediateDirectories: true, attributes: nil)
-        let organizer = ZipArtifactOrganizer(targetTempDir: workingDirectory, fileManager: fileManager)
+        let organizer = ZipArtifactOrganizer(
+            targetTempDir: workingDirectory,
+            artifactProcessor: noopArtifactProcessor,
+            fileManager: fileManager
+        )
 
         let result = try organizer.prepareArtifactLocationFor(fileKey: sampleFileKey)
         if case .artifactExists(artifactDir: let u) = result {
@@ -105,7 +122,11 @@ class ZipArtifactOrganizerTests: XCTestCase {
             .appendingPathComponent("xccache")
             .appendingPathComponent(sampleFileKey)
             .appendingPathExtension("zip")
-        let organizer = ZipArtifactOrganizer(targetTempDir: workingDirectory, fileManager: fileManager)
+        let organizer = ZipArtifactOrganizer(
+            targetTempDir: workingDirectory,
+            artifactProcessor: noopArtifactProcessor,
+            fileManager: fileManager
+        )
 
         let result = try organizer.prepareArtifactLocationFor(fileKey: sampleFileKey)
 
@@ -126,7 +147,11 @@ class ZipArtifactOrganizerTests: XCTestCase {
         try fileManager.createDirectory(at: activeArtifact, withIntermediateDirectories: true, attributes: nil)
         try fileManager.spt_forceSymbolicLink(at: activeLink, withDestinationURL: activeArtifact)
 
-        let organizer = ZipArtifactOrganizer(targetTempDir: workingDirectory, fileManager: fileManager)
+        let organizer = ZipArtifactOrganizer(
+            targetTempDir: workingDirectory,
+            artifactProcessor: noopArtifactProcessor,
+            fileManager: fileManager
+        )
 
         let fileKey = try organizer.getActiveArtifactFilekey()
 
