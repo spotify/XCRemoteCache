@@ -52,6 +52,7 @@ class BuildArtifactCreator: ArtifactSwiftProductsBuilderImpl, ArtifactCreator {
         modulesFolderPath: String,
         dSYMPath: URL,
         metaWriter: MetaWriter,
+        fileRemapper: FileDependenciesRemapper,
         fileManager: FileManager
     ) {
         self.buildDir = buildDir
@@ -62,7 +63,7 @@ class BuildArtifactCreator: ArtifactSwiftProductsBuilderImpl, ArtifactCreator {
         self.fileManager = fileManager
         self.dSYMPath = dSYMPath
         self.metaWriter = metaWriter
-        super.init(workingDir: tempDir, moduleName: moduleName, fileManager: fileManager)
+        super.init(workingDir: tempDir, moduleName: moduleName, fileRemapper: fileRemapper, fileManager: fileManager)
     }
 
     func createArtifact(artifactKey: String, meta: MainArtifactMeta) throws -> Artifact {

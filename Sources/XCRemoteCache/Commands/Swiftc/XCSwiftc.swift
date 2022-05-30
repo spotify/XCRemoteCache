@@ -94,6 +94,7 @@ public class XCSwiftc {
         let artifactBuilder: ArtifactSwiftProductsBuilder = ArtifactSwiftProductsBuilderImpl(
             workingDir: context.tempDir,
             moduleName: context.moduleName,
+            fileRemapper: TextFileDependenciesRemapper(remapper: NoopDependenciesRemapper(), fileAccessor: fileManager),
             fileManager: fileManager
         )
         let productsGenerator = DiskSwiftcProductsGenerator(

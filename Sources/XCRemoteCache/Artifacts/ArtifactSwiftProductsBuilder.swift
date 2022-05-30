@@ -53,11 +53,13 @@ class ArtifactSwiftProductsBuilderImpl: ArtifactSwiftProductsBuilder {
 
     private let workingDir: URL
     private let moduleName: String?
+    private let fileRemapper: FileDependenciesRemapper
     private let fileManager: FileManager
 
-    init(workingDir: URL, moduleName: String?, fileManager: FileManager) {
+    init(workingDir: URL, moduleName: String?, fileRemapper: FileDependenciesRemapper, fileManager: FileManager) {
         self.workingDir = workingDir
         self.moduleName = moduleName
+        self.fileRemapper = fileRemapper
         self.fileManager = fileManager
     }
 
@@ -88,7 +90,8 @@ class ArtifactSwiftProductsBuilderImpl: ArtifactSwiftProductsBuilder {
             throw ArtifactSwiftProductsBuilderError.populatingNonExistingObjCHeader
         }
         try fileManager.createDirectory(at: moduleObjCURL, withIntermediateDirectories: true, attributes: nil)
-        try fileManager.spt_forceLinkItem(at: headerURL, to: headerArtifactURL)
+        try fileManager.spt_forceCopyItem(at: headerURL, to: headerArtifactURL)
+        try fileRemapper.remap(fromLocal: headerArtifactURL)
     }
 
     func includeModuleDefinitionsToTheArtifact(arch: String, moduleURL: URL) throws {

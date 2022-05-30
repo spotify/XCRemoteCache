@@ -40,9 +40,14 @@ class ArtifactSwiftProductsBuilderImplTests: FileXCTestCase {
         swiftmoduleSourceInfoFile = moduleDir.appendingPathComponent("MyModule.swiftsourceinfo")
         swiftmoduleInterfaceFile = moduleDir.appendingPathComponent("MyModule.swiftinterface")
         workingDir = rootDir.appendingPathComponent("working")
+        let emptyRemapper = TextFileDependenciesRemapper(
+            remapper: NoopDependenciesRemapper(),
+            fileAccessor: FileAccessorFake(mode: .normal)
+        )
         builder = ArtifactSwiftProductsBuilderImpl(
             workingDir: workingDir,
             moduleName: "MyModule",
+            fileRemapper: emptyRemapper,
             fileManager: .default
         )
     }

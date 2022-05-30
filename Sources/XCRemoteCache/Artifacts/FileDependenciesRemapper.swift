@@ -51,8 +51,11 @@ class TextFileDependenciesRemapper: FileDependenciesRemapper {
     }
 
     private func readFileLines(_ url: URL) throws -> [String] {
-        guard let content = try fileAccessor.contents(atPath: url.path),
-              let contentString = String(data: content, encoding: .utf8) else {
+        guard let content = try fileAccessor.contents(atPath: url.path) else {
+            // the file is empty
+            return []
+        }
+        guard let contentString = String(data: content, encoding: .utf8) else {
             throw FileDependenciesRemapperError.invalidRemappingFile(url)
         }
         return contentString.split(separator: "\n").map(String.init)

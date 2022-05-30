@@ -97,6 +97,7 @@ public class XCPostbuild {
                 modulesFolderPath: context.modulesFolderPath,
                 dSYMPath: context.dSYMPath,
                 metaWriter: metaWriter,
+                fileRemapper: TextFileDependenciesRemapper(remapper: envsRemapper, fileAccessor: fileManager),
                 fileManager: fileManager
             )
             let dirAccessor = DirAccessorComposer(

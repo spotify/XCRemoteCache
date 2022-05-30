@@ -58,6 +58,10 @@ class BuildArtifactCreatorTests: FileXCTestCase {
         dSYM = executableURL.deletingPathExtension().appendingPathExtension(".dSYM")
         try fileManager.spt_createEmptyFile(executableURL)
         try fileManager.spt_createEmptyFile(headerURL)
+        let emptyRemapper = TextFileDependenciesRemapper(
+            remapper: NoopDependenciesRemapper(),
+            fileAccessor: FileAccessorFake(mode: .normal)
+        )
 
         creator = BuildArtifactCreator(
             buildDir: buildDir,
@@ -67,6 +71,7 @@ class BuildArtifactCreatorTests: FileXCTestCase {
             modulesFolderPath: "",
             dSYMPath: dSYM,
             metaWriter: JsonMetaWriter(fileWriter: fileManager, pretty: false),
+            fileRemapper: emptyRemapper,
             fileManager: fileManager
         )
     }
