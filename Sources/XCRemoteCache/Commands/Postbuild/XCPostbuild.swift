@@ -28,6 +28,7 @@ public class XCPostbuild {
 
     // swiftlint:disable:next function_body_length cyclomatic_complexity
     public func main() {
+        sleep(3)
         let env = ProcessInfo.processInfo.environment
         let fileManager = FileManager.default
         let config: XCRemoteCacheConfig
@@ -93,6 +94,7 @@ public class XCPostbuild {
                 fileManager: fileManager
             )
             let metaWriter = JsonMetaWriter(fileWriter: fileManager, pretty: config.prettifyMetaFiles)
+            let fileRemapper = TextFileDependenciesRemapper(remapper: envsRemapper, fileAccessor: fileManager)
             let artifactCreator = BuildArtifactCreator(
                 buildDir: context.productsDir,
                 tempDir: context.targetTempDir,
@@ -101,7 +103,7 @@ public class XCPostbuild {
                 modulesFolderPath: context.modulesFolderPath,
                 dSYMPath: context.dSYMPath,
                 metaWriter: metaWriter,
-                fileRemapper: TextFileDependenciesRemapper(remapper: envsRemapper, fileAccessor: fileManager),
+                artifactProcessor: UnzippedArtifactProcessor(fileRemapper: fileRemapper, dirScanner: fileManager),
                 fileManager: fileManager
             )
             let dirAccessor = DirAccessorComposer(

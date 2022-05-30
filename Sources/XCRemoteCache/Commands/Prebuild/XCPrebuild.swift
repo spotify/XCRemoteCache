@@ -157,7 +157,7 @@ public class XCPrebuild {
             )
             let organizer = ZipArtifactOrganizer(
                 targetTempDir: context.targetTempDir,
-                artifactProcessor: DownloadedArtifactProcessor(fileRemapper: fileRemapper, dirScanner: fileManager),
+                artifactProcessor: UnzippedArtifactProcessor(fileRemapper: fileRemapper, dirScanner: fileManager),
                 fileManager: fileManager
             )
             let metaReader = JsonMetaReader(fileAccessor: fileManager)

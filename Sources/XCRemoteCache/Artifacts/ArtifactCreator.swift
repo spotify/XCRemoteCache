@@ -42,6 +42,7 @@ class BuildArtifactCreator: ArtifactSwiftProductsBuilderImpl, ArtifactCreator {
     private let modulesFolderPath: String
     private let dSYMPath: URL
     private let metaWriter: MetaWriter
+    private let artifactProcessor: ArtifactProcessor
     private let fileManager: FileManager
 
     init(
@@ -52,7 +53,7 @@ class BuildArtifactCreator: ArtifactSwiftProductsBuilderImpl, ArtifactCreator {
         modulesFolderPath: String,
         dSYMPath: URL,
         metaWriter: MetaWriter,
-        fileRemapper: FileDependenciesRemapper,
+        artifactProcessor: ArtifactProcessor,
         fileManager: FileManager
     ) {
         self.buildDir = buildDir
@@ -63,7 +64,8 @@ class BuildArtifactCreator: ArtifactSwiftProductsBuilderImpl, ArtifactCreator {
         self.fileManager = fileManager
         self.dSYMPath = dSYMPath
         self.metaWriter = metaWriter
-        super.init(workingDir: tempDir, moduleName: moduleName, fileRemapper: fileRemapper, fileManager: fileManager)
+        self.artifactProcessor = artifactProcessor
+        super.init(workingDir: tempDir, moduleName: moduleName, fileManager: fileManager)
     }
 
     func createArtifact(artifactKey: String, meta: MainArtifactMeta) throws -> Artifact {
@@ -88,6 +90,7 @@ class BuildArtifactCreator: ArtifactSwiftProductsBuilderImpl, ArtifactCreator {
     /// - Parameter tempDir: Temp location to organize file hierarchy in the artifact
     /// - returns: URLs to include into the artifact package
     fileprivate func prepareSwiftArtifacts(tempDir: URL) throws -> [URL] {
+        try artifactProcessor.process(localArtifact: tempDir)
         var artifacts: [URL] = []
 
         // Add optional directory with generated ObjC headers

@@ -47,7 +47,6 @@ class ArtifactSwiftProductsBuilderImplTests: FileXCTestCase {
         builder = ArtifactSwiftProductsBuilderImpl(
             workingDir: workingDir,
             moduleName: "MyModule",
-            fileRemapper: emptyRemapper,
             fileManager: .default
         )
     }

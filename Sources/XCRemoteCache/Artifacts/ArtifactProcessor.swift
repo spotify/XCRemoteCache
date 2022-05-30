@@ -24,13 +24,17 @@ import Foundation
 /// Coule be a place for file reorganization (to support legacy package formats) and/or
 /// remapp absolute paths in some package files
 protocol ArtifactProcessor {
-    /// Processes an artifact output in a directory
+    /// Processes a raw artifact in a directory
     /// - Parameter rawArtifact: directory that contains raw artifact content
     func process(rawArtifact: URL) throws
+
+    /// Processes a local artifact in a directory
+    /// - Parameter localArtifact: directory that contains loca (machine-specific) artifact content
+    func process(localArtifact: URL) throws
 }
 
 /// Processes downloaded artifact by replacing generic paths in generated ObjC headers placed in ./include
-class DownloadedArtifactProcessor: ArtifactProcessor {
+class UnzippedArtifactProcessor: ArtifactProcessor {
     /// All directories in an artifact that should be processed by path remapping
     private static let remappingDirs = ["include"]
     private let fileRemapper: FileDependenciesRemapper
@@ -48,8 +52,16 @@ class DownloadedArtifactProcessor: ArtifactProcessor {
     func process(rawArtifact url: URL) throws {
         for remappingDir in Self.remappingDirs {
             let remappingPath = url.appendingPathComponent(remappingDir).path
-            let allFiles = try dirScanner.items(at: URL(fileURLWithPath: remappingPath))
+            let allFiles = try dirScanner.recursiveItems(at: URL(fileURLWithPath: remappingPath))
             try allFiles.forEach(fileRemapper.remap(fromGeneric:))
+        }
+    }
+
+    func process(localArtifact url: URL) throws {
+        for remappingDir in Self.remappingDirs {
+            let remappingPath = url.appendingPathComponent(remappingDir).path
+            let allFiles = try dirScanner.recursiveItems(at: URL(fileURLWithPath: remappingPath))
+            try allFiles.forEach(fileRemapper.remap(fromLocal:))
         }
     }
 }
@@ -57,4 +69,5 @@ class DownloadedArtifactProcessor: ArtifactProcessor {
 /// No-operation processor
 class NoopArtifactProcessor: ArtifactProcessor {
     func process(rawArtifact url: URL) throws {}
+    func process(localArtifact url: URL) throws {}
 }
