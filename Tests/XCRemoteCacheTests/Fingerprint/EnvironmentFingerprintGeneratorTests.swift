@@ -95,7 +95,7 @@ class EnvironmentFingerprintGeneratorTests: XCTestCase {
 
         XCTAssertEqual(fingerprint, "GCC,YES,TARGET,CONG,PLAT,XC,1,2,3,4,AR,CUSTOM_VALUE,\(Self.currentVersion)")
     }
-    
+
     func testFingerprintIsUsedOnce() throws {
         let fingerprint1 = try fingerprintGenerator.generateFingerprint()
         let fingerprint2 = try fingerprintGenerator.generateFingerprint()
