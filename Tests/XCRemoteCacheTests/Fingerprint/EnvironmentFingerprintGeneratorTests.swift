@@ -42,6 +42,7 @@ class EnvironmentFingerprintGeneratorTests: XCTestCase {
     private var generator: FingerprintAccumulator! {
         return generatorFake
     }
+
     private var generatorFake: FingerprintAccumulatorFake!
     private var fingerprintGenerator: EnvironmentFingerprintGenerator!
 
