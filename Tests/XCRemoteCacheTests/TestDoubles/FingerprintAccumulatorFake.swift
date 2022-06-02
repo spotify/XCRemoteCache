@@ -34,10 +34,10 @@ class FingerprintAccumulatorFake: FingerprintAccumulator {
         appendedStrings.append("FILE{\(file.path)}")
     }
 
-    private(set) var generateCallCount = 0
+    private(set) var generateCallsCount = 0
     func generate() throws -> RawFingerprint {
         defer {
-            generateCallCount += 1
+            generateCallsCount += 1
         }
         return appendedStrings.joined(separator: ",")
     }
