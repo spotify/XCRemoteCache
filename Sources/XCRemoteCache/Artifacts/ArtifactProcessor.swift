@@ -20,16 +20,17 @@
 import Foundation
 
 
-/// Performs all process locally on a raw artifact package
+/// Performs a pre/postprocessing on an artifact package.
 /// Coule be a place for file reorganization (to support legacy package formats) and/or
 /// remapp absolute paths in some package files
 protocol ArtifactProcessor {
-    /// Processes a raw artifact in a directory
+    /// Processes a raw artifact in a directory. Raw artifact is a format of an artifact
+    /// that is stored in a remote cache server (generic).
     /// - Parameter rawArtifact: directory that contains raw artifact content
     func process(rawArtifact: URL) throws
 
     /// Processes a local artifact in a directory
-    /// - Parameter localArtifact: directory that contains loca (machine-specific) artifact content
+    /// - Parameter localArtifact: directory that contains local (machine-specific) artifact content
     func process(localArtifact: URL) throws
 }
 
@@ -45,10 +46,9 @@ class UnzippedArtifactProcessor: ArtifactProcessor {
         self.dirScanner = dirScanner
     }
 
-    /// Replaces all generic paths in a raw artifact with a absolute paths, specific for a given
-    /// machine and configuration
+    /// Replaces all generic paths in a raw artifact's `include` dir with
+    /// absolute paths, specific for a given machine and configuration
     /// - Parameter rawArtifact: raw artifact location
-    /// - Throws: TBD
     func process(rawArtifact url: URL) throws {
         for remappingDir in Self.remappingDirs {
             let remappingPath = url.appendingPathComponent(remappingDir).path
