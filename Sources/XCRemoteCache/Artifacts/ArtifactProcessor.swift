@@ -46,13 +46,19 @@ class UnzippedArtifactProcessor: ArtifactProcessor {
         self.dirScanner = dirScanner
     }
 
+    private func findProcessingEligableFiles(path: String) throws -> [URL] {
+        let remappingURL = URL(fileURLWithPath: path)
+        let allFiles = try dirScanner.recursiveItems(at: remappingURL)
+        return allFiles.filter({ !$0.isEmpty })
+    }
+
     /// Replaces all generic paths in a raw artifact's `include` dir with
     /// absolute paths, specific for a given machine and configuration
     /// - Parameter rawArtifact: raw artifact location
     func process(rawArtifact url: URL) throws {
         for remappingDir in Self.remappingDirs {
             let remappingPath = url.appendingPathComponent(remappingDir).path
-            let allFiles = try dirScanner.recursiveItems(at: URL(fileURLWithPath: remappingPath))
+            let allFiles = try findProcessingEligableFiles(path: remappingPath)
             try allFiles.forEach(fileRemapper.remap(fromGeneric:))
         }
     }
@@ -60,14 +66,15 @@ class UnzippedArtifactProcessor: ArtifactProcessor {
     func process(localArtifact url: URL) throws {
         for remappingDir in Self.remappingDirs {
             let remappingPath = url.appendingPathComponent(remappingDir).path
-            let allFiles = try dirScanner.recursiveItems(at: URL(fileURLWithPath: remappingPath))
+            let allFiles = try findProcessingEligableFiles(path: remappingPath)
             try allFiles.forEach(fileRemapper.remap(fromLocal:))
         }
     }
 }
 
-/// No-operation processor
-class NoopArtifactProcessor: ArtifactProcessor {
-    func process(rawArtifact url: URL) throws {}
-    func process(localArtifact url: URL) throws {}
+fileprivate extension URL {
+    // Recognize hidden files starting with dot.
+    var isEmpty: Bool {
+        lastPathComponent.hasPrefix(".")
+    }
 }

@@ -80,7 +80,8 @@ public class XCCreateBinary {
         do {
             let organizer = ZipArtifactOrganizer(
                 targetTempDir: tempDir,
-                artifactProcessor: NoopArtifactProcessor(),
+                // Creation binary doesn't call artifact preprocessing
+                artifactProcessors: [],
                 fileManager: fileManager
             )
             let dependenciesWriter = FileDatWriter(dependencyInfo, fileManager: fileManager)

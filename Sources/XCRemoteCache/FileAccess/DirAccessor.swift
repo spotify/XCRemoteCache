@@ -57,10 +57,11 @@ extension FileManager: DirScanner {
     func items(at dir: URL) throws -> [URL] {
         // FileManager is not capable of listing files if the URL includes symlinks
         let resolvedDir = dir.resolvingSymlinksInPath()
-        return try contentsOfDirectory(at: resolvedDir, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles])
+        return try contentsOfDirectory(at: resolvedDir, includingPropertiesForKeys: nil, options: [])
     }
 
     func recursiveItems(at dir: URL) throws -> [URL] {
+        // Iterating DFS
         var queue: [URL] = [dir]
         var results: [URL] = []
         while let item = queue.popLast() {

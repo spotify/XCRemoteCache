@@ -77,14 +77,3 @@ final class StringDependenciesRemapper: DependenciesRemapper {
         }
     }
 }
-
-/// Does not make any remapping and returns all dependencies plain
-final class NoopDependenciesRemapper: DependenciesRemapper {
-    func replace(genericPaths: [String]) throws -> [String] {
-        genericPaths
-    }
-
-    func replace(localPaths: [String]) throws -> [String] {
-        localPaths
-    }
-}

@@ -27,16 +27,18 @@ protocol ThinningConsumerArtifactsOrganizerFactory {
 }
 
 class ThinningConsumerZipArtifactsOrganizerFactory: ThinningConsumerArtifactsOrganizerFactory {
+    private let processors: [ArtifactProcessor]
     private let fileManager: FileManager
 
-    init(fileManager: FileManager) {
+    init(processors: [ArtifactProcessor], fileManager: FileManager) {
+        self.processors = processors
         self.fileManager = fileManager
     }
 
     func build(targetTempDir: URL) -> ArtifactOrganizer {
         ZipArtifactOrganizer(
             targetTempDir: targetTempDir,
-            artifactProcessor: NoopArtifactProcessor(),
+            artifactProcessors: processors,
             fileManager: fileManager
         )
     }

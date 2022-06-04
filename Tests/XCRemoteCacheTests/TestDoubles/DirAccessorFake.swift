@@ -49,7 +49,7 @@ class DirAccessorFake: DirAccessor {
 
     func recursiveItems(at dir: URL) throws -> [URL] {
         memory.compactMap { url, _ in
-            // compare paths to ignore dir or url's "isDir"
+            // comparing paths to ignore dir or url's "isDir" property
             if url.deletingLastPathComponent().path.starts(with: dir.path) {
                 return url
             }

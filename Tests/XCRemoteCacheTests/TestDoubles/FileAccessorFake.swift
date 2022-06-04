@@ -66,7 +66,7 @@ extension FileAccessorFake: DirScanner {
         if storage[path] != nil {
             return .file
         }
-        if try recursiveItems(at: URL(fileURLWithPath: path)).isEmpty {
+        if try !recursiveItems(at: URL(fileURLWithPath: path)).isEmpty {
             return .dir
         }
         return .nonExisting

@@ -31,7 +31,7 @@ enum ArtifactOrganizerLocationPreparationResult: Equatable {
     case preparedForArtifact(artifact: URL)
 }
 
-/// Prepares .zip artifact for the local operations
+/// Prepares existing .zip artifact for the local operations
 protocol ArtifactOrganizer {
     /// Prepares the location for the artifact unzipping
     /// - Parameter fileKey: artifact fileKey that corresponds to the zip filename on the remote cache server
@@ -48,12 +48,13 @@ protocol ArtifactOrganizer {
 
 class ZipArtifactOrganizer: ArtifactOrganizer {
     private let cacheDir: URL
-    private let artifactProcessor: ArtifactProcessor
+    // all processors that should "prepare" the unzipped raw artifact
+    private let artifactProcessors: [ArtifactProcessor]
     private let fileManager: FileManager
 
-    init(targetTempDir: URL, artifactProcessor: ArtifactProcessor, fileManager: FileManager) {
+    init(targetTempDir: URL, artifactProcessors: [ArtifactProcessor], fileManager: FileManager) {
         cacheDir = targetTempDir.appendingPathComponent("xccache")
-        self.artifactProcessor = artifactProcessor
+        self.artifactProcessors = artifactProcessors
         self.fileManager = fileManager
     }
 
@@ -95,7 +96,10 @@ class ZipArtifactOrganizer: ArtifactOrganizer {
         // when the command was interrupted (internal crash or `kill -9` signal)
         let tempDestination = destinationURL.appendingPathExtension("tmp")
         try Zip.unzipFile(artifact, destination: tempDestination, overwrite: true, password: nil)
-        try artifactProcessor.process(rawArtifact: tempDestination)
+
+        try artifactProcessors.forEach { processor in
+            try processor.process(rawArtifact: tempDestination)
+        }
         try fileManager.moveItem(at: tempDestination, to: destinationURL)
         return destinationURL
     }

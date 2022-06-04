@@ -24,7 +24,6 @@ import Zip
 
 class ZipArtifactOrganizerTests: XCTestCase {
 
-    private let noopArtifactProcessor = NoopArtifactProcessor()
     private let fileManager = FileManager.default
     private let workingDirectory = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(#file)
 
@@ -57,7 +56,7 @@ class ZipArtifactOrganizerTests: XCTestCase {
         let zipURL = try prepareZipFile(content: "Magic", fileName: "content.txt")
         let organizer = ZipArtifactOrganizer(
             targetTempDir: workingDirectory,
-            artifactProcessor: noopArtifactProcessor,
+            artifactProcessors: [],
             fileManager: fileManager
         )
 
@@ -71,7 +70,7 @@ class ZipArtifactOrganizerTests: XCTestCase {
         let zipURL = try prepareZipFile(content: "Magic", fileName: "content.txt")
         let organizer = ZipArtifactOrganizer(
             targetTempDir: workingDirectory,
-            artifactProcessor: noopArtifactProcessor,
+            artifactProcessors: [],
             fileManager: fileManager
         )
 
@@ -86,7 +85,7 @@ class ZipArtifactOrganizerTests: XCTestCase {
         let zipURL = try prepareZipFile(content: "Magic", fileName: "content.txt", zipFileName: "abb32_fileKey")
         let organizer = ZipArtifactOrganizer(
             targetTempDir: workingDirectory,
-            artifactProcessor: noopArtifactProcessor,
+            artifactProcessors: [],
             fileManager: fileManager
         )
         let expectedArtifactLocation = workingDirectory.appendingPathComponent("abb32_fileKey")
@@ -104,7 +103,7 @@ class ZipArtifactOrganizerTests: XCTestCase {
         try fileManager.createDirectory(at: artifactLocation, withIntermediateDirectories: true, attributes: nil)
         let organizer = ZipArtifactOrganizer(
             targetTempDir: workingDirectory,
-            artifactProcessor: noopArtifactProcessor,
+            artifactProcessors: [],
             fileManager: fileManager
         )
 
@@ -124,7 +123,7 @@ class ZipArtifactOrganizerTests: XCTestCase {
             .appendingPathExtension("zip")
         let organizer = ZipArtifactOrganizer(
             targetTempDir: workingDirectory,
-            artifactProcessor: noopArtifactProcessor,
+            artifactProcessors: [],
             fileManager: fileManager
         )
 
@@ -149,7 +148,7 @@ class ZipArtifactOrganizerTests: XCTestCase {
 
         let organizer = ZipArtifactOrganizer(
             targetTempDir: workingDirectory,
-            artifactProcessor: noopArtifactProcessor,
+            artifactProcessors: [],
             fileManager: fileManager
         )
 

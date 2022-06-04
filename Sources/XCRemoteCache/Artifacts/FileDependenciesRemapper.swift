@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Spotify AB.
+// Copyright (c) 2022 Spotify AB.
 //
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
@@ -76,7 +76,7 @@ class TextFileDependenciesRemapper: FileDependenciesRemapper {
         let remappedContent = try remapper.replace(genericPaths: contentLines)
         try storeFileLines(lines: remappedContent, url: url)
     }
-    
+
     func remap(fromLocal url: URL) throws {
         let contentLines = try readFileLines(url)
         let remappedContent = try remapper.replace(localPaths: contentLines)

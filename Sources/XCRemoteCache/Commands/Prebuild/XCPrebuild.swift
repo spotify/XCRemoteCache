@@ -155,9 +155,10 @@ public class XCPrebuild {
                 remapper: envsRemapper,
                 fileAccessor: fileManager
             )
+            let artifactProcessor = UnzippedArtifactProcessor(fileRemapper: fileRemapper, dirScanner: fileManager)
             let organizer = ZipArtifactOrganizer(
                 targetTempDir: context.targetTempDir,
-                artifactProcessor: UnzippedArtifactProcessor(fileRemapper: fileRemapper, dirScanner: fileManager),
+                artifactProcessors: [artifactProcessor],
                 fileManager: fileManager
             )
             let metaReader = JsonMetaReader(fileAccessor: fileManager)
@@ -165,7 +166,10 @@ public class XCPrebuild {
 
             if config.thinningEnabled {
                 if context.moduleName == config.thinningTargetModuleName, let thinnedTarget = context.thinnedTargets {
-                    let organizerFactory = ThinningConsumerZipArtifactsOrganizerFactory(fileManager: .default)
+                    let organizerFactory = ThinningConsumerZipArtifactsOrganizerFactory(
+                        processors: [artifactProcessor],
+                        fileManager: fileManager
+                    )
                     let aggregationPlugin = ThinningConsumerPrebuildPlugin(
                         targetName: context.targetName,
                         tempDir: context.targetTempDir,

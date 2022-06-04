@@ -54,9 +54,17 @@ class UnzippedArtifactProcessorTests: FileXCTestCase {
 
     func testProcessingRawArtifactDoesntReplacesInNonIncludeDir() throws {
         try fileAccessor.write(toPath: "/artifact/some/file", contents: "Some $(SRCROOT)")
-        
+
         try processor.process(rawArtifact: "/artifact")
 
         XCTAssertEqual(try fileAccessor.contents(atPath: "/artifact/some/file"), "Some $(SRCROOT)")
+    }
+
+    func testDoesntProcessEmptyFiles() throws {
+        try fileAccessor.write(toPath: "/artifact/include/.hidden", contents: "Some $(SRCROOT)")
+
+        try processor.process(rawArtifact: "/artifact")
+
+        XCTAssertEqual(try fileAccessor.contents(atPath: "/artifact/include/.hidden"), "Some $(SRCROOT)")
     }
 }

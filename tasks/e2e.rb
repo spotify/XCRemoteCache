@@ -64,7 +64,7 @@ namespace :e2e do
         end
 
         puts 'Building standalone consumer...'
-        
+
         ####### Consumer #########
         # new dir to emulate different srcroot
         consumer_srcroot = "#{E2E_STANDALONE_SAMPLE_DIR}_consumer"

@@ -28,7 +28,6 @@ public class XCPostbuild {
 
     // swiftlint:disable:next function_body_length cyclomatic_complexity
     public func main() {
-        sleep(3)
         let env = ProcessInfo.processInfo.environment
         let fileManager = FileManager.default
         let config: XCRemoteCacheConfig
@@ -90,7 +89,8 @@ public class XCPostbuild {
             )
             let organizer = ZipArtifactOrganizer(
                 targetTempDir: context.targetTempDir,
-                artifactProcessor: NoopArtifactProcessor(),
+                // In postbuild we don't preprocess artifacts (no need to replace path placeholders)
+                artifactProcessors: [],
                 fileManager: fileManager
             )
             let metaWriter = JsonMetaWriter(fileWriter: fileManager, pretty: config.prettifyMetaFiles)
@@ -208,6 +208,7 @@ public class XCPostbuild {
                     switch context.mode {
                     case .consumer:
                         let artifactOrganizerFactory = ThinningConsumerZipArtifactsOrganizerFactory(
+                            processors: [],
                             fileManager: fileManager
                         )
                         let swiftProductsLocationProvider =
