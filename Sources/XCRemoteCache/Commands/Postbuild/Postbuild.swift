@@ -238,9 +238,15 @@ class Postbuild {
         let moduleSwiftProductURL = context.productsDir
             .appendingPathComponent(context.modulesFolderPath)
             .appendingPathComponent("\(modulename).swiftmodule")
+        let objcHeaderSwiftProductURL = context.derivedSourcesDir
+            .appendingPathComponent("\(modulename)-Swift.h")
         if let fingerprint = contextSpecificFingerprint {
             try fingerprintSyncer.decorate(
                 sourceDir: moduleSwiftProductURL,
+                fingerprint: fingerprint
+            )
+            try fingerprintSyncer.decorate(
+                file: objcHeaderSwiftProductURL,
                 fingerprint: fingerprint
             )
         } else {

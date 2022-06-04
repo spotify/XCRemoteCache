@@ -26,6 +26,11 @@ enum DiskSwiftcProductsGeneratorError: Error {
     case unknownSwiftmoduleFile
 }
 
+struct SwiftcProductsGeneratorOutput {
+    let swiftmoduleDir: URL
+    let objcHeaderFile: URL
+}
+
 /// Generates swiftc product to the expected location
 protocol SwiftcProductsGenerator {
     /// Generates products from given files
@@ -33,7 +38,7 @@ protocol SwiftcProductsGenerator {
     func generateFrom(
         artifactSwiftModuleFiles: [SwiftmoduleFileExtension: URL],
         artifactSwiftModuleObjCFile: URL
-    ) throws -> URL
+    ) throws -> SwiftcProductsGeneratorOutput
 }
 
 /// Generator that produces all products in the locations where Xcode expects it, using provided disk copier
@@ -64,7 +69,7 @@ class DiskSwiftcProductsGenerator: SwiftcProductsGenerator {
     func generateFrom(
         artifactSwiftModuleFiles sourceAtifactSwiftModuleFiles: [SwiftmoduleFileExtension: URL],
         artifactSwiftModuleObjCFile: URL
-    ) throws -> URL {
+    ) throws -> SwiftcProductsGeneratorOutput {
         // Move cached -Swift.h file to the expected location
         try diskCopier.copy(file: artifactSwiftModuleObjCFile, destination: objcHeaderOutput)
         for (ext, url) in sourceAtifactSwiftModuleFiles {
@@ -85,6 +90,9 @@ class DiskSwiftcProductsGenerator: SwiftcProductsGenerator {
         }
 
         // Build parent dir of the .swiftmodule file that contains a module
-        return modulePathOutput.deletingLastPathComponent()
+        return SwiftcProductsGeneratorOutput(
+            swiftmoduleDir: modulePathOutput.deletingLastPathComponent(),
+            objcHeaderFile: objcHeaderOutput
+        )
     }
 }

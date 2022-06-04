@@ -55,7 +55,7 @@ class MirroredLinkingSwiftcProductsGenerator: SwiftcProductsGenerator {
     func generateFrom(
         artifactSwiftModuleFiles: [SwiftmoduleFileExtension: URL],
         artifactSwiftModuleObjCFile: URL
-    ) throws -> URL {
+    ) throws -> SwiftcProductsGeneratorOutput {
         /// Predict moduleName from the `*.swiftmodule` artifact
         let foundSwiftmoduleFile = artifactSwiftModuleFiles[.swiftmodule]
         guard let mainSwiftmoduleFile = foundSwiftmoduleFile else {

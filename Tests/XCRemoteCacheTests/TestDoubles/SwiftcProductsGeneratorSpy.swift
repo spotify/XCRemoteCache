@@ -22,16 +22,16 @@ import Foundation
 
 class SwiftcProductsGeneratorSpy: SwiftcProductsGenerator {
     private(set) var generated: [([SwiftmoduleFileExtension: URL], URL)] = []
-    private let generationDestination: URL
+    private let generationDestination: SwiftcProductsGeneratorOutput
 
-    init(generatedDestination: URL = "") {
+    init(generatedDestination: SwiftcProductsGeneratorOutput) {
         generationDestination = generatedDestination
     }
 
     func generateFrom(
         artifactSwiftModuleFiles: [SwiftmoduleFileExtension: URL],
         artifactSwiftModuleObjCFile: URL
-    ) throws -> URL {
+    ) throws -> SwiftcProductsGeneratorOutput {
         generated.append((
             artifactSwiftModuleFiles,
             artifactSwiftModuleObjCFile
