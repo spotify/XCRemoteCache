@@ -107,7 +107,7 @@ public struct XCRemoteCacheConfig: Encodable {
     var turnOffRemoteCacheOnFirstTimeout: Bool = false
     /// List of all extensions that should carry over source fingerprints. Extensions of all product files that
     /// contain non-deterministic content (absolute paths, timestamp, etc) should be included
-    var productFilesExtensionsWithContentOverride = ["swiftmodule"]
+    var productFilesExtensionsWithContentOverride = ["swiftmodule", "h"]
     /// If true, plugins for thinning support should be enabled
     var thinningEnabled: Bool = false
     /// Module name of a target that works as a helper for thinned targets
