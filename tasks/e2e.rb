@@ -177,7 +177,7 @@ namespace :e2e do
         args.push(*xcodebuild_args.map {|k,v| "-#{k} '#{v}'"})
         args.push(*xcodebuild_vars.map {|k,v| "#{k}='#{v}'"})
         args.push('clean build')
-        args.push("> #{LOG_NAME}")
+        args.push("| tee #{LOG_NAME}")
         puts 'Building a project with xcodebuild...'
         system(args.join(' '))
         unless $?.success?
