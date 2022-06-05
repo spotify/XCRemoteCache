@@ -5,3 +5,4 @@ primary_repo: '.'
 primary_branch: 'e2e-test-branch'
 mode: 'consumer'
 final_target': XCRemoteCacheSample'
+artifact_maximum_age: 0 # do not use local cache in ~/Library/Caches/XCRemoteCache
