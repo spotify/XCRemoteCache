@@ -204,8 +204,8 @@ namespace :e2e do
     # validate 100% hit rate
     def self.valide_hit_rate
         status = read_stats()
-        raise "Failure: Hit rate is only #{status.hit_rate}% (#{status.hits}/#{status.all_targets})" if status.misses > 0
         all_targets = status.misses + status.hits
+        raise "Failure: Hit rate is only #{status.hit_rate}% (#{all_targets})" if status.misses > 0
         puts("Hit rate: #{status.hit_rate}% (#{status.hits}/#{all_targets})")
     end
 
