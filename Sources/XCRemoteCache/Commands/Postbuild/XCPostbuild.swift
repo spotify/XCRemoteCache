@@ -97,6 +97,7 @@ public class XCPostbuild {
                 modulesFolderPath: context.modulesFolderPath,
                 dSYMPath: context.dSYMPath,
                 metaWriter: metaWriter,
+                artifactProcessor: UnzippedArtifactProcessor(fileRemapper: fileRemapper, dirScanner: fileManager),
                 fileManager: fileManager
             )
             let dirAccessor = DirAccessorComposer(
@@ -201,6 +202,7 @@ public class XCPostbuild {
                     switch context.mode {
                     case .consumer:
                         let artifactOrganizerFactory = ThinningConsumerZipArtifactsOrganizerFactory(
+                            processors: [],
                             fileManager: fileManager
                         )
                         let swiftProductsLocationProvider =
