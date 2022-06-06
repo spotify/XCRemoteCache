@@ -52,4 +52,8 @@ class DirAccessorComposer: DirAccessor {
     func items(at dir: URL) throws -> [URL] {
         try dirScanner.items(at: dir)
     }
+
+    func recursiveItems(at dir: URL) throws -> [URL] {
+        try dirScanner.recursiveItems(at: dir)
+    }
 }

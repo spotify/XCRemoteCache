@@ -87,8 +87,14 @@ public class XCPostbuild {
                 fingerprintFilesGenerator,
                 algorithm: MD5Algorithm()
             )
-            let organizer = ZipArtifactOrganizer(targetTempDir: context.targetTempDir, fileManager: fileManager)
+            let organizer = ZipArtifactOrganizer(
+                targetTempDir: context.targetTempDir,
+                // In postbuild we don't preprocess artifacts (no need to replace path placeholders)
+                artifactProcessors: [],
+                fileManager: fileManager
+            )
             let metaWriter = JsonMetaWriter(fileWriter: fileManager, pretty: config.prettifyMetaFiles)
+            let fileRemapper = TextFileDependenciesRemapper(remapper: envsRemapper, fileAccessor: fileManager)
             let artifactCreator = BuildArtifactCreator(
                 buildDir: context.productsDir,
                 tempDir: context.targetTempDir,

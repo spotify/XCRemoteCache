@@ -58,7 +58,7 @@ class ThinningDiskSwiftcProductsGenerator: SwiftcProductsGenerator {
     func generateFrom(
         artifactSwiftModuleFiles sourceAtifactSwiftModuleFiles: [SwiftmoduleFileExtension: URL],
         artifactSwiftModuleObjCFile: URL
-    ) throws -> URL {
+    ) throws -> SwiftcProductsGeneratorOutput {
         // Move cached -Swift.h file to the expected location
         try diskCopier.copy(file: artifactSwiftModuleObjCFile, destination: objcHeaderOutput)
         for (ext, url) in sourceAtifactSwiftModuleFiles {
@@ -79,6 +79,9 @@ class ThinningDiskSwiftcProductsGenerator: SwiftcProductsGenerator {
         }
 
         // Build parent dir of the .swiftmodule file that contains a module
-        return modulePathOutput.deletingLastPathComponent()
+        return SwiftcProductsGeneratorOutput(
+            swiftmoduleDir: modulePathOutput.deletingLastPathComponent(),
+            objcHeaderFile: objcHeaderOutput
+        )
     }
 }

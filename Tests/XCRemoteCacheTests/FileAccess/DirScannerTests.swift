@@ -71,4 +71,16 @@ class FileManagerDirScannerTests: FileXCTestCase {
 
         try XCTAssertThrowsError(dirScanner.items(at: dir))
     }
+
+    func testFindsAllFilesRecursively() throws {
+        let dir = workingDirectory!.appendingPathComponent("dir")
+        let nestedDir = dir.appendingPathComponent("nested")
+        let nestedFile = nestedDir.appendingPathComponent("file")
+        try fileManager.spt_createEmptyFile(nestedFile)
+
+        let allFiles = try dirScanner.recursiveItems(at: dir)
+
+        let allFilesResolve = allFiles.map { $0.resolvingSymlinksInPath() }
+        XCTAssertEqual(allFilesResolve, [nestedFile])
+    }
 }

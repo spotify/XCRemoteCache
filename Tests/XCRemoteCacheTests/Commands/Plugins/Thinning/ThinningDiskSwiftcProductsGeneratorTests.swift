@@ -67,7 +67,7 @@ class ThinningDiskSwiftcProductsGeneratorTests: FileXCTestCase {
             artifactSwiftModuleObjCFile: headerFile
         )
 
-        XCTAssertEqual(generatedModulePath, destinationSwiftModuleDir)
+        XCTAssertEqual(generatedModulePath.swiftmoduleDir, destinationSwiftModuleDir)
         XCTAssertEqual(fileManager.contents(atPath: expectedSwiftSourceInfoFile.path), "sourceInfo".data(using: .utf8))
         XCTAssertEqual(fileManager.contents(atPath: objCHeader.path), "header".data(using: .utf8))
     }

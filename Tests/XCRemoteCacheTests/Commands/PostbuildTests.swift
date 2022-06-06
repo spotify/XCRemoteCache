@@ -55,7 +55,8 @@ class PostbuildTests: FileXCTestCase {
         action: .build,
         modeMarkerPath: "",
         overlayHeadersPath: "",
-        irrelevantDependenciesPaths: []
+        irrelevantDependenciesPaths: [],
+        publicHeadersFolderPath: nil
     )
     private var network = RemoteNetworkClientImpl(
         NetworkClientFake(fileManager: .default),
@@ -642,5 +643,80 @@ class PostbuildTests: FileXCTestCase {
         let downloadedMeta = try metaReader.read(data: data)
 
         XCTAssertEqual(downloadedMeta, expectedMeta)
+    }
+
+    func testDecoratesDerivedSwiftHeaderWithEmptyModulesFolderPath() throws {
+        let dir = try prepareTempDir()
+        let derivedSourcesDir = dir
+            .appendingPathComponent("DerivedSources")
+        let swiftSwiftHeader = derivedSourcesDir
+            .appendingPathComponent("MyModule-Swift.h")
+        let swiftSwiftHeaderOverride = swiftSwiftHeader
+            .appendingPathExtension("md5")
+
+        try fileManager.spt_createEmptyDir(derivedSourcesDir)
+        try fileManager.spt_createEmptyFile(swiftSwiftHeader)
+        postbuildContext.moduleName = "MyModule"
+        postbuildContext.derivedSourcesDir = derivedSourcesDir
+        let postbuild = Postbuild(
+            context: postbuildContext,
+            networkClient: network,
+            remapper: remapper,
+            fingerprintAccumulator: fingerprintGenerator,
+            artifactsOrganizer: organizer,
+            artifactCreator: artifactCreator,
+            fingerprintSyncer: syncer,
+            dependenciesReader: dependenciesReader,
+            dependencyProcessor: processor,
+            fingerprintOverrideManager: overrideManager,
+            dSYMOrganizer: DSYMOrganizerFake(dSYMFile: nil),
+            modeController: modeController,
+            metaReader: metaReader,
+            metaWriter: metaWriter,
+            creatorPlugins: [],
+            consumerPlugins: []
+        )
+
+        try postbuild.performBuildCompletion()
+
+        XCTAssertTrue(fileManager.fileExists(atPath: swiftSwiftHeaderOverride.path))
+    }
+
+    func testDecoratesPublicSwiftHeaderWithEmptyModulesFolderPath() throws {
+        let dir = try prepareTempDir()
+        let productsDir = dir
+            .appendingPathComponent("MyModule.framework")
+            .appendingPathComponent("Headers")
+        let swiftSwiftHeader = productsDir
+            .appendingPathComponent("MyModule-Swift.h")
+        let swiftSwiftHeaderOverride = swiftSwiftHeader
+            .appendingPathExtension("md5")
+
+        try fileManager.spt_createEmptyDir(productsDir)
+        try fileManager.spt_createEmptyFile(swiftSwiftHeader)
+        postbuildContext.moduleName = "MyModule"
+        postbuildContext.publicHeadersFolderPath = productsDir
+        let postbuild = Postbuild(
+            context: postbuildContext,
+            networkClient: network,
+            remapper: remapper,
+            fingerprintAccumulator: fingerprintGenerator,
+            artifactsOrganizer: organizer,
+            artifactCreator: artifactCreator,
+            fingerprintSyncer: syncer,
+            dependenciesReader: dependenciesReader,
+            dependencyProcessor: processor,
+            fingerprintOverrideManager: overrideManager,
+            dSYMOrganizer: DSYMOrganizerFake(dSYMFile: nil),
+            modeController: modeController,
+            metaReader: metaReader,
+            metaWriter: metaWriter,
+            creatorPlugins: [],
+            consumerPlugins: []
+        )
+
+        try postbuild.performBuildCompletion()
+
+        XCTAssertTrue(fileManager.fileExists(atPath: swiftSwiftHeaderOverride.path))
     }
 }

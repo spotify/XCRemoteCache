@@ -30,6 +30,8 @@ protocol FingerprintSyncer {
     func decorate(sourceDir: URL, fingerprint: String) throws
     /// Deletes fingerprint overrides in the dir (if already created)
     func delete(sourceDir: URL) throws
+    /// Sets a fingerprint override for a singe file placed
+    func decorate(file: URL, fingerprint: String) throws
 }
 
 class FileFingerprintSyncer: FingerprintSyncer {
@@ -77,5 +79,13 @@ class FileFingerprintSyncer: FingerprintSyncer {
         for file in allURLs where file.pathExtension == fingerprintExtension {
             try dirAccessor.removeItem(atPath: file.path)
         }
+    }
+
+    func decorate(file: URL, fingerprint: String) throws {
+        guard let fingerprintData = fingerprint.data(using: .utf8) else {
+            throw FingerprintSyncerError.invalidFingerprint
+        }
+        let fingerprintFile = file.appendingPathExtension(fingerprintExtension)
+        try dirAccessor.write(toPath: fingerprintFile.path, contents: fingerprintData)
     }
 }
