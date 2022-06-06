@@ -66,6 +66,20 @@ class TextFileDependenciesRemapperTests: FileXCTestCase {
         try XCTAssertEqual(fileAccessor.contents(atPath: "/file"), multilineData)
     }
 
+    func testPersistsEmptyLineAtTheEnd() throws {
+        let multilineData = """
+        Line1
+
+        Line 2
+        
+        """.data(using: .utf8)
+        try fileAccessor.write(toPath: "/file", contents: multilineData)
+
+        try remapper.remap(fromGeneric: "/file")
+
+        try XCTAssertEqual(fileAccessor.contents(atPath: "/file"), multilineData)
+    }
+
     func testReplacesMultipletimesInLine() throws {
         try fileAccessor.write(toPath: "/file", contents: "$(SRCROOT) and $(SRCROOT)")
 
