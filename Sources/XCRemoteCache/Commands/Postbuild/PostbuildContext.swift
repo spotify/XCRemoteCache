@@ -86,7 +86,7 @@ public struct PostbuildContext {
     /// Regexes of files that should not be included in the dependency list
     let irrelevantDependenciesPaths: [String]
     /// Location of public headers. Not always available (e.g. static libraries)
-    var publicHeadersFolderPath: URL? = nil
+    var publicHeadersFolderPath: URL?
 }
 
 extension PostbuildContext {
