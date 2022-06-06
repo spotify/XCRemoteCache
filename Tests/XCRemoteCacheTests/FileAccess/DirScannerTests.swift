@@ -80,7 +80,7 @@ class FileManagerDirScannerTests: FileXCTestCase {
 
         let allFiles = try dirScanner.recursiveItems(at: dir)
 
-        let allFilesResolve = allFiles.map({$0.resolvingSymlinksInPath()})
+        let allFilesResolve = allFiles.map { $0.resolvingSymlinksInPath() }
         XCTAssertEqual(allFilesResolve, [nestedFile])
     }
 }

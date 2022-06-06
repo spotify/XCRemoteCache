@@ -20,12 +20,12 @@
 import Foundation
 
 
-/// Performs a pre/postprocessing on an artifact package.
+/// Performs a pre/postprocessing on an artifact package
 /// Coule be a place for file reorganization (to support legacy package formats) and/or
 /// remapp absolute paths in some package files
 protocol ArtifactProcessor {
     /// Processes a raw artifact in a directory. Raw artifact is a format of an artifact
-    /// that is stored in a remote cache server (generic).
+    /// that is stored in a remote cache server (generic)
     /// - Parameter rawArtifact: directory that contains raw artifact content
     func process(rawArtifact: URL) throws
 
@@ -73,7 +73,7 @@ class UnzippedArtifactProcessor: ArtifactProcessor {
 }
 
 fileprivate extension URL {
-    // Recognize hidden files starting with dot.
+    // Recognize hidden files starting with a dot
     var isEmpty: Bool {
         lastPathComponent.hasPrefix(".")
     }

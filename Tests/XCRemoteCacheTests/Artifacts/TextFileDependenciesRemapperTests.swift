@@ -25,12 +25,13 @@ class TextFileDependenciesRemapperTests: FileXCTestCase {
 
     let stringsRemapper = StringDependenciesRemapper(
         mappings: [
-            .init(generic: "$(SRCROOT)", local: "/example")
+            .init(generic: "$(SRCROOT)", local: "/example"),
         ])
     let fileAccessor = FileAccessorFake(mode: .strict)
     var remapper: TextFileDependenciesRemapper!
 
     override func setUp() {
+        super.setUp()
         remapper = TextFileDependenciesRemapper(
             remapper: stringsRemapper,
             fileAccessor: fileAccessor
@@ -67,12 +68,14 @@ class TextFileDependenciesRemapperTests: FileXCTestCase {
     }
 
     func testPersistsEmptyLineAtTheEnd() throws {
+        // swiftlint:disable trailing_whitespace
         let multilineData = """
         Line1
 
         Line 2
-        
+
         """.data(using: .utf8)
+        // swiftlint:enable trailing_whitespace
         try fileAccessor.write(toPath: "/file", contents: multilineData)
 
         try remapper.remap(fromGeneric: "/file")

@@ -29,6 +29,7 @@ class UnzippedArtifactProcessorTests: FileXCTestCase {
     private var processor: UnzippedArtifactProcessor!
 
     override func setUp() {
+        super.setUp()
         fileRemapper = TextFileDependenciesRemapper(remapper: remapper, fileAccessor: fileAccessor)
         processor = UnzippedArtifactProcessor(
             fileRemapper: fileRemapper,
