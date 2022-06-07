@@ -259,6 +259,10 @@ class Postbuild {
             }
         } else {
             try fingerprintSyncer.delete(sourceDir: moduleSwiftProductURL)
+            try fingerprintSyncer.delete(sourceDir: objcHeaderSwiftProductURL)
+            if let objcPublic = objcHeaderSwiftPublicPathURL {
+                try fingerprintSyncer.delete(sourceDir: objcPublic)
+            }
         }
     }
 }

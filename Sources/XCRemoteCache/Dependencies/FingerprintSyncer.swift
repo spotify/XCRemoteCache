@@ -32,6 +32,8 @@ protocol FingerprintSyncer {
     func delete(sourceDir: URL) throws
     /// Sets a fingerprint override for a singe file placed
     func decorate(file: URL, fingerprint: String) throws
+    /// Deletes fingerprint override for a file  (if already created)
+    func delete(file: URL) throws
 }
 
 class FileFingerprintSyncer: FingerprintSyncer {
@@ -87,5 +89,14 @@ class FileFingerprintSyncer: FingerprintSyncer {
         }
         let fingerprintFile = file.appendingPathExtension(fingerprintExtension)
         try dirAccessor.write(toPath: fingerprintFile.path, contents: fingerprintData)
+    }
+
+    func delete(file: URL) throws {
+        guard case .file = try dirAccessor.itemType(atPath: file.path) else {
+            // no file to decorate (no module was generated)
+            return
+        }
+        let overrideURL = file.appendingPathExtension(fingerprintExtension)
+        try dirAccessor.removeItem(atPath: overrideURL.path)
     }
 }
