@@ -181,6 +181,11 @@ module CocoapodsXCRemoteCacheModifier
           "$(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/$(XCRC_PLATFORM_PREFERRED_ARCH)-$(LLVM_TARGET_TRIPLE_VENDOR)-$(SWIFT_PLATFORM_TARGET_PREFIX)$(LLVM_TARGET_TRIPLE_SUFFIX).swiftmodule.md5"
         ]
         postbuild_script.dependency_file = "$(TARGET_TEMP_DIR)/postbuild.d"
+        # Move postbuild (last element) to the position after compile sources phase (to make it real 'postbuild')
+        if !existing_postbuild_script 
+          compile_phase_index = target.build_phases.index(target.source_build_phase)
+          target.build_phases.insert(compile_phase_index + 1, target.build_phases.delete(postbuild_script))
+        end
 
         # Mark a sha as ready for a given platform and configuration when building the final_target
         if (mode == 'producer' || mode == 'producer-fast') && target.name == final_target
