@@ -287,7 +287,7 @@ where
 
 ```shell
 ditto "${SCRIPT_INPUT_FILE_0}" "${SCRIPT_OUTPUT_FILE_0}"
-[ -f "${SCRIPT_INPUT_FILE_1}" ] && ditto "${SCRIPT_INPUT_FILE_1}" "${SCRIPT_OUTPUT_FILE_1}" || true
+[ -f "${SCRIPT_INPUT_FILE_1}" ] && ditto "${SCRIPT_INPUT_FILE_1}" "${SCRIPT_OUTPUT_FILE_1}" || rm "${SCRIPT_OUTPUT_FILE_1}"
 ```
 
 where
