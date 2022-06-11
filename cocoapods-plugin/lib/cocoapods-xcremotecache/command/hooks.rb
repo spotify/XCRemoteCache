@@ -127,6 +127,7 @@ module CocoapodsXCRemoteCacheModifier
           config.build_settings['SWIFT_EXEC'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xcswiftc"]
           config.build_settings['LIBTOOL'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xclibtool"]
           config.build_settings['LD'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xcld"]
+          config.build_settings['LDPLUSPLUS'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xcldplusplus"]
 
           config.build_settings['XCREMOTE_CACHE_FAKE_SRCROOT'] = fake_src_root
           config.build_settings['XCRC_PLATFORM_PREFERRED_ARCH'] = ["$(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)"]
@@ -213,6 +214,7 @@ module CocoapodsXCRemoteCacheModifier
           config.build_settings.delete('SWIFT_EXEC') if config.build_settings.key?('SWIFT_EXEC')
           config.build_settings.delete('LIBTOOL') if config.build_settings.key?('LIBTOOL')
           config.build_settings.delete('LD') if config.build_settings.key?('LD')
+          config.build_settings.delete('LDPLUSPLUS') if config.build_settings.key?('LDPLUSPLUS')
           # Remove Fake src root for ObjC & Swift
           config.build_settings.delete('XCREMOTE_CACHE_FAKE_SRCROOT')
           config.build_settings.delete('XCRC_PLATFORM_PREFERRED_ARCH')
@@ -236,7 +238,7 @@ module CocoapodsXCRemoteCacheModifier
       end
 
       def self.download_xcrc_if_needed(local_location)
-        required_binaries = ['xcld', 'xclibtool', 'xcpostbuild', 'xcprebuild', 'xcprepare', 'xcswiftc']
+        required_binaries = ['xcld', 'xcldplusplus', 'xclibtool', 'xcpostbuild', 'xcprebuild', 'xcprepare', 'xcswiftc']
         binaries_exist = required_binaries.reduce(true) do |exists, filename|
           file_path = File.join(local_location, filename) 
           exists = exists && File.exist?(file_path)
