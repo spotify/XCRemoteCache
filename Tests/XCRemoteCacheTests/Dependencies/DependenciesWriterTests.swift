@@ -32,7 +32,7 @@ class FileDependenciesWriterTests: XCTestCase {
         let writer = FileDependenciesWriter(url, accessor: FileManager.default)
 
         try writer.writeGeneric(dependencies: [
-            "/SomePath/Pods/Target Support Files/lottie-ios/lottie-ios-dummy.m"
+            "/SomePath/Pods/Target Support Files/lottie-ios/lottie-ios-dummy.m",
         ])
 
         let expectedContent = """
