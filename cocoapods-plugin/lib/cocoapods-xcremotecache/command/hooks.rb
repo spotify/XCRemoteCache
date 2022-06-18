@@ -127,6 +127,7 @@ module CocoapodsXCRemoteCacheModifier
           config.build_settings['SWIFT_EXEC'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xcswiftc"]
           config.build_settings['LIBTOOL'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xclibtool"]
           config.build_settings['LD'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xcld"]
+          config.build_settings['LDPLUSPLUS'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xcldplusplus"]
           config.build_settings['SWIFT_USE_INTEGRATED_DRIVER'] = ['NO']
 
           config.build_settings['XCREMOTE_CACHE_FAKE_SRCROOT'] = fake_src_root
@@ -182,6 +183,11 @@ module CocoapodsXCRemoteCacheModifier
           "$(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/$(XCRC_PLATFORM_PREFERRED_ARCH)-$(LLVM_TARGET_TRIPLE_VENDOR)-$(SWIFT_PLATFORM_TARGET_PREFIX)$(LLVM_TARGET_TRIPLE_SUFFIX).swiftmodule.md5"
         ]
         postbuild_script.dependency_file = "$(TARGET_TEMP_DIR)/postbuild.d"
+        # Move postbuild (last element) to the position after compile sources phase (to make it real 'postbuild')
+        if !existing_postbuild_script 
+          compile_phase_index = target.build_phases.index(target.source_build_phase)
+          target.build_phases.insert(compile_phase_index + 1, target.build_phases.delete(postbuild_script))
+        end
 
         # Mark a sha as ready for a given platform and configuration when building the final_target
         if (mode == 'producer' || mode == 'producer-fast') && target.name == final_target
@@ -209,6 +215,7 @@ module CocoapodsXCRemoteCacheModifier
           config.build_settings.delete('SWIFT_EXEC') if config.build_settings.key?('SWIFT_EXEC')
           config.build_settings.delete('LIBTOOL') if config.build_settings.key?('LIBTOOL')
           config.build_settings.delete('LD') if config.build_settings.key?('LD')
+          config.build_settings.delete('LDPLUSPLUS') if config.build_settings.key?('LDPLUSPLUS')
           config.build_settings.delete('SWIFT_USE_INTEGRATED_DRIVER') if config.build_settings.key?('SWIFT_USE_INTEGRATED_DRIVER')
           # Remove Fake src root for ObjC & Swift
           config.build_settings.delete('XCREMOTE_CACHE_FAKE_SRCROOT')
@@ -233,7 +240,7 @@ module CocoapodsXCRemoteCacheModifier
       end
 
       def self.download_xcrc_if_needed(local_location)
-        required_binaries = ['xcld', 'xclibtool', 'xcpostbuild', 'xcprebuild', 'xcprepare', 'xcswiftc']
+        required_binaries = ['xcld', 'xcldplusplus', 'xclibtool', 'xcpostbuild', 'xcprebuild', 'xcprepare', 'xcswiftc']
         binaries_exist = required_binaries.reduce(true) do |exists, filename|
           file_path = File.join(local_location, filename) 
           exists = exists && File.exist?(file_path)

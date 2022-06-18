@@ -39,13 +39,17 @@ class EnvironmentFingerprintGeneratorTests: XCTestCase {
     private static let currentVersion = "5"
 
     private var config: XCRemoteCacheConfig!
-    private var generator: FingerprintAccumulator!
+    private var generator: FingerprintAccumulator! {
+        return generatorFake
+    }
+
+    private var generatorFake: FingerprintAccumulatorFake!
     private var fingerprintGenerator: EnvironmentFingerprintGenerator!
 
     override func setUp() {
         super.setUp()
         config = XCRemoteCacheConfig(sourceRoot: "")
-        generator = FingerprintAccumulatorFake()
+        generatorFake = FingerprintAccumulatorFake()
         fingerprintGenerator = EnvironmentFingerprintGenerator(
             configuration: config,
             env: Self.defaultENV,
@@ -91,5 +95,12 @@ class EnvironmentFingerprintGeneratorTests: XCTestCase {
         let fingerprint = try fingerprintGenerator.generateFingerprint()
 
         XCTAssertEqual(fingerprint, "GCC,YES,TARGET,CONG,PLAT,XC,1,2,3,4,AR,CUSTOM_VALUE,\(Self.currentVersion)")
+    }
+
+    func testFingerprintIsGeneratedOnce() throws {
+        let fingerprint1 = try fingerprintGenerator.generateFingerprint()
+        let fingerprint2 = try fingerprintGenerator.generateFingerprint()
+        XCTAssertEqual(fingerprint1, fingerprint2)
+        XCTAssertEqual(generatorFake.generateCallsCount, 1)
     }
 }

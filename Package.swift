@@ -52,9 +52,13 @@ let package = Package(
             dependencies: ["XCRemoteCache"]
         ),
         .target(
+            name: "xcldplusplus",
+            dependencies: ["XCRemoteCache"]
+        ),
+        .target(
             // Wrapper target that builds all binaries but does nothing in runtime
             name: "Aggregator",
-            dependencies: ["xcprebuild", "xcswiftc", "xclibtool", "xcpostbuild", "xcprepare", "xcld"]
+            dependencies: ["xcprebuild", "xcswiftc", "xclibtool", "xcpostbuild", "xcprepare", "xcld", "xcldplusplus"]
         ),
         .testTarget(
             name: "XCRemoteCacheTests",

@@ -17,28 +17,31 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import Foundation
 @testable import XCRemoteCache
+import XCTest
 
-class FingerprintAccumulatorFake: FingerprintAccumulator {
-    private var appendedStrings: [String] = []
-    func append(_ content: String) throws {
-        appendedStrings.append(content)
+class FileDependenciesWriterTests: XCTestCase {
+
+    private func generateTempFileURL(name: String = #function) throws -> URL {
+        let directory = NSTemporaryDirectory()
+        return try NSURL.fileURL(withPathComponents: [directory, name]).unwrap()
     }
 
-    func reset() {
-        appendedStrings = []
-    }
+    func testWriteDependencyWithSpace() throws {
+        let url = try generateTempFileURL()
+        let writer = FileDependenciesWriter(url, accessor: FileManager.default)
 
-    func append(_ file: URL) throws {
-        appendedStrings.append("FILE{\(file.path)}")
-    }
+        try writer.writeGeneric(dependencies: [
+            "/SomePath/Pods/Target Support Files/lottie-ios/lottie-ios-dummy.m",
+        ])
 
-    private(set) var generateCallsCount = 0
-    func generate() throws -> RawFingerprint {
-        defer {
-            generateCallsCount += 1
-        }
-        return appendedStrings.joined(separator: ",")
+        let expectedContent = """
+        dependencies: /SomePath/Pods/Target\\ Support\\ Files/lottie-ios/lottie-ios-dummy.m
+
+        """
+
+        let content = String(data: try Data(contentsOf: url), encoding: .utf8)
+
+        XCTAssertEqual(content, expectedContent)
     }
 }

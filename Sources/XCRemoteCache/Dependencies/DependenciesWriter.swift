@@ -50,7 +50,7 @@ public class FileDependenciesWriter: DependenciesWriter {
         var content = ""
         for (file, deps) in dependencies {
             content.append(file + ": ")
-            content.append(deps.joined(separator: " "))
+            content.append(deps.map { $0.replacingOccurrences(of: " ", with: "\\ ") }.joined(separator: " "))
             content.append("\n")
         }
         try content.write(to: file, atomically: true, encoding: .utf8)

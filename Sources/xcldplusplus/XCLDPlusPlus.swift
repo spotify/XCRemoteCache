@@ -20,9 +20,9 @@
 import Foundation
 import XCRemoteCache
 
-/// Wrapper for a `LD` program that copies the dynamic executable from a cached-downloaded location
-/// Fallbacks to a standard `clang` when the Remote cache is not applicable (e.g. modified sources)
-public class XCLDMain {
+/// Wrapper for a `LDPLUSPLUS` program that copies the dynamic executable from a cached-downloaded location
+/// Fallbacks to a standard `clang++` when the Remote cache is not applicable (e.g. modified sources)
+public class XCLDPlusPlusMain {
     public func main() {
         let args = ProcessInfo().arguments
         var output: String?
@@ -48,7 +48,7 @@ public class XCLDMain {
             i += 1
         }
         guard let outputInput = output, let filelistInput = filelist, let dependencyInfoInput = dependencyInfo else {
-            let ldCommand = "clang"
+            let ldCommand = "clang++"
             print("Fallbacking to compilation using \(ldCommand).")
 
             let args = ProcessInfo().arguments
@@ -63,13 +63,13 @@ public class XCLDMain {
 
         // TODO: consider using `clang_command` from .rcinfo
         /// concrete clang path should be taken from the current toolchain
-        let fallbackCommand = "clang"
+        let fallbackCommand = "clang++"
         XCCreateBinary(
             output: outputInput,
             filelist: filelistInput,
             dependencyInfo: dependencyInfoInput,
             fallbackCommand: fallbackCommand,
-            stepDescription: "xcld"
+            stepDescription: "xcldplusplus"
         ).run()
     }
 }

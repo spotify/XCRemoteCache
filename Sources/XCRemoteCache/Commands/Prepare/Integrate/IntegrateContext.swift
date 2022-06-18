@@ -53,6 +53,7 @@ extension IntegrateContext {
             swiftc: binariesDir.appendingPathComponent("xcswiftc"),
             libtool: binariesDir.appendingPathComponent("xclibtool"),
             ld: binariesDir.appendingPathComponent("xcld"),
+            ldplusplus: binariesDir.appendingPathComponent("xcldplusplus"),
             prebuild: binariesDir.appendingPathComponent("xcprebuild"),
             postbuild: binariesDir.appendingPathComponent("xcpostbuild")
         )

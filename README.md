@@ -196,6 +196,7 @@ Configure Xcode targets that **should use** XCRemoteCache:
 * `SWIFT_EXEC` - location of `xcprepare` (e.g. `xcremotecache/xcswiftc`)
 * `LIBTOOL` - location of `xclibtool` (e.g. `xcremotecache/xclibtool`)
 * `LD` - location of `xcld` (e.g. `xcremotecache/xcld`)
+* `LDPLUSPLUS` - location of `xcldplusplus` (e.g. `xcremotecache/xcldplusplus`)
 * `XCRC_PLATFORM_PREFERRED_ARCH` - `$(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)`
 * `SWIFT_USE_INTEGRATED_DRIVER` - `NO` (required in Xcode 14.0+)
 
@@ -266,7 +267,7 @@ $ xcremotecache/xcprepare mark --configuration Debug --platform iphonesimulator
 
 That command creates an empty file on a remote server which informs that for given sha, configuration, platform, Xcode versions etc. all artifacts are available.
 
-_Note that for the `producer` mode, the prebuild build phase and `xccc`, `xcld`, `xclibtool` wrappers become no-op, so it is recommended to not add them for the `producer` mode._
+_Note that for the `producer` mode, the prebuild build phase and `xccc`, `xcld`, `xcldplusplus`, `xclibtool` wrappers become no-op, so it is recommended to not add them for the `producer` mode._
 
 ## A full list of configuration parameters:
 
