@@ -197,6 +197,7 @@ Configure Xcode targets that **should use** XCRemoteCache:
 * `LIBTOOL` - location of `xclibtool` (e.g. `xcremotecache/xclibtool`)
 * `LD` - location of `xcld` (e.g. `xcremotecache/xcld`)
 * `XCRC_PLATFORM_PREFERRED_ARCH` - `$(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)`
+* `SWIFT_USE_INTEGRATED_DRIVER` - `NO` (required in Xcode 14.0+)
 
 <details>
   <summary>Screenshot</summary>
