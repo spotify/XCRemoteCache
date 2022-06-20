@@ -128,6 +128,7 @@ module CocoapodsXCRemoteCacheModifier
           config.build_settings['LIBTOOL'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xclibtool"]
           config.build_settings['LD'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xcld"]
           config.build_settings['LDPLUSPLUS'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xcldplusplus"]
+          config.build_settings['SWIFT_USE_INTEGRATED_DRIVER'] = ['NO']
 
           config.build_settings['XCREMOTE_CACHE_FAKE_SRCROOT'] = fake_src_root
           config.build_settings['XCRC_PLATFORM_PREFERRED_ARCH'] = ["$(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)"]
@@ -215,6 +216,7 @@ module CocoapodsXCRemoteCacheModifier
           config.build_settings.delete('LIBTOOL') if config.build_settings.key?('LIBTOOL')
           config.build_settings.delete('LD') if config.build_settings.key?('LD')
           config.build_settings.delete('LDPLUSPLUS') if config.build_settings.key?('LDPLUSPLUS')
+          config.build_settings.delete('SWIFT_USE_INTEGRATED_DRIVER') if config.build_settings.key?('SWIFT_USE_INTEGRATED_DRIVER')
           # Remove Fake src root for ObjC & Swift
           config.build_settings.delete('XCREMOTE_CACHE_FAKE_SRCROOT')
           config.build_settings.delete('XCRC_PLATFORM_PREFERRED_ARCH')

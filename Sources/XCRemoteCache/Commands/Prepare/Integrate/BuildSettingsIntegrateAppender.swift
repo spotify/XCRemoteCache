@@ -44,6 +44,7 @@ class XcodeProjBuildSettingsIntegrateAppender: BuildSettingsIntegrateAppender {
     func appendToBuildSettings(buildSettings: BuildSettings, wrappers: XCRCBinariesPaths) -> BuildSettings {
         var result = buildSettings
         result["SWIFT_EXEC"] = wrappers.swiftc.path
+        result["SWIFT_USE_INTEGRATED_DRIVER"] = "NO"
         // When generating artifacts, no need to shell-out all compilation commands to our wrappers
         if case .consumer = mode {
             result["CC"] = wrappers.cc.path
