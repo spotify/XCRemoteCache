@@ -33,12 +33,12 @@ protocol DirScanner {
 
     /// Returns all items in a directory (shallow search)
     /// - Parameter at: url of an existing directory to search
-    /// - Throws: an error if dir doesn't exist or I/O error
+    /// - Throws: an error if a dir doesn't exist or on I/O error
     func items(at dir: URL) throws -> [URL]
 
     /// Returns all items in a directory (recursive search)
     /// - Parameter at: url of an existing directory to search
-    /// - Throws: an error if dir doesn't exist or I/O error
+    /// - Throws: an error if a dir doesn't exist or on I/O error
     func recursiveItems(at dir: URL) throws -> [URL]
 }
 

@@ -80,6 +80,7 @@ class FileManagerDirScannerTests: FileXCTestCase {
 
         let allFiles = try dirScanner.recursiveItems(at: dir)
 
+        // returned items may contain symbolic links in a path
         let allFilesResolve = allFiles.map { $0.resolvingSymlinksInPath() }
         XCTAssertEqual(allFilesResolve, [nestedFile])
     }

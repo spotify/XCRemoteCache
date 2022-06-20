@@ -97,6 +97,10 @@ class FileFingerprintSyncer: FingerprintSyncer {
             return
         }
         let overrideURL = file.appendingPathExtension(fingerprintExtension)
+        guard case .file = try dirAccessor.itemType(atPath: overrideURL.path) else {
+            // no override
+            return
+        }
         try dirAccessor.removeItem(atPath: overrideURL.path)
     }
 }

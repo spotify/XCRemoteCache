@@ -25,7 +25,7 @@ enum FileDependenciesRemapperError: Error {
     case invalidRemappingFile(URL)
 }
 
-/// Replaces paths in a file content between generic (placeholders-based)
+/// Replaces paths in a file content between generic (placeholder-based)
 /// and local formats
 protocol FileDependenciesRemapper {
     /// Replaces all generic paths (with placeholders) to a local, machine
@@ -39,7 +39,7 @@ protocol FileDependenciesRemapper {
 }
 
 /// Remaps absolute paths in a text files stored on a disk
-/// Note: That class should not be used in bynary files, only text-based
+/// Note: That class can be used only for text-based files, not binaries
 class TextFileDependenciesRemapper: FileDependenciesRemapper {
     private static let linesSeparator = "\n"
     private let remapper: DependenciesRemapper

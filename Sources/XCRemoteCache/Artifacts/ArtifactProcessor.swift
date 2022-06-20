@@ -49,7 +49,7 @@ class UnzippedArtifactProcessor: ArtifactProcessor {
     private func findProcessingEligableFiles(path: String) throws -> [URL] {
         let remappingURL = URL(fileURLWithPath: path)
         let allFiles = try dirScanner.recursiveItems(at: remappingURL)
-        return allFiles.filter({ !$0.isEmpty })
+        return allFiles.filter({ !$0.isHidden })
     }
 
     /// Replaces all generic paths in a raw artifact's `include` dir with
@@ -74,7 +74,7 @@ class UnzippedArtifactProcessor: ArtifactProcessor {
 
 fileprivate extension URL {
     // Recognize hidden files starting with a dot
-    var isEmpty: Bool {
+    var isHidden: Bool {
         lastPathComponent.hasPrefix(".")
     }
 }

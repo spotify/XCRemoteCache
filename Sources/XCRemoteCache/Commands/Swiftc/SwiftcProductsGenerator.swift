@@ -34,7 +34,7 @@ struct SwiftcProductsGeneratorOutput {
 /// Generates swiftc product to the expected location
 protocol SwiftcProductsGenerator {
     /// Generates products from given files
-    /// - Returns: location dir where .swiftmodule files have been placed
+    /// - Returns: location dir where .swiftmodule and ObjC header files have been placed
     func generateFrom(
         artifactSwiftModuleFiles: [SwiftmoduleFileExtension: URL],
         artifactSwiftModuleObjCFile: URL

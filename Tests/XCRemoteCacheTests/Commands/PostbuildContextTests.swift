@@ -132,7 +132,7 @@ class PostbuildContextTests: FileXCTestCase {
         XCTAssertEqual(context.compilationTempDir, "/OBJECT_FILE_DIR_custom/x86_64")
     }
 
-    func testGenericPublicHeaderIsSkipped() throws {
+    func testGenericPublicHeaderDestinationIsSkipped() throws {
         var envs = Self.SampleEnvs
         envs["PUBLIC_HEADERS_FOLDER_PATH"] = "/usr/local/include"
 
@@ -141,7 +141,7 @@ class PostbuildContextTests: FileXCTestCase {
         XCTAssertNil(context.publicHeadersFolderPath)
     }
 
-    func testRelativePublicHeader() throws {
+    func testPublicHeaderFolderIsRelativeToProductsDir() throws {
         var envs = Self.SampleEnvs
         envs["BUILT_PRODUCTS_DIR"] = "/MyBuiltProductsDir"
         envs["PUBLIC_HEADERS_FOLDER_PATH"] = "MyModule.grameworks/Headers"
