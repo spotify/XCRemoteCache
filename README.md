@@ -296,7 +296,7 @@ where
 * `SCRIPT_OUTPUT_FILE_0="$(BUILT_PRODUCTS_DIR)/include/$(PRODUCT_MODULE_NAME)/$(SWIFT_OBJC_INTERFACE_HEADER_NAME)"`
 * `SCRIPT_OUTPUT_FILE_1="$(BUILT_PRODUCTS_DIR)/include/$(PRODUCT_MODULE_NAME)/$(SWIFT_OBJC_INTERFACE_HEADER_NAME).md5"`
 
-Note: This step is at least one of these is true:
+Note: This step is not required if at least one of these is true:
 
 * you build a framework (not a static library)
 * you don't expose `NS_ENUM` type from ObjC to Swift via a bridging header
