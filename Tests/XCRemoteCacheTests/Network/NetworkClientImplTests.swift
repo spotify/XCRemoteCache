@@ -87,7 +87,7 @@ class NetworkClientImplTests: XCTestCase {
         super.tearDown()
     }
 
-    func waitForResponse<R>(_ action: (@escaping Completion<R>) -> Void) throws -> Result<R, NetworkClientError> {
+    func waitForResponse<R>(_ action: (@escaping Completion<R>) -> Void, timeout: TimeInterval = 0.1) throws -> Result<R, NetworkClientError> {
         let responseExpectation = expectation(description: "RequestResponse")
         var receivedResponse: Result<R, NetworkClientError>?
 
@@ -95,7 +95,7 @@ class NetworkClientImplTests: XCTestCase {
             receivedResponse = response
             responseExpectation.fulfill()
         }
-        waitForExpectations(timeout: 0.1)
+        waitForExpectations(timeout: timeout)
         return try receivedResponse.unwrap()
     }
 
@@ -141,9 +141,9 @@ class NetworkClientImplTests: XCTestCase {
     }
 
     func testUploadFilureWith400Retries() throws {
-        client = NetworkClientImpl(session: session, retries: 2, fileManager: fileManager, awsV4Signature: nil)
+        client = NetworkClientImpl(session: session, retries: 2, fileManager: fileManager, awsV4Signature: nil, retryDelay: 0.1)
         responses[url] = .success(failureResponse, Data())
-        _ = try waitForResponse { client.upload(fileURL, as: url, completion: $0) }
+        _ = try waitForResponse({ client.upload(fileURL, as: url, completion: $0) }, timeout: 0.5)
 
         XCTAssertEqual(
             requests.map(\.url),
