@@ -362,9 +362,70 @@ module CocoapodsXCRemoteCacheModifier
         File.write(LLDB_INIT_PATH, lldbinit_lines.join("\n"), mode: "w")
       end
 
-      Pod::HooksManager.register('cocoapods-xcremotecache', :post_install) do |installer_context|
+      Pod::HooksManager.register('cocoapods-xcremotecache', :pre_install) do |installer_context|
+        # The main responsibility of that hook is forcing Pods regeneration when XCRemoteCache is enabled for the first time
+        # In the post_install hook, this plugin adds extra build settings and steps to all Pods targets, but only when XCRemoteCache
+        # is enabled and all artifacts are available (i.e. xcprepare returns 0).
+        # If Pods projects/targets are cached from previous `pod install` action that didn't enable XCRemoteCache (e.g. artifacts
+        # are not available in the remote cache), these projects/targets should be invalidated to include XCRemoteCache-related
+        # build steps and build settings.
         if @@configuration.nil?
           Pod::UI.puts "[XCRC] Warning! XCRemoteCache not configured. Call xcremotecache({...}) in Podfile to enable XCRemoteCache"
+          next
+        end
+
+        begin
+          # `user_pod_directory`` and `user_proj_directory` in the 'postinstall' should be equal
+          user_pod_directory = File.dirname(installer_context.podfile.defined_in_file)
+          set_configuration_default_values
+
+          unless @@configuration['enabled']
+            # No need to check if enabling remote cache for the first time
+            next
+          end
+
+          validate_configuration()
+          mode = @@configuration['mode']
+          remote_commit_file = @@configuration['remote_commit_file']
+          xcrc_location = @@configuration['xcrc_location']
+          check_build_configuration = @@configuration['check_build_configuration']
+          check_platform = @@configuration['check_platform']
+
+          xcrc_location_absolute = "#{user_pod_directory}/#{xcrc_location}"
+          remote_commit_file_absolute = "#{user_pod_directory}/#{remote_commit_file}"
+
+          # Download XCRC
+          download_xcrc_if_needed(xcrc_location_absolute)
+
+          # Save .rcinfo
+          root_rcinfo = generate_rcinfo()
+          save_rcinfo(root_rcinfo, user_pod_directory)
+
+          # Create directory for xccc & arc.rc location
+          Dir.mkdir(BIN_DIR) unless File.exist?(BIN_DIR)
+
+          # Remove previous xccc & arc.rc
+          was_previously_enabled = File.exist?(remote_commit_file_absolute)
+          File.delete(remote_commit_file_absolute) if File.exist?(remote_commit_file_absolute)
+
+          prepare_result = YAML.load`#{xcrc_location_absolute}/xcprepare --configuration #{check_build_configuration} --platform #{check_platform}`
+          unless prepare_result['result'] && mode != 'consumer'
+            # Remote cache is still disabled - no need to force Pods projects/targets regeneration
+            next
+          end
+          
+          # Force rebuilding all Pods project, because XCRC build steps and settings need to be added to Pods project/targets 
+          # It is relevant only when 'incremental_installation' is enabled, otherwise installed_cache_path does not exist on a disk
+          installed_cache_path = installer_context.sandbox.project_installation_cache_path
+          if !was_previously_enabled && File.exist?(installed_cache_path)
+            Pod::UI.puts "[XCRC] Forces Pods project regenerations because XCRC is enabled for the first time."
+            File.delete(installed_cache_path)
+          end
+        end
+      end
+
+      Pod::HooksManager.register('cocoapods-xcremotecache', :post_install) do |installer_context|
+        if @@configuration.nil?
           next
         end
 
@@ -396,21 +457,9 @@ module CocoapodsXCRemoteCacheModifier
           xcrc_location_absolute = "#{user_proj_directory}/#{xcrc_location}"
           remote_commit_file_absolute = "#{user_proj_directory}/#{remote_commit_file}"
 
-          # Download XCRC
-          download_xcrc_if_needed(xcrc_location_absolute)
-
           # Save .rcinfo
           root_rcinfo = generate_rcinfo()
           save_rcinfo(root_rcinfo, user_proj_directory)
-
-          # Create directory for xccc & arc.rc location
-          Dir.mkdir(BIN_DIR) unless File.exist?(BIN_DIR)
-
-          # Remove previous xccc & arc.rc
-          File.delete(remote_commit_file_absolute) if File.exist?(remote_commit_file_absolute)
-          File.delete(xccc_location_absolute) if File.exist?(xccc_location_absolute)
-
-          # Prepare XCRC
 
           # Pods projects can be generated only once (if incremental_installation is enabled)
           # Always integrate XCRemoteCache to all Pods, in case it will be needed later
