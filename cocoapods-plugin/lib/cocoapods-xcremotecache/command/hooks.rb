@@ -409,7 +409,7 @@ module CocoapodsXCRemoteCacheModifier
           File.delete(remote_commit_file_absolute) if File.exist?(remote_commit_file_absolute)
 
           prepare_result = YAML.load`#{xcrc_location_absolute}/xcprepare --configuration #{check_build_configuration} --platform #{check_platform}`
-          unless prepare_result['result'] && mode != 'consumer'
+          if !prepare_result['result'] && mode == 'consumer'
             # Remote cache is still disabled - no need to force Pods projects/targets regeneration
             next
           end
@@ -455,11 +455,15 @@ module CocoapodsXCRemoteCacheModifier
 
           xccc_location_absolute = "#{user_proj_directory}/#{xccc_location}"
           xcrc_location_absolute = "#{user_proj_directory}/#{xcrc_location}"
-          remote_commit_file_absolute = "#{user_proj_directory}/#{remote_commit_file}"
 
           # Save .rcinfo
           root_rcinfo = generate_rcinfo()
           save_rcinfo(root_rcinfo, user_proj_directory)
+
+          # Remove previous xccc
+          File.delete(xccc_location_absolute) if File.exist?(xccc_location_absolute)
+
+          # Prepare XCRC
 
           # Pods projects can be generated only once (if incremental_installation is enabled)
           # Always integrate XCRemoteCache to all Pods, in case it will be needed later
@@ -507,6 +511,7 @@ module CocoapodsXCRemoteCacheModifier
 
           # Enabled/disable XCRemoteCache for the main (user) project
           begin
+            # TODO: Do not compile xcc again. `xcprepare` compiles it in pre-install anyway 
             prepare_result = YAML.load`#{xcrc_location_absolute}/xcprepare --configuration #{check_build_configuration} --platform #{check_platform}`
             unless prepare_result['result'] || mode != 'consumer'
               # Uninstall the XCRemoteCache for the consumer mode
