@@ -83,7 +83,7 @@ public struct XCRemoteCacheConfig: Encodable {
     var downloadRetries: Int = 0
     /// Number of retries for upload requests
     var uploadRetries: Int = 3
-    /// Delay between retries
+    /// Delay between retries in seconds
     var retryDelay: Double = 10.0
     /// Extra headers appended to all remote HTTP(S) requests
     var requestCustomHeaders: [String: String] = [:]
