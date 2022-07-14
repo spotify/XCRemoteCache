@@ -175,7 +175,13 @@ class NetworkClientImpl: NetworkClient {
             if let error = responseError {
                 if retries > 0 {
                     infoLog("Upload request failed with \(error). Left retries: \(retries).")
-                    self.retryUpload(request, input: input, retries: retries, completion: completion, after: self.retryDelay)
+                    self.retryUpload(
+                        request,
+                        input: input,
+                        retries: retries,
+                        completion: completion,
+                        after: self.retryDelay
+                    )
                     return
                 }
                 errorLog("Upload request failed: \(error)")

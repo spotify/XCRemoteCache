@@ -359,7 +359,6 @@ class XCRemoteCacheConfigReader {
                 extraConfURL = URL(fileURLWithPath: config.extraConfigurationFile, relativeTo: rootURL)
             } catch {
                 infoLog("Extra config override failed with \(error). Skipping extra configuration")
-                break
             }
         }
 
