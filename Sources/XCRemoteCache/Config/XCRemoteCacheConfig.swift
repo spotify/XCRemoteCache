@@ -177,6 +177,7 @@ extension XCRemoteCacheConfig {
         merge.statsDir = scheme.statsDir ?? statsDir
         merge.downloadRetries = scheme.downloadRetries ?? downloadRetries
         merge.uploadRetries = scheme.uploadRetries ?? uploadRetries
+        merge.retryDelay = scheme.retryDelay ?? retryDelay
         merge.requestCustomHeaders = scheme.requestCustomHeaders ?? requestCustomHeaders
         merge.thinTargetMockFilename = scheme.thinTargetMockFilename ?? thinTargetMockFilename
         merge.focusedTargets = scheme.focusedTargets ?? focusedTargets
@@ -245,6 +246,7 @@ struct ConfigFileScheme: Decodable {
     let statsDir: String?
     let downloadRetries: Int?
     let uploadRetries: Int?
+    let retryDelay: Double?
     let requestCustomHeaders: [String: String]?
     let thinTargetMockFilename: String?
     let focusedTargets: [String]?
@@ -293,6 +295,7 @@ struct ConfigFileScheme: Decodable {
         case statsDir = "stats_dir"
         case downloadRetries = "download_retries"
         case uploadRetries = "upload_retries"
+        case retryDelay = "retry_delay"
         case requestCustomHeaders = "request_custom_headers"
         case thinTargetMockFilename = "thin_target_mock_filename"
         case focusedTargets = "focused_targets"
