@@ -87,6 +87,7 @@ public class XCPrepare {
             let networkClient = NetworkClientImpl(
                 session: sessionFactory.build(),
                 retries: config.downloadRetries,
+                retryDelay: config.retryDelay,
                 fileManager: fileManager,
                 awsV4Signature: awsV4Signature
             )

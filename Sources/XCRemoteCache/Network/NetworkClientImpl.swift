@@ -29,15 +29,15 @@ class NetworkClientImpl: NetworkClient {
     private let session: URLSession
     private let fileManager: FileManager
     private let maxRetries: Int
-    private let awsV4Signature: AWSV4Signature?
     private let retryDelay: TimeInterval
+    private let awsV4Signature: AWSV4Signature?
 
-    init(session: URLSession, retries: Int, fileManager: FileManager, awsV4Signature: AWSV4Signature?, retryDelay: TimeInterval = 30.0) {
+    init(session: URLSession, retries: Int, retryDelay: TimeInterval, fileManager: FileManager, awsV4Signature: AWSV4Signature?) {
         self.session = session
         self.fileManager = fileManager
-        maxRetries = retries
-        self.awsV4Signature = awsV4Signature
+        self.maxRetries = retries
         self.retryDelay = retryDelay
+        self.awsV4Signature = awsV4Signature
     }
 
     func fileExists(_ url: URL, completion: @escaping (Result<Bool, NetworkClientError>) -> Void) {
