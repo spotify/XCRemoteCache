@@ -30,6 +30,7 @@ class UnzippedArtifactSwiftProductsOrganizerTests: XCTestCase {
 
     override func setUpWithError() throws {
         try super.setUpWithError()
+        let destination = SwiftcProductsGeneratorOutput(swiftmoduleDir: destination, objcHeaderFile: "")
         generator = SwiftcProductsGeneratorSpy(generatedDestination: destination)
         dirAccessor = DirAccessorFake()
         syncer = FileFingerprintSyncer(

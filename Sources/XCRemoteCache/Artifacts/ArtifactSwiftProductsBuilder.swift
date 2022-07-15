@@ -88,7 +88,7 @@ class ArtifactSwiftProductsBuilderImpl: ArtifactSwiftProductsBuilder {
             throw ArtifactSwiftProductsBuilderError.populatingNonExistingObjCHeader
         }
         try fileManager.createDirectory(at: moduleObjCURL, withIntermediateDirectories: true, attributes: nil)
-        try fileManager.spt_forceLinkItem(at: headerURL, to: headerArtifactURL)
+        try fileManager.spt_forceCopyItem(at: headerURL, to: headerArtifactURL)
     }
 
     func includeModuleDefinitionsToTheArtifact(arch: String, moduleURL: URL) throws {

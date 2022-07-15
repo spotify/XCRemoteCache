@@ -74,4 +74,51 @@ class FileFingerprintSyncerTests: FileXCTestCase {
 
         XCTAssertTrue(fileManager.fileExists(atPath: nonOverrideFile.path))
     }
+
+    func testDecoratesFile() throws {
+        let header = swiftmoduleDir.appendingPathComponent("Module-Swift.h")
+        let headerOverride = swiftmoduleDir.appendingPathComponent("Module-Swift.h.md5")
+        try fileManager.spt_createEmptyFile(header)
+
+
+        try syncer.decorate(file: header, fingerprint: "1")
+
+        XCTAssertEqual(try String(contentsOf: headerOverride), "1")
+    }
+
+    func testFileDecorateOverridesPreviousOverlay() throws {
+        let header = swiftmoduleDir.appendingPathComponent("Module-Swift.h")
+        let headerOverride = swiftmoduleDir.appendingPathComponent("Module-Swift.h.md5")
+        try fileManager.spt_createEmptyFile(header)
+        try "1".write(to: headerOverride, atomically: true, encoding: .utf8)
+
+        try syncer.decorate(file: header, fingerprint: "2")
+
+        XCTAssertEqual(try String(contentsOf: headerOverride), "2")
+    }
+
+    func testDeletesFileOverride() throws {
+        let header = swiftmoduleDir.appendingPathComponent("Module-Swift.h")
+        let headerOverride = swiftmoduleDir.appendingPathComponent("Module-Swift.h.md5")
+        try fileManager.spt_createEmptyFile(header)
+        try fileManager.spt_createEmptyFile(headerOverride)
+
+
+        try syncer.delete(file: header)
+
+        XCTAssertFalse(fileManager.fileExists(atPath: headerOverride.path))
+    }
+
+    func testDeletesDoesntDeleteWhenFileIsMissing() throws {
+        let nonExistingFile = swiftmoduleDir.appendingPathComponent("Module-Swift.h")
+
+        XCTAssertNoThrow(try syncer.delete(file: nonExistingFile))
+    }
+
+    func testDeletesDoesntDeleteWhenOverrideIsMissing() throws {
+        let header = swiftmoduleDir.appendingPathComponent("Module-Swift.h")
+        try fileManager.spt_createEmptyFile(header)
+
+        XCTAssertNoThrow(try syncer.delete(file: header))
+    }
 }

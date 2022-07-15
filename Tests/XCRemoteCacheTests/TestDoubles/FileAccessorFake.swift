@@ -60,3 +60,28 @@ class FileAccessorFake: FileAccessor {
         return storage[path]?.mdate
     }
 }
+
+extension FileAccessorFake: DirScanner {
+    func itemType(atPath path: String) throws -> ItemType {
+        if storage[path] != nil {
+            return .file
+        }
+        if try !recursiveItems(at: URL(fileURLWithPath: path)).isEmpty {
+            return .dir
+        }
+        return .nonExisting
+    }
+
+    func items(at dir: URL) throws -> [URL] {
+        storage.keys.map(URL.init(fileURLWithPath:)).filter {
+            $0.deletingLastPathComponent() == dir
+        }
+    }
+
+    func recursiveItems(at dir: URL) throws -> [URL] {
+        let paths = storage.keys.filter {
+            $0.hasPrefix(dir.path)
+        }
+        return paths.map(URL.init(fileURLWithPath:))
+    }
+}

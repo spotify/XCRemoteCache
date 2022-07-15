@@ -70,7 +70,9 @@ class SwiftcTests: FileXCTestCase {
         )
         context = try SwiftcContext(config: config, input: input)
         markerWriter = MarkerWriterSpy()
-        productsGenerator = SwiftcProductsGeneratorSpy()
+        productsGenerator = SwiftcProductsGeneratorSpy(
+            generatedDestination: SwiftcProductsGeneratorOutput(swiftmoduleDir: "", objcHeaderFile: "")
+        )
         let dependenciesWriterSpy = DependenciesWriterSpy()
         self.dependenciesWriterSpy = dependenciesWriterSpy
         dependenciesWriterFactory = { [dependenciesWriterSpy] _, _ in dependenciesWriterSpy }

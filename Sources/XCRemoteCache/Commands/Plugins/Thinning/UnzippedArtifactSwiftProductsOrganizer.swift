@@ -73,11 +73,12 @@ class UnzippedArtifactSwiftProductsOrganizer: SwiftProductsOrganizer {
             .appendingPathComponent(moduleName)
             .appendingPathComponent("\(moduleName)-Swift.h")
 
-        let generatedModuleDir = try productsGenerator.generateFrom(
+        let generatedModule = try productsGenerator.generateFrom(
             artifactSwiftModuleFiles: artifactSwiftmoduleFiles,
             artifactSwiftModuleObjCFile: artifactSwiftModuleObjCFile
         )
 
-        try fingerprintSyncer.decorate(sourceDir: generatedModuleDir, fingerprint: fingerprint)
+        try fingerprintSyncer.decorate(sourceDir: generatedModule.swiftmoduleDir, fingerprint: fingerprint)
+        try fingerprintSyncer.decorate(file: generatedModule.objcHeaderFile, fingerprint: fingerprint)
     }
 }

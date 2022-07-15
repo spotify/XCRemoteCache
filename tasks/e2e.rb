@@ -26,8 +26,7 @@ namespace :e2e do
     Stats = Struct.new(:hits, :misses, :hit_rate)
 
     # run E2E tests
-    # TODO: add :run_standalone when support for bridging headers support is ready
-    task :run => [:run_cocoapods]
+    task :run => [:run_cocoapods, :run_standalone]
 
     # run E2E tests for CocoaPods-powered projects
     task :run_cocoapods do
@@ -56,7 +55,6 @@ namespace :e2e do
         Dir.chdir(E2E_STANDALONE_SAMPLE_DIR) do
             clean_git
             # Run integrate the project
-            p "#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode producer --final-producer-target StandaloneApp"
             system("pwd")
             system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode producer --final-producer-target StandaloneApp")
             # Build the project to fill in the cache
