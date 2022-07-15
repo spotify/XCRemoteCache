@@ -21,7 +21,7 @@ import Foundation
 
 
 /// Performs a pre/postprocessing on an artifact package
-/// Coule be a place for file reorganization (to support legacy package formats) and/or
+/// Could be a place for file reorganization (to support legacy package formats) and/or
 /// remapp absolute paths in some package files
 protocol ArtifactProcessor {
     /// Processes a raw artifact in a directory. Raw artifact is a format of an artifact
