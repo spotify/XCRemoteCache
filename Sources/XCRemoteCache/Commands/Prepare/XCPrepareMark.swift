@@ -69,6 +69,7 @@ public class XCPrepareMark {
             let networkClient = NetworkClientImpl(
                 session: sessionFactory.build(),
                 retries: config.uploadRetries,
+                retryDelay: config.retryDelay,
                 fileManager: fileManager,
                 awsV4Signature: awsV4Signature
             )

@@ -72,7 +72,13 @@ class NetworkClientImplTests: XCTestCase {
         configuration.protocolClasses = [URLProtocolStub.self]
         session = URLSession(configuration: configuration)
         fileManager = FileManager.default
-        client = NetworkClientImpl(session: session, retries: 0, fileManager: fileManager, awsV4Signature: nil)
+        client = NetworkClientImpl(
+            session: session,
+            retries: 0,
+            retryDelay: 0,
+            fileManager: fileManager,
+            awsV4Signature: nil
+        )
     }
 
     override func tearDown() {
@@ -87,7 +93,7 @@ class NetworkClientImplTests: XCTestCase {
         super.tearDown()
     }
 
-    func waitForResponse<R>(_ action: (@escaping Completion<R>) -> Void) throws -> Result<R, NetworkClientError> {
+    func waitForResponse<R>(_ action: (@escaping Completion<R>) -> Void, timeout: TimeInterval = 0.1) throws -> Result<R, NetworkClientError> {
         let responseExpectation = expectation(description: "RequestResponse")
         var receivedResponse: Result<R, NetworkClientError>?
 
@@ -95,7 +101,7 @@ class NetworkClientImplTests: XCTestCase {
             receivedResponse = response
             responseExpectation.fulfill()
         }
-        waitForExpectations(timeout: 0.1)
+        waitForExpectations(timeout: timeout)
         return try receivedResponse.unwrap()
     }
 
@@ -141,9 +147,15 @@ class NetworkClientImplTests: XCTestCase {
     }
 
     func testUploadFilureWith400Retries() throws {
-        client = NetworkClientImpl(session: session, retries: 2, fileManager: fileManager, awsV4Signature: nil)
+        client = NetworkClientImpl(
+            session: session,
+            retries: 2,
+            retryDelay: 0,
+            fileManager: fileManager,
+            awsV4Signature: nil
+        )
         responses[url] = .success(failureResponse, Data())
-        _ = try waitForResponse { client.upload(fileURL, as: url, completion: $0) }
+        _ = try waitForResponse({ client.upload(fileURL, as: url, completion: $0) }, timeout: 0.5)
 
         XCTAssertEqual(
             requests.map(\.url),
@@ -153,7 +165,13 @@ class NetworkClientImplTests: XCTestCase {
     }
 
     func testUploadSuccessDoesntRetry() throws {
-        client = NetworkClientImpl(session: session, retries: 0, fileManager: fileManager, awsV4Signature: nil)
+        client = NetworkClientImpl(
+            session: session,
+            retries: 0,
+            retryDelay: 0,
+            fileManager: fileManager,
+            awsV4Signature: nil
+        )
         responses[url] = .success(successResponse, Data())
         _ = try waitForResponse { client.upload(fileURL, as: url, completion: $0) }
 
@@ -208,7 +226,13 @@ class NetworkClientImplTests: XCTestCase {
             service: "iam",
             date: Date(timeIntervalSince1970: 1_440_938_160)
         )
-        client = NetworkClientImpl(session: session, retries: 0, fileManager: fileManager, awsV4Signature: signature)
+        client = NetworkClientImpl(
+            session: session,
+            retries: 0,
+            retryDelay: 0,
+            fileManager: fileManager,
+            awsV4Signature: signature
+        )
         responses[url] = .success(successResponse, Data())
         _ = try waitForResponse { client.fetch(url, completion: $0) }
 

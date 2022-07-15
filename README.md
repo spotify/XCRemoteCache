@@ -298,6 +298,7 @@ _Note that for the `producer` mode, the prebuild build phase and `xccc`, `xcld`,
 | `stats_dir` | Directory where all XCRemoteCache statistics (e.g. counters) are stored | `~/.xccache` | ⬜️ |
 | `download_retries` | Number of retries for download requests | `0` | ⬜️ |
 | `upload_retries` | Number of retries for upload requests | `3` | ⬜️ |
+| `retry_delay` | Delay between retries in seconds | `10` | ⬜️ |
 | `request_custom_headers` | Dictionary of extra HTTP headers for all remote server requests | `[]` | ⬜️ |
 | `thin_target_mock_filename` | Filename (without an extension) of the compilation input file that is used as a fake compilation for the forced-cached target (aka thin target) | `standin` | ⬜️ |
 | `focused_targets` | A list of all targets that are not thinned. If empty, all targets are meant to be non-thin | `[]` | ⬜️ |
