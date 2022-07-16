@@ -28,7 +28,7 @@ class TemplateBasedCCWrapperBuilderTests: FileXCTestCase {
     private static let history = "history.compile"
     private static let prebuild = "prebuild.d"
     private static let commitSha = "321"
-    private static let timeout = 10.0
+    private static let timeout = 5.0
 
     static let xccc: URL = {
         let fileManager = FileManager.default
@@ -60,6 +60,13 @@ class TemplateBasedCCWrapperBuilderTests: FileXCTestCase {
     private var historyFile: URL!
     private var prebuildFile: URL!
     private var arguments: [String]!
+
+    override class func setUp() {
+        // Prepare(compile) xccc and invoke it to get rid of a constant delay that happens if the xccc is invoked
+        // for a first time. For some (unknown) reasons, `shellCall` hangs for ~5s (only once).
+        _ = xccc
+        try? shellCall(xccc.path)
+    }
 
     override func setUpWithError() throws {
         try super.setUpWithError()
