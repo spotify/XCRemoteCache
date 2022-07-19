@@ -131,6 +131,7 @@ public class XCPostbuild {
                 mode: context.mode,
                 downloadStreamURL: context.recommendedCacheAddress,
                 upstreamStreamURL: context.cacheAddresses,
+                maxConcurrentRequests: config.maxConcurrentRequests,
                 networkClient: networkClient,
                 urlBuilderFactory: {
                     try URLBuilderImpl(

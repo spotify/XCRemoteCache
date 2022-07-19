@@ -39,7 +39,12 @@ class ReplicatedRemotesNetworkClientTests: XCTestCase {
         uploadURLs = try [URL(string: "http://upload1.com").unwrap(), URL(string: "http://upload2.com").unwrap()]
         download = URLBuilderFake(downloadURL)
         uploads = uploadURLs.map(URLBuilderFake.init)
-        client = ReplicatedRemotesNetworkClient(networkClient, download: download, uploads: uploads)
+        client = ReplicatedRemotesNetworkClient(
+            networkClient,
+            download: download,
+            uploads: uploads,
+            maxConcurrentRequests: 1
+        )
     }
 
     private func prepareLocalEmptyFile() throws -> URL {
@@ -62,6 +67,30 @@ class ReplicatedRemotesNetworkClientTests: XCTestCase {
         XCTAssertTrue(try networkClient.fileExistsSynchronously(expectedArtifact2))
     }
 
+    func testUploadsWithLimit() throws {
+        var expectedArtifacts = [URL]()
+        var uploadURLs = [URL]()
+        for index in 0...99 {
+            let expectedArtifact = try URL(string: "http://upload\(index).com/file/id1").unwrap()
+            expectedArtifacts.append(expectedArtifact)
+            let uploadURL = try URL(string: "http://upload\(index).com").unwrap()
+            uploadURLs.append(uploadURL)
+        }
+        uploads = uploadURLs.map(URLBuilderFake.init)
+        client = ReplicatedRemotesNetworkClient(
+            networkClient,
+            download: download,
+            uploads: uploads,
+            maxConcurrentRequests: 10
+        )
+
+        try client.uploadSynchronously(localSampleFile, as: .artifact(id: "id1"))
+
+        for expectedArtifact in expectedArtifacts {
+            XCTAssertTrue(try networkClient.fileExistsSynchronously(expectedArtifact))
+        }
+    }
+
     func testCreatesInAllStreams() throws {
         let expectedMeta1 = try URL(string: "http://upload1.com/meta/commit_id").unwrap()
         let expectedMeta2 = try URL(string: "http://upload2.com/meta/commit_id").unwrap()
@@ -71,4 +100,5 @@ class ReplicatedRemotesNetworkClientTests: XCTestCase {
         XCTAssertTrue(try networkClient.fileExistsSynchronously(expectedMeta1))
         XCTAssertTrue(try networkClient.fileExistsSynchronously(expectedMeta2))
     }
+
 }

@@ -72,6 +72,22 @@ task :build, [:configuration, :arch, :sdks, :is_archive] do |task, args|
   end
 end
 
+desc 'Build release artifacts'
+task :prepare_release do
+  system("rm -rf releases && rm -rf tmp")
+  Rake::Task['build'].invoke("release", "x86_64-apple-macosx")
+  system("mkdir -p tmp && unzip releases/XCRemoteCache.zip -d tmp/xcremotecache-x86_64")
+  system("rm -rf releases")
+  Rake::Task['build'].invoke("release", "arm64-apple-macosx")
+  system("rake 'build[release, arm64-apple-macosx]'")
+  system("mkdir -p tmp && unzip releases/XCRemoteCache.zip -d tmp/xcremotecache-arm64")
+  system("rm -rf releases")
+  system("mkdir -p releases && zip -jr releases/XCRemoteCache-macOS-x86_64.zip LICENSE README.md tmp/xcremotecache-x86_64")
+  system("zip -jr releases/XCRemoteCache-macOS-arm64.zip LICENSE README.md tmp/xcremotecache-arm64")
+  system("mkdir -p tmp/xcremotecache && ls tmp/xcremotecache-x86_64 | xargs -I {} lipo -create -output tmp/xcremotecache/{} tmp/xcremotecache-x86_64/{} tmp/xcremotecache-arm64/{}")
+  system("zip -jr releases/XCRemoteCache-macOS-arm64-x86_64.zip LICENSE README.md tmp/xcremotecache")
+end
+
 desc 'run tests with SPM'
 task :test do
   # Running tests

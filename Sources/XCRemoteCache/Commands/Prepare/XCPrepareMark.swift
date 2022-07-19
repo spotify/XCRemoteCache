@@ -77,6 +77,7 @@ public class XCPrepareMark {
                 mode: .producer,
                 downloadStreamURL: context.recommendedCacheAddress,
                 upstreamStreamURL: context.cacheAddresses,
+                maxConcurrentRequests: config.maxConcurrentRequests,
                 networkClient: networkClient
             ) { [configuration, platform] cacheAddress in
                 // Prepare URLs don't include target name or envFingperint, which are valid only for a target level

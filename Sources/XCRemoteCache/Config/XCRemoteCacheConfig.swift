@@ -85,6 +85,8 @@ public struct XCRemoteCacheConfig: Encodable {
     var uploadRetries: Int = 3
     /// Delay between retries in seconds
     var retryDelay: Double = 10.0
+    /// Maximum number of simultaneous requests. 0 means no limits
+    var maxConcurrentRequests: Int = 0
     /// Extra headers appended to all remote HTTP(S) requests
     var requestCustomHeaders: [String: String] = [:]
     /// Filename (without an extension) of the compilation input file that is used
@@ -178,6 +180,7 @@ extension XCRemoteCacheConfig {
         merge.downloadRetries = scheme.downloadRetries ?? downloadRetries
         merge.uploadRetries = scheme.uploadRetries ?? uploadRetries
         merge.retryDelay = scheme.retryDelay ?? retryDelay
+        merge.maxConcurrentRequests = scheme.maxConcurrentRequests ?? maxConcurrentRequests
         merge.requestCustomHeaders = scheme.requestCustomHeaders ?? requestCustomHeaders
         merge.thinTargetMockFilename = scheme.thinTargetMockFilename ?? thinTargetMockFilename
         merge.focusedTargets = scheme.focusedTargets ?? focusedTargets
@@ -247,6 +250,7 @@ struct ConfigFileScheme: Decodable {
     let downloadRetries: Int?
     let uploadRetries: Int?
     let retryDelay: Double?
+    let maxConcurrentRequests: Int?
     let requestCustomHeaders: [String: String]?
     let thinTargetMockFilename: String?
     let focusedTargets: [String]?
@@ -296,6 +300,7 @@ struct ConfigFileScheme: Decodable {
         case downloadRetries = "download_retries"
         case uploadRetries = "upload_retries"
         case retryDelay = "retry_delay"
+        case maxConcurrentRequests = "max_concurrent_requests"
         case requestCustomHeaders = "request_custom_headers"
         case thinTargetMockFilename = "thin_target_mock_filename"
         case focusedTargets = "focused_targets"
