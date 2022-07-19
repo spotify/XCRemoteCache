@@ -43,7 +43,7 @@ class ReplicatedRemotesNetworkClientTests: XCTestCase {
             networkClient,
             download: download,
             uploads: uploads,
-            maxConcurrentRequests: 1
+            uploadBatchSize: 1
         )
     }
 
@@ -81,7 +81,7 @@ class ReplicatedRemotesNetworkClientTests: XCTestCase {
             networkClient,
             download: download,
             uploads: uploads,
-            maxConcurrentRequests: 10
+            uploadBatchSize: 10
         )
 
         try client.uploadSynchronously(localSampleFile, as: .artifact(id: "id1"))

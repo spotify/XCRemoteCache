@@ -27,20 +27,20 @@ class RemoteNetworkClientAbstractFactory {
     private let upstreamStreamURL: [URL]
     private let networkClient: NetworkClient
     private let urlBuilderFactory: (URL) throws -> URLBuilder
-    private let maxConcurrentRequests: Int
+    private let uploadBatchSize: Int
 
     init(
         mode: Mode,
         downloadStreamURL: URL,
         upstreamStreamURL: [URL],
-        maxConcurrentRequests: Int,
+        uploadBatchSize: Int,
         networkClient: NetworkClient,
         urlBuilderFactory: @escaping (URL) throws -> URLBuilder
     ) {
         self.mode = mode
         self.downloadStreamURL = downloadStreamURL
         self.upstreamStreamURL = upstreamStreamURL
-        self.maxConcurrentRequests = maxConcurrentRequests
+        self.uploadBatchSize = uploadBatchSize
         self.networkClient = networkClient
         self.urlBuilderFactory = urlBuilderFactory
     }
@@ -59,7 +59,7 @@ class RemoteNetworkClientAbstractFactory {
                 networkClient,
                 download: downloadURLBuilder,
                 uploads: upstreamBuilders,
-                maxConcurrentRequests: maxConcurrentRequests
+                uploadBatchSize: uploadBatchSize
             )
         case .consumer:
             return RemoteNetworkClientImpl(networkClient, downloadURLBuilder)

@@ -23,12 +23,12 @@ import Foundation
 class ReplicatedRemotesNetworkClient: RemoteNetworkClientImpl {
     private let networkClient: NetworkClient
     private let uploadURLBuilders: [URLBuilder]
-    private let maxConcurrentRequests: Int
+    private let uploadBatchSize: Int
 
-    init(_ networkClient: NetworkClient, download: URLBuilder, uploads uploadURLBuilders: [URLBuilder], maxConcurrentRequests: Int) {
+    init(_ networkClient: NetworkClient, download: URLBuilder, uploads uploadURLBuilders: [URLBuilder], uploadBatchSize: Int) {
         self.networkClient = networkClient
         self.uploadURLBuilders = uploadURLBuilders
-        self.maxConcurrentRequests = maxConcurrentRequests
+        self.uploadBatchSize = uploadBatchSize
         super.init(networkClient, download)
     }
 
@@ -41,7 +41,7 @@ class ReplicatedRemotesNetworkClient: RemoteNetworkClientImpl {
         let group = DispatchGroup()
         var results: [Result<Void, NetworkClientError>] = Array(repeating: .failure(.noResponse), count: urls.count)
         urls.enumerated().forEach { index, url in
-            if maxConcurrentRequests > 0 && index > 0 && index % maxConcurrentRequests == 0 {
+            if uploadBatchSize > 0 && index > 0 && index % uploadBatchSize == 0 {
                 group.wait()
             }
             group.enter()
@@ -63,7 +63,7 @@ class ReplicatedRemotesNetworkClient: RemoteNetworkClientImpl {
         let group = DispatchGroup()
         var results: [Result<Void, NetworkClientError>] = Array(repeating: .failure(.noResponse), count: urls.count)
         urls.enumerated().forEach { index, url in
-            if maxConcurrentRequests > 0 && index > 0 && index % maxConcurrentRequests == 0 {
+            if uploadBatchSize > 0 && index > 0 && index % uploadBatchSize == 0 {
                 group.wait()
             }
             group.enter()
