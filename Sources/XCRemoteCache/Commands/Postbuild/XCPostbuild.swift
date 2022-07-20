@@ -131,6 +131,7 @@ public class XCPostbuild {
                 mode: context.mode,
                 downloadStreamURL: context.recommendedCacheAddress,
                 upstreamStreamURL: context.cacheAddresses,
+                uploadBatchSize: config.uploadBatchSize,
                 networkClient: networkClient,
                 urlBuilderFactory: {
                     try URLBuilderImpl(

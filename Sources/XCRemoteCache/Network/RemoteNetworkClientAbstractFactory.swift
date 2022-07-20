@@ -27,11 +27,20 @@ class RemoteNetworkClientAbstractFactory {
     private let upstreamStreamURL: [URL]
     private let networkClient: NetworkClient
     private let urlBuilderFactory: (URL) throws -> URLBuilder
+    private let uploadBatchSize: Int
 
-    init(mode: Mode, downloadStreamURL: URL, upstreamStreamURL: [URL], networkClient: NetworkClient, urlBuilderFactory: @escaping (URL) throws -> URLBuilder) {
+    init(
+        mode: Mode,
+        downloadStreamURL: URL,
+        upstreamStreamURL: [URL],
+        uploadBatchSize: Int,
+        networkClient: NetworkClient,
+        urlBuilderFactory: @escaping (URL) throws -> URLBuilder
+    ) {
         self.mode = mode
         self.downloadStreamURL = downloadStreamURL
         self.upstreamStreamURL = upstreamStreamURL
+        self.uploadBatchSize = uploadBatchSize
         self.networkClient = networkClient
         self.urlBuilderFactory = urlBuilderFactory
     }
@@ -49,7 +58,8 @@ class RemoteNetworkClientAbstractFactory {
             return ReplicatedRemotesNetworkClient(
                 networkClient,
                 download: downloadURLBuilder,
-                uploads: upstreamBuilders
+                uploads: upstreamBuilders,
+                uploadBatchSize: uploadBatchSize
             )
         case .consumer:
             return RemoteNetworkClientImpl(networkClient, downloadURLBuilder)
