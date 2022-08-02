@@ -32,11 +32,18 @@ class XCRemoteCacheConfigReaderTests: XCTestCase {
     }
 
     func testReadsFromExtraConfig() throws {
-        try fileReader.write(toPath: "/.rcinfo", contents: "cache_addresses: [test]")
+        let contents = [
+            "cache_addresses: [test]",
+            "retry_delay: 30",
+            "upload_batch_size: 5",
+        ].joined(separator: "\n").data(using: .utf8)
+        try fileReader.write(toPath: "/.rcinfo", contents: contents)
 
         let config = try reader.readConfiguration()
 
         XCTAssertEqual(config.cacheAddresses, ["test"])
+        XCTAssertEqual(config.retryDelay, 30)
+        XCTAssertEqual(config.uploadBatchSize, 5)
     }
 
     func testOverridesExtraConfigFromExtraFile() throws {
