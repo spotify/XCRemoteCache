@@ -167,13 +167,45 @@ class NetworkClientImplTests: XCTestCase {
     func testUploadSuccessDoesntRetry() throws {
         client = NetworkClientImpl(
             session: session,
-            retries: 0,
+            retries: 2,
             retryDelay: 0,
             fileManager: fileManager,
             awsV4Signature: nil
         )
         responses[url] = .success(successResponse, Data())
         _ = try waitForResponse { client.upload(fileURL, as: url, completion: $0) }
+
+        XCTAssertEqual(requests.map(\.url), [url], "Expected 1 request - original only")
+    }
+
+    func testDownloadFilureWith400Retries() throws {
+        client = NetworkClientImpl(
+            session: session,
+            retries: 2,
+            retryDelay: 0,
+            fileManager: fileManager,
+            awsV4Signature: nil
+        )
+        responses[url] = nil
+        _ = try waitForResponse({ client.download(url, to: fileURL, completion: $0) }, timeout: 0.5)
+
+        XCTAssertEqual(
+            requests.map(\.url),
+            Array(repeating: url, count: 3),
+            "Expected 3 requests (original + 2 retries)"
+        )
+    }
+
+    func testDownloadSuccessDoesntRetry() throws {
+        client = NetworkClientImpl(
+            session: session,
+            retries: 2,
+            retryDelay: 0,
+            fileManager: fileManager,
+            awsV4Signature: nil
+        )
+        responses[url] = .success(successResponse, Data())
+        _ = try waitForResponse { client.download(url, to: fileURL, completion: $0) }
 
         XCTAssertEqual(requests.map(\.url), [url], "Expected 1 request - original only")
     }
