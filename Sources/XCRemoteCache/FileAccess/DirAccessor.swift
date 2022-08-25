@@ -33,8 +33,13 @@ protocol DirScanner {
 
     /// Returns all items in a directory (shallow search)
     /// - Parameter at: url of an existing directory to search
-    /// - Throws: an error if dir doesn't exist or I/O error
+    /// - Throws: an error if a dir doesn't exist or on I/O error
     func items(at dir: URL) throws -> [URL]
+
+    /// Returns all items in a directory (recursive search)
+    /// - Parameter at: url of an existing directory to search
+    /// - Throws: an error if a dir doesn't exist or on I/O error
+    func recursiveItems(at dir: URL) throws -> [URL]
 }
 
 typealias DirAccessor = FileAccessor & DirScanner
@@ -53,5 +58,19 @@ extension FileManager: DirScanner {
         // FileManager is not capable of listing files if the URL includes symlinks
         let resolvedDir = dir.resolvingSymlinksInPath()
         return try contentsOfDirectory(at: resolvedDir, includingPropertiesForKeys: nil, options: [])
+    }
+
+    func recursiveItems(at dir: URL) throws -> [URL] {
+        // Iterating DFS
+        var queue: [URL] = [dir]
+        var results: [URL] = []
+        while let item = queue.popLast() {
+            if try itemType(atPath: item.path) == .dir {
+                try queue.append(contentsOf: items(at: item))
+            } else {
+                results.append(item)
+            }
+        }
+        return results
     }
 }

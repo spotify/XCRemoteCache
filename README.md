@@ -269,6 +269,41 @@ That command creates an empty file on a remote server which informs that for giv
 
 _Note that for the `producer` mode, the prebuild build phase and `xccc`, `xcld`, `xcldplusplus`, `xclibtool` wrappers become no-op, so it is recommended to not add them for the `producer` mode._
 
+##### 7. Generalize `-Swift.h` (Optional only if using static library with a bridging header with public `NS_ENUM` exposed from ObjC)
+
+If a static library target contains a mixed target with a bridging header exposing an enum from ObjC in a public Swift API, your custom script that moves `*-Swift.h` to the shared location, it should also move `*-Swift.h.md5` next to it.
+
+Example:
+
+##### Existing script (Before):
+
+```shell
+ditto "${SCRIPT_INPUT_FILE_0}" "${SCRIPT_OUTPUT_FILE_0}"
+```
+
+where
+* `SCRIPT_INPUT_FILE_0="$(DERIVED_SOURCES_DIR)/$(SWIFT_OBJC_INTERFACE_HEADER_NAME)"`
+* `SCRIPT_OUTPUT_FILE_0="$(BUILT_PRODUCTS_DIR)/include/$(PRODUCT_MODULE_NAME)/$(SWIFT_OBJC_INTERFACE_HEADER_NAME)"`
+
+##### Correct script (After):
+
+```shell
+ditto "${SCRIPT_INPUT_FILE_0}" "${SCRIPT_OUTPUT_FILE_0}"
+[ -f "${SCRIPT_INPUT_FILE_1}" ] && ditto "${SCRIPT_INPUT_FILE_1}" "${SCRIPT_OUTPUT_FILE_1}" || rm "${SCRIPT_OUTPUT_FILE_1}"
+```
+
+where
+* `SCRIPT_INPUT_FILE_0="$(DERIVED_SOURCES_DIR)/$(SWIFT_OBJC_INTERFACE_HEADER_NAME)"`
+* `SCRIPT_INPUT_FILE_1="$(DERIVED_SOURCES_DIR)/$(SWIFT_OBJC_INTERFACE_HEADER_NAME).md5"`
+* `SCRIPT_OUTPUT_FILE_0="$(BUILT_PRODUCTS_DIR)/include/$(PRODUCT_MODULE_NAME)/$(SWIFT_OBJC_INTERFACE_HEADER_NAME)"`
+* `SCRIPT_OUTPUT_FILE_1="$(BUILT_PRODUCTS_DIR)/include/$(PRODUCT_MODULE_NAME)/$(SWIFT_OBJC_INTERFACE_HEADER_NAME).md5"`
+
+Note: This step is not required if at least one of these is true:
+
+* you build a framework (not a static library)
+* you don't expose `NS_ENUM` type from ObjC to Swift via a bridging header
+
+
 ## A full list of configuration parameters:
 
 | Property | Description | Default | Required |

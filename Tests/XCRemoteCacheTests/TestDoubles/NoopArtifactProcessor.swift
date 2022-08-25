@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Spotify AB.
+// Copyright (c) 2022 Spotify AB.
 //
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
@@ -17,25 +17,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+
 import Foundation
 @testable import XCRemoteCache
 
-class SwiftcProductsGeneratorSpy: SwiftcProductsGenerator {
-    private(set) var generated: [([SwiftmoduleFileExtension: URL], URL)] = []
-    private let generationDestination: SwiftcProductsGeneratorOutput
-
-    init(generatedDestination: SwiftcProductsGeneratorOutput) {
-        generationDestination = generatedDestination
-    }
-
-    func generateFrom(
-        artifactSwiftModuleFiles: [SwiftmoduleFileExtension: URL],
-        artifactSwiftModuleObjCFile: URL
-    ) throws -> SwiftcProductsGeneratorOutput {
-        generated.append((
-            artifactSwiftModuleFiles,
-            artifactSwiftModuleObjCFile
-        ))
-        return generationDestination
-    }
+/// No-operation processor
+class NoopArtifactProcessor: ArtifactProcessor {
+    func process(rawArtifact url: URL) throws {}
+    func process(localArtifact url: URL) throws {}
 }

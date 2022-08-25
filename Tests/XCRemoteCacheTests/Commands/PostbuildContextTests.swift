@@ -44,6 +44,7 @@ class PostbuildContextTests: FileXCTestCase {
         "BUILT_PRODUCTS_DIR": "BUILT_PRODUCTS_DIR",
         "DERIVED_SOURCES_DIR": "DERIVED_SOURCES_DIR",
         "CURRENT_VARIANT": "normal",
+        "PUBLIC_HEADERS_FOLDER_PATH": "/usr/local/include",
     ]
 
     override func setUpWithError() throws {
@@ -129,5 +130,24 @@ class PostbuildContextTests: FileXCTestCase {
         let context = try PostbuildContext(config, env: envs)
 
         XCTAssertEqual(context.compilationTempDir, "/OBJECT_FILE_DIR_custom/x86_64")
+    }
+
+    func testGenericPublicHeaderDestinationIsSkipped() throws {
+        var envs = Self.SampleEnvs
+        envs["PUBLIC_HEADERS_FOLDER_PATH"] = "/usr/local/include"
+
+        let context = try PostbuildContext(config, env: envs)
+
+        XCTAssertNil(context.publicHeadersFolderPath)
+    }
+
+    func testPublicHeaderFolderIsRelativeToProductsDir() throws {
+        var envs = Self.SampleEnvs
+        envs["BUILT_PRODUCTS_DIR"] = "/MyBuiltProductsDir"
+        envs["PUBLIC_HEADERS_FOLDER_PATH"] = "MyModule.grameworks/Headers"
+
+        let context = try PostbuildContext(config, env: envs)
+
+        XCTAssertEqual(context.publicHeadersFolderPath, "/MyBuiltProductsDir/MyModule.grameworks/Headers")
     }
 }

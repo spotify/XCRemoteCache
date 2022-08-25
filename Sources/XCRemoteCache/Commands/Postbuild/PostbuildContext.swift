@@ -74,7 +74,7 @@ public struct PostbuildContext {
     let builtProductsDir: URL
     /// Location to the product bundle. Can be nil for libraries
     let bundleDir: URL?
-    let derivedSourcesDir: URL
+    var derivedSourcesDir: URL
     /// List of all targets to downloaded from the thinning aggregation target
     var thinnedTargets: [String]
     /// Action type: build, indexbuild etc
@@ -85,6 +85,8 @@ public struct PostbuildContext {
     let overlayHeadersPath: URL
     /// Regexes of files that should not be included in the dependency list
     let irrelevantDependenciesPaths: [String]
+    /// Location of public headers. Not always available (e.g. static libraries)
+    var publicHeadersFolderPath: URL?
 }
 
 extension PostbuildContext {
@@ -138,5 +140,11 @@ extension PostbuildContext {
         /// Note: The file has yaml extension, even it is in the json format
         overlayHeadersPath = targetTempDir.appendingPathComponent("all-product-headers.yaml")
         irrelevantDependenciesPaths = config.irrelevantDependenciesPaths
+        let publicHeadersPath: String = try env.readEnv(key: "PUBLIC_HEADERS_FOLDER_PATH")
+        if publicHeadersPath != "/usr/local/include" {
+            // '/usr/local/include' is a value of PUBLIC_HEADERS_FOLDER_PATH when no public headers are automatically
+            // generated and it is up to a project configuration to place it in a common location (e.g. static library)
+            publicHeadersFolderPath = builtProductsDir.appendingPathComponent(publicHeadersPath)
+        }
     }
 }

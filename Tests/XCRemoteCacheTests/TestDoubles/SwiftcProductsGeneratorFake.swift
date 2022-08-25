@@ -39,7 +39,7 @@ class SwiftcProductsGeneratorFake: SwiftcProductsGenerator {
     func generateFrom(
         artifactSwiftModuleFiles: [SwiftmoduleFileExtension: URL],
         artifactSwiftModuleObjCFile: URL
-    ) throws -> URL {
+    ) throws -> SwiftcProductsGeneratorOutput {
         let swiftmoduleDestBasename = swiftmoduleDest.deletingPathExtension()
         for (ext, url) in artifactSwiftModuleFiles {
             try dirAccessor.write(
@@ -51,6 +51,9 @@ class SwiftcProductsGeneratorFake: SwiftcProductsGenerator {
             toPath: swiftmoduleObjCFile.path,
             contents: dirAccessor.contents(atPath: artifactSwiftModuleObjCFile.path)
         )
-        return swiftmoduleDest.deletingLastPathComponent()
+        return SwiftcProductsGeneratorOutput(
+            swiftmoduleDir: swiftmoduleDest.deletingLastPathComponent(),
+            objcHeaderFile: swiftmoduleObjCFile
+        )
     }
 }

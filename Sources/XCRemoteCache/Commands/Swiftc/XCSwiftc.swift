@@ -83,7 +83,12 @@ public class XCSwiftc {
 
         let inputReader = SwiftcFilemapInputEditor(context.filemap, fileManager: fileManager)
         let fileListEditor = FileListEditor(context.fileList, fileManager: fileManager)
-        let artifactOrganizer = ZipArtifactOrganizer(targetTempDir: context.tempDir, fileManager: fileManager)
+        let artifactOrganizer = ZipArtifactOrganizer(
+            targetTempDir: context.tempDir,
+            // xcswiftc  doesn't call artifact preprocessing
+            artifactProcessors: [],
+            fileManager: fileManager
+        )
         // TODO: check for allowedFile comparing a list of all inputfiles, not dependencies from a marker
         let makerReferencedFilesListScanner = FileListScannerImpl(markerReader, caseSensitive: false)
         let allowedFilesListScanner = ExceptionsFilteredFileListScanner(

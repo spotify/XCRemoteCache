@@ -152,13 +152,25 @@ public class XCPrebuild {
                 filesFingerprintGenerator,
                 algorithm: MD5Algorithm()
             )
-            let organizer = ZipArtifactOrganizer(targetTempDir: context.targetTempDir, fileManager: fileManager)
+            let fileRemapper = TextFileDependenciesRemapper(
+                remapper: envsRemapper,
+                fileAccessor: fileManager
+            )
+            let artifactProcessor = UnzippedArtifactProcessor(fileRemapper: fileRemapper, dirScanner: fileManager)
+            let organizer = ZipArtifactOrganizer(
+                targetTempDir: context.targetTempDir,
+                artifactProcessors: [artifactProcessor],
+                fileManager: fileManager
+            )
             let metaReader = JsonMetaReader(fileAccessor: fileManager)
             var consumerPlugins: [ArtifactConsumerPrebuildPlugin] = []
 
             if config.thinningEnabled {
                 if context.moduleName == config.thinningTargetModuleName, let thinnedTarget = context.thinnedTargets {
-                    let organizerFactory = ThinningConsumerZipArtifactsOrganizerFactory(fileManager: .default)
+                    let organizerFactory = ThinningConsumerZipArtifactsOrganizerFactory(
+                        processors: [artifactProcessor],
+                        fileManager: fileManager
+                    )
                     let aggregationPlugin = ThinningConsumerPrebuildPlugin(
                         targetName: context.targetName,
                         tempDir: context.targetTempDir,
