@@ -281,6 +281,10 @@ public class XCPostbuild {
                 // Delete previously set overrides - they are no longer valid. The compilation was
                 // done locally, most likely due to some local change
                 try postbuildAction.deleteFingerprintOverrides()
+                // Generate lastest fingerprints.
+                // As a conumser, a target could be compiled locally because of network error when fetching caches during prebuild phase, and all targes depends on this very target are all compiled locally.
+                // So in this case we still try to genterate finterprints,.
+                try postbuildAction.generateFingerprintOverrides()
             }
 
 
