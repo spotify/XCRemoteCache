@@ -150,7 +150,7 @@ class PostbuildContextTests: FileXCTestCase {
 
         XCTAssertEqual(context.publicHeadersFolderPath, "/MyBuiltProductsDir/MyModule.grameworks/Headers")
     }
-    
+
     func testPublicHeaderFolderPathEnvIsOptional() throws {
         var envs = Self.SampleEnvs
         envs.removeValue(forKey: "PUBLIC_HEADERS_FOLDER_PATH")
