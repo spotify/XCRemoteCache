@@ -1,6 +1,9 @@
 plugin 'cocoapods-xcremotecache'
 
 target 'XCRemoteCacheSample' do
-  pod 'Firebase/Analytics'
+  # Firebase/Analytics depends on `GoogleUtilities` 
+  # that doesn't support static libs
+  # pod 'Firebase/Analytics'
+
   pod 'ReactiveSwift'
 end
