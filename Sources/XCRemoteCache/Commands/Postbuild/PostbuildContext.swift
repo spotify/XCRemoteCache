@@ -140,8 +140,8 @@ extension PostbuildContext {
         /// Note: The file has yaml extension, even it is in the json format
         overlayHeadersPath = targetTempDir.appendingPathComponent("all-product-headers.yaml")
         irrelevantDependenciesPaths = config.irrelevantDependenciesPaths
-        let publicHeadersPath: String = try env.readEnv(key: "PUBLIC_HEADERS_FOLDER_PATH")
-        if publicHeadersPath != "/usr/local/include" {
+        let publicHeadersPathEnv: String? = env.readEnv(key: "PUBLIC_HEADERS_FOLDER_PATH")
+        if let publicHeadersPath = publicHeadersPathEnv, publicHeadersPathEnv != "/usr/local/include" {
             // '/usr/local/include' is a value of PUBLIC_HEADERS_FOLDER_PATH when no public headers are automatically
             // generated and it is up to a project configuration to place it in a common location (e.g. static library)
             publicHeadersFolderPath = builtProductsDir.appendingPathComponent(publicHeadersPath)
