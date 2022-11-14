@@ -15,7 +15,7 @@ namespace :e2e do
     NGINX_ROOT_DIR = '/tmp/cache'
     XCRC_BINARIES = 'XCRC'
     SHARED_COCOAPODS_CONFIG = {
-        'cache_addresses' => ['http://localhost:8080/cache/pods'], 
+        'cache_addresses' => ['http://localhost:8080/cache/pods'],
         'primary_repo' => GIT_REMOTE_ADDRESS,
         'primary_branch' => GIT_BRANCH,
         'mode' => 'consumer',
@@ -58,6 +58,7 @@ namespace :e2e do
             system("pwd")
             system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode producer --final-producer-target StandaloneApp")
             # Build the project to fill in the cache
+            build_project(nil, "StandaloneApp.xcodeproj", 'StaticFramework', 'watch', 'watchOS')
             build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp')
             system("#{XCRC_BINARIES}/xcprepare stats --reset --format json")
         end
@@ -73,13 +74,15 @@ namespace :e2e do
         prepare_for_standalone(consumer_srcroot)
         Dir.chdir(consumer_srcroot) do
             system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode consumer")
-            build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
+            build_project(nil, "StandaloneApp.xcodeproj", 'StaticFramework', 'watch', 'watchOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
+            build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', 'iphone', 'iOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
             valide_hit_rate
 
             puts 'Building standalone consumer with local change...'
             # Extra: validate local compilation of the Standalone ObjC code
             system("echo '' >> StandaloneApp/StandaloneObjc.m")
-            build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer_local"})
+            build_project(nil, "StandaloneApp.xcodeproj", 'StaticFramework', 'watch', 'watchOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer_local"})
+            build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', 'iphone', 'iOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer_local"})
         end
 
         # Revert all side effects
@@ -103,7 +106,7 @@ namespace :e2e do
         at_exit { puts('resetting ngingx'); system('nginx -s stop') }
     end
 
-    # Create a new branch out of a current commit and 
+    # Create a new branch out of a current commit and
     # add remote that points to itself
     def self.configure_git
         system("git checkout -B #{GIT_BRANCH}")
@@ -144,7 +147,7 @@ namespace :e2e do
     def self.cocoapods_configuration_string(extra_configs = {})
         configuration_lines = ['xcremotecache({']
         all_properties = SHARED_COCOAPODS_CONFIG.merge(extra_configs)
-        config_lines = all_properties.map {|key, value| "    \"#{key}\" => #{value.inspect},"} 
+        config_lines = all_properties.map {|key, value| "    \"#{key}\" => #{value.inspect},"}
         configuration_lines.push(*config_lines)
         configuration_lines << '})'
         configuration_lines.join("\n")
@@ -159,20 +162,20 @@ namespace :e2e do
         end
     end
 
-    def self.build_project(workspace, project, scheme, extra_args = {})
+    def self.build_project(workspace, project, scheme, sdk = 'iphone', platform = 'iOS', extra_args = {})
         xcodebuild_args = {
             'workspace' => workspace,
             'project' => project,
             'scheme' => scheme,
             'configuration' => 'Debug',
-            'sdk' => 'iphonesimulator',
-            'destination' => 'generic/platform=iOS Simulator',
+            'sdk' => "#{sdk}simulator",
+            'destination' => "generic/platform=#{platform} Simulator",
             'derivedDataPath' => DERIVED_DATA_PATH,
         }.merge(extra_args).compact
         xcodebuild_vars = {
-            'EXCLUDED_ARCHS' => 'arm64 i386'
+            'EXCLUDED_ARCHS' => 'arm64'
         }
-        args = ['xcodebuild']
+        args = ['set -o pipefail;', 'xcodebuild']
         args.push(*xcodebuild_args.map {|k,v| "-#{k} '#{v}'"})
         args.push(*xcodebuild_vars.map {|k,v| "#{k}='#{v}'"})
         args.push('clean build')
@@ -185,12 +188,12 @@ namespace :e2e do
         end
     end
 
-    def self.build_project_cocoapods(extra_args = {})
+    def self.build_project_cocoapods(sdk = 'iphone', platform = 'iOS', extra_args = {})
         system('pod install')
-        build_project('XCRemoteCacheSample.xcworkspace', nil, 'XCRemoteCacheSample', extra_args)
+        build_project('XCRemoteCacheSample.xcworkspace', nil, 'XCRemoteCacheSample', sdk, platform, extra_args)
     end
 
-    def self.read_stats 
+    def self.read_stats
         stats_json_string = JSON.parse(`#{XCRC_BINARIES}/xcprepare stats --format json`)
         misses = stats_json_string.fetch('miss_count', 0)
         hits = stats_json_string.fetch('hit_count', 0)
@@ -213,7 +216,7 @@ namespace :e2e do
         consumer_configuration = cocoapods_configuration_string()
 
         puts("****** Scenario: #{template_path}")
-            
+
         # Run producer build
         pre_producer_setup
         dump_podfile(producer_configuration, template_path)
@@ -229,7 +232,7 @@ namespace :e2e do
         dump_podfile(consumer_configuration, template_path)
         puts('Building consumer ...')
         Dir.chdir(E2E_COCOAPODS_SAMPLE_DIR) do
-            build_project_cocoapods({'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
+            build_project_cocoapods('iphone', 'iOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
             valide_hit_rate
         end
     end

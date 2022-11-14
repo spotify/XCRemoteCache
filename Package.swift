@@ -33,8 +33,12 @@ let package = Package(
             dependencies: ["XCRemoteCache"]
         ),
         .target(
-            name: "xclibtool",
+            name: "xclibtoolSupport",
             dependencies: ["XCRemoteCache"]
+        ),
+        .target(
+            name: "xclibtool",
+            dependencies: ["XCRemoteCache", "xclibtoolSupport"]
         ),
         .target(
             name: "xcpostbuild",
@@ -64,6 +68,10 @@ let package = Package(
             name: "XCRemoteCacheTests",
             dependencies: ["XCRemoteCache"],
             resources: [.copy("TestData")]
+        ),
+        .testTarget(
+            name: "xclibtoolSupportTests",
+            dependencies: ["xclibtoolSupport"]
         ),
     ]
 )
