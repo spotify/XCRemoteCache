@@ -31,8 +31,8 @@ enum SwiftmoduleFileExtension: String {
     case swiftdoc
     case swiftsourceinfo
     case swiftinterface
-    case privateSwiftinterface
-    case abiJson
+    case privateSwiftinterface = "private.swiftinterface"
+    case abiJson = "abi.json"
 }
 
 extension SwiftmoduleFileExtension {
