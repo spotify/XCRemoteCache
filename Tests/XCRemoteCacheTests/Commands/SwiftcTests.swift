@@ -285,6 +285,12 @@ class SwiftcTests: FileXCTestCase {
         let artifactSwiftInterfaceInfo = URL(
             fileURLWithPath: "/cachedArtifact/swiftmodule/archTest/Target.swiftinterface"
         )
+        let artifactPrivateSwiftInterfaceInfo = URL(
+            fileURLWithPath: "/cachedArtifact/swiftmodule/archTest/Target.private.swiftinterface"
+        )
+        let artifactAbiJsonInfo = URL(
+            fileURLWithPath: "/cachedArtifact/swiftmodule/archTest/Target.abi.json"
+        )
 
         artifactOrganizer = ArtifactOrganizerFake(artifactRoot: artifactRoot)
         let swiftc = Swiftc(
@@ -309,6 +315,8 @@ class SwiftcTests: FileXCTestCase {
         let swiftDocURL = swiftModuleFiles.0[.swiftdoc]
         let swiftSourceInfoURL = swiftModuleFiles.0[.swiftsourceinfo]
         let swiftInterfaceURL = swiftModuleFiles.0[.swiftinterface]
+        let privateSwiftInterfaceURL = swiftModuleFiles.0[.privateSwiftinterface]
+        let abiJsonURL = swiftModuleFiles.0[.abiJson]
         let swiftHeaderURL = swiftModuleFiles.1
 
         XCTAssertEqual(swiftModuleURL, artifactSwiftmodule)
@@ -316,6 +324,8 @@ class SwiftcTests: FileXCTestCase {
         XCTAssertEqual(swiftSourceInfoURL, artifactSwiftSourceInfo)
         XCTAssertEqual(swiftHeaderURL, artifactObjCHeader)
         XCTAssertEqual(swiftInterfaceURL, artifactSwiftInterfaceInfo)
+        XCTAssertEqual(privateSwiftInterfaceURL, artifactPrivateSwiftInterfaceInfo)
+        XCTAssertEqual(abiJsonURL, artifactAbiJsonInfo)
     }
 
 

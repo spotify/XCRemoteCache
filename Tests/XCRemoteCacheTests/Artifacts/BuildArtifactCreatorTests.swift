@@ -32,6 +32,8 @@ class BuildArtifactCreatorTests: FileXCTestCase {
     private var swiftdocURL: URL!
     private var swiftSourceInfoURL: URL!
     private var swiftInterfaceURL: URL!
+    private var privateSwiftInterfaceURL: URL!
+    private var abiJsonURL: URL!
     private var executablePath: String!
     private var executableURL: URL!
     private var creator: BuildArtifactCreator!
@@ -53,6 +55,10 @@ class BuildArtifactCreatorTests: FileXCTestCase {
             .appendingPathComponent("Target.swiftsourceinfo")
         swiftInterfaceURL = workDirectory.appendingPathComponent("Objects-normal")
             .appendingPathComponent("Target.swiftinterface")
+        privateSwiftInterfaceURL = workDirectory.appendingPathComponent("Objects-normal")
+            .appendingPathComponent("Target.private.swiftinterface")
+        abiJsonURL = workDirectory.appendingPathComponent("Objects-normal")
+            .appendingPathComponent("Target.abi.json")
         executablePath = "libTarget.a"
         executableURL = buildDir.appendingPathComponent(executablePath)
         dSYM = executableURL.deletingPathExtension().appendingPathExtension(".dSYM")
@@ -124,6 +130,8 @@ class BuildArtifactCreatorTests: FileXCTestCase {
         try fileManager.spt_createEmptyFile(swiftdocURL)
         try fileManager.spt_createEmptyFile(swiftSourceInfoURL)
         try fileManager.spt_createEmptyFile(swiftInterfaceURL)
+        try fileManager.spt_createEmptyFile(privateSwiftInterfaceURL)
+        try fileManager.spt_createEmptyFile(abiJsonURL)
 
         try creator.includeModuleDefinitionsToTheArtifact(arch: "arch", moduleURL: swiftmoduleURL)
         let artifact = try creator.createArtifact(artifactKey: "key", meta: sampleMeta)
@@ -138,6 +146,8 @@ class BuildArtifactCreatorTests: FileXCTestCase {
             unzippedURL.appendingPathComponent("swiftmodule/arch/Target.swiftdoc"),
             unzippedURL.appendingPathComponent("swiftmodule/arch/Target.swiftsourceinfo"),
             unzippedURL.appendingPathComponent("swiftmodule/arch/Target.swiftinterface"),
+            unzippedURL.appendingPathComponent("swiftmodule/arch/Target.private.swiftinterface"),
+            unzippedURL.appendingPathComponent("swiftmodule/arch/Target.abi.json"),
         ])
     }
 
