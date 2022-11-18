@@ -285,6 +285,12 @@ class SwiftcTests: FileXCTestCase {
         let artifactSwiftInterfaceInfo = URL(
             fileURLWithPath: "/cachedArtifact/swiftmodule/archTest/Target.swiftinterface"
         )
+        let artifactPrivateSwiftInterfaceInfo = URL(
+            fileURLWithPath: "/cachedArtifact/swiftmodule/archTest/Target.private.swiftinterface"
+        )
+        let artifactAbiJsonInfo = URL(
+            fileURLWithPath: "/cachedArtifact/swiftmodule/archTest/Target.abi.json"
+        )
 
         artifactOrganizer = ArtifactOrganizerFake(artifactRoot: artifactRoot)
         let swiftc = Swiftc(
@@ -305,17 +311,14 @@ class SwiftcTests: FileXCTestCase {
         _ = try swiftc.mockCompilation()
 
         let swiftModuleFiles = try productsGenerator.generated.first.unwrap()
-        let swiftModuleURL = swiftModuleFiles.0[.swiftmodule]
-        let swiftDocURL = swiftModuleFiles.0[.swiftdoc]
-        let swiftSourceInfoURL = swiftModuleFiles.0[.swiftsourceinfo]
-        let swiftInterfaceURL = swiftModuleFiles.0[.swiftinterface]
-        let swiftHeaderURL = swiftModuleFiles.1
 
-        XCTAssertEqual(swiftModuleURL, artifactSwiftmodule)
-        XCTAssertEqual(swiftDocURL, artifactSwiftdoc)
-        XCTAssertEqual(swiftSourceInfoURL, artifactSwiftSourceInfo)
-        XCTAssertEqual(swiftHeaderURL, artifactObjCHeader)
-        XCTAssertEqual(swiftInterfaceURL, artifactSwiftInterfaceInfo)
+        XCTAssertEqual(swiftModuleFiles.0[.swiftmodule], artifactSwiftmodule)
+        XCTAssertEqual(swiftModuleFiles.0[.swiftdoc], artifactSwiftdoc)
+        XCTAssertEqual(swiftModuleFiles.0[.swiftsourceinfo], artifactSwiftSourceInfo)
+        XCTAssertEqual(swiftModuleFiles.0[.swiftinterface], artifactSwiftInterfaceInfo)
+        XCTAssertEqual(swiftModuleFiles.0[.privateSwiftinterface], artifactPrivateSwiftInterfaceInfo)
+        XCTAssertEqual(swiftModuleFiles.0[.abiJson], artifactAbiJsonInfo)
+        XCTAssertEqual(swiftModuleFiles.1, artifactObjCHeader)
     }
 
 
