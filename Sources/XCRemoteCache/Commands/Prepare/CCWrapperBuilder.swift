@@ -396,7 +396,8 @@ class TemplateBasedCCWrapperBuilder: CCWrapperBuilder {
             const char *output_arg_name = "-o";
             const char *serialize_diagnostics_arg_name = "--serialize-diagnostics";
             const char *language_mode_arg_name = "-x";
-            const char *precompile_header_arg_value = "objective-c-header";
+            const char *precompile_objc_header_arg_value = "objective-c-header";
+            const char *precompile_c_header_arg_value = "c-header";
             const char *clang_cmd = "\(clangCommand)";
             const char *markerFile = "\(markerFilename)";
             const char *compilationHistoryFile = "\(compilationHistoryFilename)";
@@ -464,7 +465,7 @@ class TemplateBasedCCWrapperBuilder: CCWrapperBuilder {
            clang_args[argc] = NULL;
 
            // Verify mode. Even a target is cached, pch mode is not supported. Fallback to the local compilation
-           if (language_mode != NULL && strcmp(language_mode, precompile_header_arg_value) == 0) {
+           if (language_mode != NULL && (strcmp(language_mode, precompile_objc_header_arg_value) == 0 || strcmp(language_mode, precompile_c_header_arg_value) == 0)) {
                return execvp(clang_cmd, (char *const*) clang_args);
            }
 
