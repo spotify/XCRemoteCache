@@ -343,7 +343,7 @@ class TemplateBasedCCWrapperBuilderTests: FileXCTestCase {
 
         XCTAssertTrue(fileManager.fileExists(atPath: outputFile.path))
     }
-    
+
     func testPCHCCompilationFallbacks() throws {
         // Marker is empty to mimic the new file scenario
         let pchFile = directory.appendingPathComponent("input.pch")
