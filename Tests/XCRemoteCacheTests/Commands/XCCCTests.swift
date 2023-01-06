@@ -333,11 +333,22 @@ class TemplateBasedCCWrapperBuilderTests: FileXCTestCase {
         XCTAssertNotEqual(newFileOutputData, Data())
     }
 
-    func testPCHCompilationFallbacks() throws {
+    func testPCHObjCCompilationFallbacks() throws {
         // Marker is empty to mimic the new file scenario
         let pchFile = directory.appendingPathComponent("input.pch")
         createValidPCHFile(pchFile)
         arguments = ["-x", "objective-c-header", "-MF", dependencyFile.path, "-o", outputFile.path, pchFile.path]
+
+        try shellExec(Self.xccc.path, args: arguments, inDir: directory.path)
+
+        XCTAssertTrue(fileManager.fileExists(atPath: outputFile.path))
+    }
+
+    func testPCHCCompilationFallbacks() throws {
+        // Marker is empty to mimic the new file scenario
+        let pchFile = directory.appendingPathComponent("input.pch")
+        createValidPCHFile(pchFile)
+        arguments = ["-x", "c-header", "-MF", dependencyFile.path, "-o", outputFile.path, pchFile.path]
 
         try shellExec(Self.xccc.path, args: arguments, inDir: directory.path)
 
