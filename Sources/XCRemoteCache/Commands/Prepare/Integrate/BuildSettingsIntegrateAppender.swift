@@ -50,6 +50,7 @@ class XcodeProjBuildSettingsIntegrateAppender: BuildSettingsIntegrateAppender {
             result["CC"] = wrappers.cc.path
             result["LD"] = wrappers.ld.path
             result["LIBTOOL"] = wrappers.libtool.path
+            result["LDPLUSPLUS"] = wrappers.ldplusplus.path
         }
 
         let existingSwiftFlags = result["OTHER_SWIFT_FLAGS"] as? String
