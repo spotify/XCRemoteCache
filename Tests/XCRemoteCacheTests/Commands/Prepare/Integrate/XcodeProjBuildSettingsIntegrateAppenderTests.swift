@@ -60,7 +60,7 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
 
         XCTAssertEqual(resultURL, fakeRootURL.path)
     }
-    
+
     func testConsumerSettingLdPlusPlus() throws {
         let mode: Mode = .consumer
         let fakeRootURL: URL = "/xxxxxxxxxxC"
