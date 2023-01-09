@@ -60,4 +60,14 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
 
         XCTAssertEqual(resultURL, fakeRootURL.path)
     }
+
+    func testConsumerSettingLdPlusPlus() throws {
+        let mode: Mode = .consumer
+        let fakeRootURL: URL = "/xxxxxxxxxxC"
+        let appender = XcodeProjBuildSettingsIntegrateAppender(mode: mode, repoRoot: rootURL, fakeSrcRoot: fakeRootURL)
+        let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
+        let ldPlusPlus: String = try XCTUnwrap(result["LDPLUSPLUS"] as? String)
+
+        XCTAssertEqual(ldPlusPlus, binaries.ldplusplus.path)
+    }
 }
