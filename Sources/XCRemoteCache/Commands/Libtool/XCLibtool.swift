@@ -20,7 +20,7 @@
 import Foundation
 
 /// Represents a mode that libtool was called
-public enum XCLibtoolMode {
+public enum XCLibtoolMode: Equatable {
     /// Creating a static library (ar format) from a set of .o input files
     case createLibrary(output: String, filelist: String, dependencyInfo: String)
     /// Creating a universal library (multiple-architectures) from a set of input .a static libraries
