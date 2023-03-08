@@ -28,7 +28,7 @@ public enum XCLibtoolHelperError: Error {
 public class XCLibtoolHelper {
     public static func buildMode(args: [String]) throws -> XCLibtoolMode {
         var output: String?
-        // all input arguments library '.a'. Used to create an universal binary
+        // all input arguments are '*.a' or no path extension. Used to create an universal binary
         var inputLibraries: [String] = []
         var filelist: String?
         var dependencyInfo: String?
@@ -44,8 +44,8 @@ public class XCLibtoolHelper {
             case "-dependency_info":
                 dependencyInfo = args[i + 1]
                 i += 1
-            case let input where input.hasSuffix(".a"):
-                // Support for
+            case let input where ["", "a"].contains(URL(string: args[i])?.pathExtension):
+                // Support for static frameworks (no extension) and static libraries (.a)
                 inputLibraries.append(input)
             default:
                 break
