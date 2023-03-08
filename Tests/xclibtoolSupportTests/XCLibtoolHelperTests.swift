@@ -44,8 +44,8 @@ class XCLibtoolHelperTests: XCTestCase {
     }
 
     func testUnknownExtensionInputThrowsUnsupportedMode() throws {
-        XCTAssertThrowsError(try XCLibtoolHelper.buildMode(
-            args: ["-o", "/universal/static.a", "/arch1/static.unknown"])) { error in
+        XCTAssertThrowsError(
+            try XCLibtoolHelper.buildMode(args: ["-o", "/universal/static.a", "/arch1/static.unknown"])) { error in
             switch error {
             case XCLibtoolHelperError.unsupportedMode: break
             default:
