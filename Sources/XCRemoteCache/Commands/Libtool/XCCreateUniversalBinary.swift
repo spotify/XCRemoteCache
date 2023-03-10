@@ -19,31 +19,43 @@
 
 import Foundation
 
-enum XCLibtoolCreateUniversalBinaryError: Error {
+enum XCCreateUniversalBinaryError: Error {
     ///  Missing ar libraries that should constitute an universal build
     case missingInputLibrary
 }
 
-/// Wrapper for `libtool` call for creating an universal binary
-class XCLibtoolCreateUniversalBinary: XCLibtoolLogic {
+/// Wrapper for `libtool`/`lipo` call for creating an universal binary
+class XCCreateUniversalBinary: XCLibtoolLogic {
     private let output: URL
     private let tempDir: URL
     private let firstInputURL: URL
+    private let toolName: String
+    private let fallbackCommand: String
 
-    init(output: String, inputs: [String]) throws {
+    init(
+        output: String,
+        inputs: [String],
+        toolName: String,
+        fallbackCommand: String
+    ) throws {
         self.output = URL(fileURLWithPath: output)
         guard let firstInput = inputs.first else {
-            throw XCLibtoolCreateUniversalBinaryError.missingInputLibrary
+            throw XCCreateUniversalBinaryError.missingInputLibrary
         }
         let firstInputURL = URL(fileURLWithPath: firstInput)
         // inputs are place in $TARGET_TEMP_DIR/Objects-normal/$ARCH/Binary/$TARGET_NAME.a
         // TODO: find better (stable) technique to determine `$TARGET_TEMP_DIR`
+        errorLog("\(firstInputURL.absoluteString)")
+
         tempDir = firstInputURL
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
+        errorLog("\(tempDir.absoluteString)")
         self.firstInputURL = firstInputURL
+        self.toolName = toolName
+        self.fallbackCommand = fallbackCommand
     }
 
     func run() {
@@ -55,7 +67,7 @@ class XCLibtoolCreateUniversalBinary: XCLibtoolLogic {
             config = try XCRemoteCacheConfigReader(srcRootPath: srcRoot.path, fileReader: fileManager)
                 .readConfiguration()
         } catch {
-            errorLog("Libtool initialization failed with error: \(error). Fallbacking to libtool")
+            errorLog("\(toolName) initialization failed with error: \(error). Fallbacking to \(fallbackCommand)")
             fallbackToDefault()
         }
 
@@ -74,22 +86,21 @@ class XCLibtoolCreateUniversalBinary: XCLibtoolLogic {
             // that these are already an universal binary
             try fileManager.spt_forceLinkItem(at: firstInputURL, to: output)
         } catch {
-            errorLog("Libtool failed with error: \(error). Fallbacking to libtool")
+            errorLog("\(toolName) failed with error: \(error). Fallbacking to \(fallbackCommand)")
             do {
                 try fileManager.removeItem(at: markerURL)
                 fallbackToDefault()
             } catch {
-                exit(1, "FATAL: libtool failed with error: \(error)")
+                exit(1, "FATAL: \(fallbackCommand) failed with error: \(error)")
             }
         }
     }
 
     private func fallbackToDefault() -> Never {
         let args = ProcessInfo().arguments
-        let command = "libtool"
-        let paramList = [command] + args.dropFirst()
+        let paramList = [fallbackCommand] + args.dropFirst()
         let cargs = paramList.map { strdup($0) } + [nil]
-        execvp(command, cargs)
+        execvp(fallbackCommand, cargs)
 
         /// C-function `execv` returns only when the command fails
         exit(1)

@@ -34,6 +34,7 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
             cc: binariesDir.appendingPathComponent("xccc"),
             swiftc: binariesDir.appendingPathComponent("xcswiftc"),
             libtool: binariesDir.appendingPathComponent("xclibtool"),
+            lipo: binariesDir.appendingPathComponent("lipo"),
             ld: binariesDir.appendingPathComponent("xcld"),
             ldplusplus: binariesDir.appendingPathComponent("xcldplusplus"),
             prebuild: binariesDir.appendingPathComponent("xcprebuild"),
