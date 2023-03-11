@@ -52,7 +52,6 @@ class XCCreateUniversalBinary: XCLibtoolLogic {
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
-        errorLog("\(tempDir.absoluteString)")
         self.firstInputURL = firstInputURL
         self.toolName = toolName
         self.fallbackCommand = fallbackCommand
