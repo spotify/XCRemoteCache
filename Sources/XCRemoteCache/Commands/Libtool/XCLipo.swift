@@ -42,7 +42,7 @@ public class XCLipo {
     /// Handles a `-create` action which is responsible to create a fat archive
     /// If remote cache can reuse artifacts from a remote cache, it just links any of input
     /// files to the destination (output) location because the binary in XCRC artifact already
-    /// contains a fat library.
+    /// contains a fat library
     /// If a remote artifact cannot be reused, a fallback to the `lipo` command is performed
     public func run() {
         logic.run()
