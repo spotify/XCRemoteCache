@@ -44,7 +44,12 @@ public class XCLibtool {
                 stepDescription: "Libtool"
             )
         case .createUniversalBinary(let output, let inputs):
-            logic = try XCLibtoolCreateUniversalBinary(output: output, inputs: inputs)
+            logic = try XCCreateUniversalBinary(
+                output: output,
+                inputs: inputs,
+                toolName: "Libtool",
+                fallbackCommand: "libtool"
+            )
         }
     }
 

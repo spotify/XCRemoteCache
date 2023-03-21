@@ -3,9 +3,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,15 +29,15 @@ module CocoapodsXCRemoteCacheModifier
     FAT_ARCHIVE_NAME_INFIX = 'arm64-x86_64'
     XCRC_COOCAPODS_ROOT_KEY = 'XCRC_COOCAPODS_ROOT'
 
-    # List of plugins' user properties that should not be copied to .rcinfo 
+    # List of plugins' user properties that should not be copied to .rcinfo
     CUSTOM_CONFIGURATION_KEYS = [
-      'enabled', 
+      'enabled',
       'xcrc_location',
       'exclude_targets',
       'exclude_build_configurations',
       'final_target',
-      'check_build_configuration', 
-      'check_platform', 
+      'check_build_configuration',
+      'check_platform',
       'modify_lldb_init',
       'fake_src_root',
     ]
@@ -45,19 +45,19 @@ module CocoapodsXCRemoteCacheModifier
     class XCRemoteCache
       @@configuration = nil
 
-      def self.configure(c) 
+      def self.configure(c)
         @@configuration = c
       end
 
       def self.set_configuration_default_values
         default_values = {
           'mode' => 'consumer',
-          'enabled' => true, 
+          'enabled' => true,
           'xcrc_location' => "XCRC",
           'exclude_build_configurations' => [],
           'check_build_configuration' => 'Debug',
-          'check_platform' => 'iphonesimulator', 
-          'modify_lldb_init' => true, 
+          'check_platform' => 'iphonesimulator',
+          'modify_lldb_init' => true,
           'xccc_file' => "#{BIN_DIR}/xccc",
           'remote_commit_file' => "#{BIN_DIR}/arc.rc",
           'exclude_targets' => [],
@@ -75,12 +75,12 @@ module CocoapodsXCRemoteCacheModifier
 
       def self.validate_configuration()
         required_values = [
-          'cache_addresses', 
+          'cache_addresses',
           'primary_repo',
           'check_build_configuration',
           'check_platform'
         ]
-        
+
         missing_configuration_values = required_values.select { |v| !@@configuration.key?(v) }
         unless missing_configuration_values.empty?
           throw "XCRemoteCache not fully configured. Make sure all required fields are provided. Missing fields are: #{missing_configuration_values.join(', ')}."
@@ -105,7 +105,7 @@ module CocoapodsXCRemoteCacheModifier
       end
 
       # @param target [Target] target to apply XCRemoteCache
-      # @param repo_distance [Integer] distance from the git repo root to the target's $SRCROOT 
+      # @param repo_distance [Integer] distance from the git repo root to the target's $SRCROOT
       # @param xc_location [String] path to the dir with all XCRemoteCache binaries, relative to the repo root
       # @param xc_cc_path [String] path to the XCRemoteCache clang wrapper, relative to the repo root
       # @param mode [String] mode name ('consumer', 'producer', 'producer-fast' etc.)
@@ -128,6 +128,7 @@ module CocoapodsXCRemoteCacheModifier
           config.build_settings['LIBTOOL'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xclibtool"]
           config.build_settings['LD'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xcld"]
           config.build_settings['LDPLUSPLUS'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xcldplusplus"]
+          config.build_settings['LIPO'] = ["$SRCROOT/#{srcroot_relative_xc_location}/xclipo"]
           config.build_settings['SWIFT_USE_INTEGRATED_DRIVER'] = ['NO']
 
           config.build_settings['XCREMOTE_CACHE_FAKE_SRCROOT'] = fake_src_root
@@ -156,7 +157,7 @@ module CocoapodsXCRemoteCacheModifier
           prebuild_script.dependency_file = "$(TARGET_TEMP_DIR)/prebuild.d"
 
           # Move prebuild (last element) to the position before compile sources phase (to make it real 'prebuild')
-          if !existing_prebuild_script 
+          if !existing_prebuild_script
             compile_phase_index = target.build_phases.index(target.source_build_phase)
             target.build_phases.insert(compile_phase_index, target.build_phases.delete(prebuild_script))
           end
@@ -184,7 +185,7 @@ module CocoapodsXCRemoteCacheModifier
         ]
         postbuild_script.dependency_file = "$(TARGET_TEMP_DIR)/postbuild.d"
         # Move postbuild (last element) to the position after compile sources phase (to make it real 'postbuild')
-        if !existing_postbuild_script 
+        if !existing_postbuild_script
           compile_phase_index = target.build_phases.index(target.source_build_phase)
           target.build_phases.insert(compile_phase_index + 1, target.build_phases.delete(postbuild_script))
         end
@@ -214,6 +215,7 @@ module CocoapodsXCRemoteCacheModifier
           config.build_settings.delete('CC') if config.build_settings.key?('CC')
           config.build_settings.delete('SWIFT_EXEC') if config.build_settings.key?('SWIFT_EXEC')
           config.build_settings.delete('LIBTOOL') if config.build_settings.key?('LIBTOOL')
+          config.build_settings.delete('LIPO') if config.build_settings.key?('LIPO')
           config.build_settings.delete('LD') if config.build_settings.key?('LD')
           config.build_settings.delete('LDPLUSPLUS') if config.build_settings.key?('LDPLUSPLUS')
           config.build_settings.delete('SWIFT_USE_INTEGRATED_DRIVER') if config.build_settings.key?('SWIFT_USE_INTEGRATED_DRIVER')
@@ -226,9 +228,9 @@ module CocoapodsXCRemoteCacheModifier
         end
 
         # User project is not generated from scratch (contrary to `Pods`), delete all previous XCRemoteCache phases
-        target.build_phases.delete_if {|phase| 
+        target.build_phases.delete_if {|phase|
           # Some phases (e.g. PBXSourcesBuildPhase) don't have strict name check respond_to?
-          if phase.respond_to?(:name) 
+          if phase.respond_to?(:name)
               phase.name != nil && phase.name.start_with?("[XCRC]")
           end
         }
@@ -240,9 +242,9 @@ module CocoapodsXCRemoteCacheModifier
       end
 
       def self.download_xcrc_if_needed(local_location)
-        required_binaries = ['xcld', 'xcldplusplus', 'xclibtool', 'xcpostbuild', 'xcprebuild', 'xcprepare', 'xcswiftc']
+        required_binaries = ['xcld', 'xcldplusplus', 'xclibtool', 'xclipo', 'xcpostbuild', 'xcprebuild', 'xcprepare', 'xcswiftc']
         binaries_exist = required_binaries.reduce(true) do |exists, filename|
-          file_path = File.join(local_location, filename) 
+          file_path = File.join(local_location, filename)
           exists = exists && File.exist?(file_path)
         end
 
@@ -256,13 +258,13 @@ module CocoapodsXCRemoteCacheModifier
 
         if !system("unzip #{local_package_location} -d #{local_location}")
           throw "Unzipping XCRemoteCache failed"
-        end 
+        end
       end
 
       def self.download_latest_xcrc_release(local_package_location)
         release_url = 'https://api.github.com/repos/spotify/XCRemoteCache/releases/latest'
         asset_url = nil
-        
+
         URI.open(release_url) do |f|
           assets_array = JSON.parse(f.read)['assets']
           # Pick fat archive
@@ -270,7 +272,7 @@ module CocoapodsXCRemoteCacheModifier
           asset_url = asset_array['url']
         end
 
-        if asset_url.nil? 
+        if asset_url.nil?
           throw "Downloading XCRemoteCache failed"
         end
 
@@ -283,7 +285,7 @@ module CocoapodsXCRemoteCacheModifier
 
       def self.add_cflags!(options, key, value)
         return if options.fetch('OTHER_CFLAGS',[]).include?(value)
-        options['OTHER_CFLAGS'] = remove_cflags!(options, key) << "#{key}=#{value}" 
+        options['OTHER_CFLAGS'] = remove_cflags!(options, key) << "#{key}=#{value}"
       end
 
       def self.remove_cflags!(options, key)
@@ -295,7 +297,7 @@ module CocoapodsXCRemoteCacheModifier
 
       def self.add_swiftflags!(options, key, value)
         return if options.fetch('OTHER_SWIFT_FLAGS','').include?(value)
-        options['OTHER_SWIFT_FLAGS'] = remove_swiftflags!(options, key) + " #{key} #{value}" 
+        options['OTHER_SWIFT_FLAGS'] = remove_swiftflags!(options, key) + " #{key} #{value}"
       end
 
       def self.remove_swiftflags!(options, key)
@@ -336,7 +338,7 @@ module CocoapodsXCRemoteCacheModifier
         File.open(lldbinit_path) { |file|
           while(line = file.gets) != nil
             line = line.strip
-            if line == LLDB_INIT_COMMENT 
+            if line == LLDB_INIT_COMMENT
               # skip current and next lines
               file.gets
               next
@@ -351,7 +353,7 @@ module CocoapodsXCRemoteCacheModifier
       def self.add_lldbinit_rewrite(lines_content, user_proj_directory,fake_src_root)
         all_lines = lines_content.clone
         all_lines << LLDB_INIT_COMMENT
-        all_lines << "settings set target.source-map #{fake_src_root} #{user_proj_directory}"    
+        all_lines << "settings set target.source-map #{fake_src_root} #{user_proj_directory}"
         all_lines << ""
         all_lines
       end
@@ -413,8 +415,8 @@ module CocoapodsXCRemoteCacheModifier
             # Remote cache is still disabled - no need to force Pods projects/targets regeneration
             next
           end
-          
-          # Force rebuilding all Pods project, because XCRC build steps and settings need to be added to Pods project/targets 
+
+          # Force rebuilding all Pods project, because XCRC build steps and settings need to be added to Pods project/targets
           # It is relevant only when 'incremental_installation' is enabled, otherwise installed_cache_path does not exist on a disk
           installed_cache_path = installer_context.sandbox.project_installation_cache_path
           if !was_previously_enabled && File.exist?(installed_cache_path)
@@ -431,7 +433,7 @@ module CocoapodsXCRemoteCacheModifier
 
         user_project = installer_context.umbrella_targets[0].user_project
 
-        begin    
+        begin
           user_proj_directory = File.dirname(user_project.path)
           set_configuration_default_values
 
@@ -494,12 +496,12 @@ module CocoapodsXCRemoteCacheModifier
             end
 
             # Manual Pods/.rcinfo generation
-            
+
             # all paths in .rcinfo are relative to the root so paths used in Pods.xcodeproj need to be aligned
             pods_path = Pathname.new(pods_proj_directory)
             root_path = Pathname.new(user_proj_directory)
             root_path_to_pods = root_path.relative_path_from(pods_path)
-            
+
             pods_rcinfo = root_rcinfo.merge({
               'remote_commit_file' => "#{root_path_to_pods}/#{remote_commit_file}",
               'xccc_file' => "#{root_path_to_pods}/#{xccc_location}"
@@ -511,7 +513,7 @@ module CocoapodsXCRemoteCacheModifier
 
           # Enabled/disable XCRemoteCache for the main (user) project
           begin
-            # TODO: Do not compile xcc again. `xcprepare` compiles it in pre-install anyway 
+            # TODO: Do not compile xcc again. `xcprepare` compiles it in pre-install anyway
             prepare_result = YAML.load`#{xcrc_location_absolute}/xcprepare --configuration #{check_build_configuration} --platform #{check_platform}`
             unless prepare_result['result'] || mode != 'consumer'
               # Uninstall the XCRemoteCache for the consumer mode

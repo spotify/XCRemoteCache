@@ -50,6 +50,7 @@ class XcodeProjBuildSettingsIntegrateAppender: BuildSettingsIntegrateAppender {
             result["CC"] = wrappers.cc.path
             result["LD"] = wrappers.ld.path
             result["LIBTOOL"] = wrappers.libtool.path
+            result["LIPO"] = wrappers.lipo.path
             result["LDPLUSPLUS"] = wrappers.ldplusplus.path
         }
 

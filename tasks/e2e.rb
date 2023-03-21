@@ -58,7 +58,7 @@ namespace :e2e do
             system("pwd")
             system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode producer --final-producer-target StandaloneApp")
             # Build the project to fill in the cache
-            build_project(nil, "StandaloneApp.xcodeproj", 'StaticFramework', 'watch', 'watchOS')
+            build_project(nil, "StandaloneApp.xcodeproj", 'WatchExtension', 'watch', 'watchOS')
             build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp')
             system("#{XCRC_BINARIES}/xcprepare stats --reset --format json")
         end
@@ -74,14 +74,14 @@ namespace :e2e do
         prepare_for_standalone(consumer_srcroot)
         Dir.chdir(consumer_srcroot) do
             system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode consumer")
-            build_project(nil, "StandaloneApp.xcodeproj", 'StaticFramework', 'watch', 'watchOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
+            build_project(nil, "StandaloneApp.xcodeproj", 'WatchExtension', 'watch', 'watchOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
             build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', 'iphone', 'iOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
             valide_hit_rate
 
             puts 'Building standalone consumer with local change...'
             # Extra: validate local compilation of the Standalone ObjC code
             system("echo '' >> StandaloneApp/StandaloneObjc.m")
-            build_project(nil, "StandaloneApp.xcodeproj", 'StaticFramework', 'watch', 'watchOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer_local"})
+            build_project(nil, "StandaloneApp.xcodeproj", 'WatchExtension', 'watch', 'watchOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer_local"})
             build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', 'iphone', 'iOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer_local"})
         end
 

@@ -195,6 +195,7 @@ Configure Xcode targets that **should use** XCRemoteCache:
 * `CC` - `xccc_file` from your `.rcinfo` configuration (e.g. `xcremotecache/xccc`)
 * `SWIFT_EXEC` - location of `xcprepare` (e.g. `xcremotecache/xcswiftc`)
 * `LIBTOOL` - location of `xclibtool` (e.g. `xcremotecache/xclibtool`)
+* `LIPO` - location of `xclipo` (e.g. `xcremotecache/xclipo`)
 * `LD` - location of `xcld` (e.g. `xcremotecache/xcld`)
 * `LDPLUSPLUS` - location of `xcldplusplus` (e.g. `xcremotecache/xcldplusplus`)
 * `XCRC_PLATFORM_PREFERRED_ARCH` - `$(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)`
@@ -267,7 +268,7 @@ $ xcremotecache/xcprepare mark --configuration Debug --platform iphonesimulator
 
 That command creates an empty file on a remote server which informs that for given sha, configuration, platform, Xcode versions etc. all artifacts are available.
 
-_Note that for the `producer` mode, the prebuild build phase and `xccc`, `xcld`, `xcldplusplus`, `xclibtool` wrappers become no-op, so it is recommended to not add them for the `producer` mode._
+_Note that for the `producer` mode, the prebuild build phase and `xccc`, `xcld`, `xcldplusplus`, `xclibtool`, `xclipo` wrappers become no-op, so it is recommended to not add them for the `producer` mode._
 
 ##### 7. Generalize `-Swift.h` (Optional only if using static library with a bridging header with public `NS_ENUM` exposed from ObjC)
 

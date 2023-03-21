@@ -16,7 +16,7 @@ let package = Package(
         .package(url: "https://github.com/marmelroy/Zip.git", from: "2.1.2"),
         .package(url: "https://github.com/jpsim/Yams.git", from: "5.0.0"),
         .package(url: "https://github.com/apple/swift-argument-parser", from: "0.0.1"),
-        .package(url: "https://github.com/tuist/XcodeProj.git", from: "8.7.1"),
+        .package(url: "https://github.com/tuist/XcodeProj.git", from: "8.9.0"),
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
     ],
     targets: [
@@ -41,6 +41,10 @@ let package = Package(
             dependencies: ["XCRemoteCache", "xclibtoolSupport"]
         ),
         .target(
+            name: "xclipo",
+            dependencies: ["XCRemoteCache"]
+        ),
+        .target(
             name: "xcpostbuild",
             dependencies: ["XCRemoteCache"]
         ),
@@ -62,7 +66,16 @@ let package = Package(
         .target(
             // Wrapper target that builds all binaries but does nothing in runtime
             name: "Aggregator",
-            dependencies: ["xcprebuild", "xcswiftc", "xclibtool", "xcpostbuild", "xcprepare", "xcld", "xcldplusplus"]
+            dependencies: [
+                "xcprebuild",
+                "xcswiftc",
+                "xclibtool",
+                "xcpostbuild",
+                "xcprepare",
+                "xcld",
+                "xcldplusplus",
+                "xclipo",
+            ]
         ),
         .testTarget(
             name: "XCRemoteCacheTests",
