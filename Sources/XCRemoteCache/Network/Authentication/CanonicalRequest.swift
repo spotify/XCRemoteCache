@@ -34,7 +34,15 @@ struct CanonicalRequest {
         if url.path.isEmpty {
             path = "/"
         } else {
-            path = url.path
+            if let escapedPath = url.path.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) {
+                path = escapedPath
+            } else {
+                path = "/"
+                printWarning("""
+Escaping the path \(url.path) failed and a placeholder is used instead. \
+Make sure the path doesn't contain invalid characters.
+""")
+            }
         }
         return
             "\(httpMethod)\n" +
