@@ -37,6 +37,27 @@ class CanonicalRequestTest: XCTestCase {
     }
 
     func testCanonicalRequest() {
+        request.url = URL(
+            string: "https://region.amazonaws.com/bucket/with%20space?param=value&hej=hej&abd=cde&test=-_.~"
+        )!
+        let canonicalRequest = CanonicalRequest(
+            request: request
+        )
+        XCTAssertEqual(
+            canonicalRequest.value,
+            "GET\n" +
+                "/bucket/with%20space\n" +
+                "abd=cde&hej=hej&param=value&test=-_.~\n" +
+                "a-header2key:A-Header2Value\n" +
+                "b-header3key:B-Header3Value\n" +
+                "c-header4key:C Header 4 Value\n" +
+                "x-header1key:X-Header1Value\n\n" +
+                "a-header2key;b-header3key;c-header4key;x-header1key\n" +
+                "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        )
+    }
+
+    func testCanonicalRequestWithEmptySpaceInPath() {
         let canonicalRequest = CanonicalRequest(
             request: request
         )
