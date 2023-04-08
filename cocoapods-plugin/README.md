@@ -28,7 +28,7 @@ plugin 'cocoapods-xcremotecache'
 2. Configure XCRemoteCache at the top of your `Podfile` definition:
 ```ruby
 xcremotecache({
-    'cache_addresses' => ['http://localhost:8080/cache/pods'], 
+    'cache_addresses' => ['http://localhost:8080/cache/pods'],
     'primary_repo' => 'https://your.primary.repo.git',
     'mode' => 'consumer'
 })
@@ -48,13 +48,14 @@ An object that is passed to the `xcremotecache` can contain all properties suppo
 | `exclude_build_configurations` | Comma-separated list of configurations that shouldn't use XCRemoteCache | `[]`| ⬜️ |
 | `final_target` | A target name that is build at the end of the build chain. Relevant only for a 'producer' mode to mark a given sha as ready to use from cache | `Debug` | ⬜️ |
 | `check_build_configuration` | A build configuration for which the remote cache availability is performed. Relevant only for a 'consumer' mode | `Debug` | ⬜️ |
-| `check_platform` | A platform for which the remote cache availability is performed. Relevant only for a 'consumer' mode | `iphonesimulator` | ⬜️ 
+| `check_platform` | A platform for which the remote cache availability is performed. Relevant only for a 'consumer' mode | `iphonesimulator` | ⬜️
 | `modify_lldb_init` | Controls if the pod integration should modify `~/.lldbinit` | `true` | ⬜️ |
 | `xccc_file` | The path where should be placed the `xccc` binary (in the pod installation phase) | `{podfile_dir}/.rc/xccc` | ⬜️ |
 | `remote_commit_file` | The path of the file with the remote commit sha (in the pod installation phase) | `{podfile_dir}/.rc/arc.rc`| ⬜️ |
 | `prettify_meta_files` | A Boolean value that opts-in pretty JSON formatting for meta files | `false` | ⬜️ |
 | `fake_src_root` | An arbitrary source location shared between producers and consumers. Should be unique for a project. | `/xxxxxxxxxx` | ⬜️ |
 | `disable_certificate_verification` | A Boolean value that opts-in SSL certificate validation is disabled | `false` | ⬜️ |
+| `exclude_sdks_configurations` |comma separated list of sdks to not integrate XCRemoteCache (e.g. "watchos*, watchsimulator*") | `[]`| ⬜️ |
 
 ## Uninstalling
 
