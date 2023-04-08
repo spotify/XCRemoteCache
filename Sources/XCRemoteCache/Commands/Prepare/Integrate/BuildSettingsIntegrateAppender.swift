@@ -34,24 +34,26 @@ class XcodeProjBuildSettingsIntegrateAppender: BuildSettingsIntegrateAppender {
     private let mode: Mode
     private let repoRoot: URL
     private let fakeSrcRoot: URL
+    private let sdksExclude: [String]
 
-    init(mode: Mode, repoRoot: URL, fakeSrcRoot: URL) {
+    init(mode: Mode, repoRoot: URL, fakeSrcRoot: URL, sdksExclude: [String]) {
         self.mode = mode
         self.repoRoot = repoRoot
         self.fakeSrcRoot = fakeSrcRoot
+        self.sdksExclude = sdksExclude
     }
 
     func appendToBuildSettings(buildSettings: BuildSettings, wrappers: XCRCBinariesPaths) -> BuildSettings {
         var result = buildSettings
-        result["SWIFT_EXEC"] = wrappers.swiftc.path
-        result["SWIFT_USE_INTEGRATED_DRIVER"] = "NO"
+        setBuildSetting(buildSettings: &result, key: "SWIFT_EXEC", value: wrappers.swiftc.path )
+        setBuildSetting(buildSettings: &result, key: "SWIFT_USE_INTEGRATED_DRIVER", value: "NO" )
         // When generating artifacts, no need to shell-out all compilation commands to our wrappers
         if case .consumer = mode {
-            result["CC"] = wrappers.cc.path
-            result["LD"] = wrappers.ld.path
-            result["LIBTOOL"] = wrappers.libtool.path
-            result["LIPO"] = wrappers.lipo.path
-            result["LDPLUSPLUS"] = wrappers.ldplusplus.path
+            setBuildSetting(buildSettings: &result, key: "CC", value: wrappers.cc.path )
+            setBuildSetting(buildSettings: &result, key: "LD", value: wrappers.ld.path )
+            setBuildSetting(buildSettings: &result, key: "LIBTOOL", value: wrappers.libtool.path )
+            setBuildSetting(buildSettings: &result, key: "LIPO", value: wrappers.lipo.path )
+            setBuildSetting(buildSettings: &result, key: "LDPLUSPLUS", value: wrappers.ldplusplus.path )
         }
 
         let existingSwiftFlags = result["OTHER_SWIFT_FLAGS"] as? String
@@ -63,14 +65,26 @@ class XcodeProjBuildSettingsIntegrateAppender: BuildSettingsIntegrateAppender {
         swiftFlags.assignFlag(key: "debug-prefix-map", value: "\(repoRoot.path)=$(XCRC_FAKE_SRCROOT)")
         clangFlags.assignFlag(key: "debug-prefix-map", value: "\(repoRoot.path)=$(XCRC_FAKE_SRCROOT)")
 
-        result["OTHER_SWIFT_FLAGS"] = swiftFlags.settingValue
-        result["OTHER_CFLAGS"] = clangFlags.settingValue
+        setBuildSetting(buildSettings: &result, key: "OTHER_SWIFT_FLAGS", value: swiftFlags.settingValue )
+        setBuildSetting(buildSettings: &result, key: "OTHER_CFLAGS", value: clangFlags.settingValue )
 
-        result["XCRC_FAKE_SRCROOT"] = "\(fakeSrcRoot.path)"
-        result["XCRC_PLATFORM_PREFERRED_ARCH"] =
+        setBuildSetting(buildSettings: &result, key: "XCRC_FAKE_SRCROOT", value: "\(fakeSrcRoot.path)" )
+        setBuildSetting(buildSettings: &result, key: "XCRC_PLATFORM_PREFERRED_ARCH", value:
         """
         $(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)
         """
+                        )
         return result
+    }
+    
+    private func setBuildSetting(buildSettings: inout BuildSettings, key: String, value: String?) {
+        buildSettings[key] = value
+        guard value != nil else {
+            // no need to exclude as the value will
+            return
+        }
+        for skippedSDK in sdksExclude {
+            buildSettings["\(key)[sdk=\(skippedSDK)]"] = ""
+        }
     }
 }

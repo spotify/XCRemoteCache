@@ -34,6 +34,7 @@ public class XCIntegrate {
     private let consumerEligiblePlatforms: String
     private let lldbMode: LLDBInitMode
     private let fakeSrcRoot: String
+    private let sdksExclude: String
     private let output: String?
 
     public init(
@@ -48,6 +49,7 @@ public class XCIntegrate {
         consumerEligiblePlatforms: String,
         lldbMode: LLDBInitMode,
         fakeSrcRoot: String,
+        sdksExclude: String,
         output: String?
     ) {
         projectPath = input
@@ -61,6 +63,7 @@ public class XCIntegrate {
         self.consumerEligiblePlatforms = consumerEligiblePlatforms
         self.lldbMode = lldbMode
         self.fakeSrcRoot = fakeSrcRoot
+        self.sdksExclude = sdksExclude
         self.output = output
     }
 
@@ -98,7 +101,8 @@ public class XCIntegrate {
             let buildSettingsAppender = XcodeProjBuildSettingsIntegrateAppender(
                 mode: context.mode,
                 repoRoot: context.repoRoot,
-                fakeSrcRoot: context.fakeSrcRoot
+                fakeSrcRoot: context.fakeSrcRoot,
+                sdksExclude: sdksExclude.integrateArrayArguments
             )
             let lldbPatcher: LLDBInitPatcher
             switch lldbMode {
