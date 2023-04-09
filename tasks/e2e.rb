@@ -22,11 +22,11 @@ namespace :e2e do
         'mode' => 'consumer',
         'final_target' => 'XCRemoteCacheSample',
         'artifact_maximum_age' => 0
-    }
+    }.freeze
     DEFAULT_EXPECTATIONS = {
         'misses' => 0,
         'hit_rate' => 100
-    }
+    }.freeze
 
     Stats = Struct.new(:hits, :misses, :hit_rate)
 
@@ -42,9 +42,9 @@ namespace :e2e do
         # Run scenarios for all Podfile scenarios
         for podfile_path in Dir.glob('e2eTests/**/*.Podfile')
             run_cocoapods_scenario(podfile_path)
+            # Revert all side effects
+            clean
         end
-        # Revert all side effects
-        clean
     end
 
     # run E2E tests for standalone (non-CocoaPods) projects
@@ -140,6 +140,7 @@ namespace :e2e do
     # Revert any local changes in the test project
     def self.clean_git
         system("git clean -xdf #{E2E_COCOAPODS_SAMPLE_DIR}")
+        system("git checkout -f #{E2E_COCOAPODS_SAMPLE_DIR}")
     end
 
     # Cleans all extra locations that a test creates
@@ -263,7 +264,7 @@ namespace :e2e do
     # The implementation assumes 100% hitrate and extra expecations can be provided in an optional file
     # #{template_path}.expectations
     def self.build_expectations(template_path)
-        expectations = DEFAULT_EXPECTATIONS
+        expectations = DEFAULT_EXPECTATIONS.dup
         return expectations if template_path.nil?
 
         template_config_path = "#{template_path}.expectations"

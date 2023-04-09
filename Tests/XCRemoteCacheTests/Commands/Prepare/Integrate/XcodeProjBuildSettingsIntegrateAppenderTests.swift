@@ -91,4 +91,15 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
         XCTAssertEqual(ldPlusPlusWatchOS, "")
         XCTAssertEqual(ldPlusPlusWatchSimulator, "")
     }
+    
+    func testAddsDisabledFlagForExcludedSDKs() throws {
+        let mode: Mode = .consumer
+        let appender = XcodeProjBuildSettingsIntegrateAppender(mode: mode, repoRoot: rootURL, fakeSrcRoot: "/", sdksExclude: ["watchOS*", "watchsimulator*"])
+        let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
+        let disabledWatchOS: String = try XCTUnwrap(result["XCRC_DISABLED[sdk=watchOS*]"] as? String)
+        let disabledWatchSimulator: String = try XCTUnwrap(result["XCRC_DISABLED[sdk=watchsimulator*]"] as? String)
+
+        XCTAssertEqual(disabledWatchOS, "YES")
+        XCTAssertEqual(disabledWatchSimulator, "YES")
+    }
 }

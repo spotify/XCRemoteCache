@@ -150,6 +150,7 @@ module CocoapodsXCRemoteCacheModifier
           debug_prefix_map_replacement = '$(SRCROOT' + ':dir:standardizepath' * repo_distance + ')'
           add_cflags!(config.build_settings, '-fdebug-prefix-map', "#{debug_prefix_map_replacement}=$(XCREMOTE_CACHE_FAKE_SRCROOT)", exclude_sdks_configurations)
           add_swiftflags!(config.build_settings, '-debug-prefix-map', "#{debug_prefix_map_replacement}=$(XCREMOTE_CACHE_FAKE_SRCROOT)", exclude_sdks_configurations)
+          add_build_setting_for_sdks(config.build_settings, 'XCRC_DISABLED', 'YES', exclude_sdks_configurations)
         end
 
         # Prebuild
@@ -322,6 +323,13 @@ module CocoapodsXCRemoteCacheModifier
         build_settings[key] = [value]
         for exclude_sdks_configuration in exclude_sdks_configurations
           build_settings["#{key}[sdk=#{exclude_sdks_configuration}]"] = [""]
+        end
+      end
+
+      # Sets value for a key only for a subset of sdk configurations
+      def self.add_build_setting_for_sdks(build_settings, key, value, sdk_configurations)
+        for sdk_configuration in sdk_configurations
+          build_settings["#{key}[sdk=#{sdk_configuration}]"] = [value]
         end
       end
 

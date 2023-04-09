@@ -74,6 +74,8 @@ class XcodeProjBuildSettingsIntegrateAppender: BuildSettingsIntegrateAppender {
         $(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)
         """
                         )
+        
+        explicitlyDisableSDKs(buildSettings: &result)
         return result
     }
     
@@ -83,8 +85,16 @@ class XcodeProjBuildSettingsIntegrateAppender: BuildSettingsIntegrateAppender {
             // no need to exclude as the value will
             return
         }
+        // Erase all overrides for a given sdk so a default toolchain is used
         for skippedSDK in sdksExclude {
             buildSettings["\(key)[sdk=\(skippedSDK)]"] = ""
+        }
+    }
+    
+    // For all exlcuded SDKs passes XCRC_DISABLED=TRUE, which will cut-off early the pre_build phase
+    private func explicitlyDisableSDKs(buildSettings: inout BuildSettings) {
+        for skippedSDK in sdksExclude {
+            buildSettings["XCRC_DISABLED[sdk=\(skippedSDK)]"] = "YES"
         }
     }
 }

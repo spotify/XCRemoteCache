@@ -1,4 +1,5 @@
 {
   "hits": 0,
-  "misses": 0
+  "misses": null,
+  "hit_rate": 0
 }
