@@ -227,7 +227,7 @@ namespace :e2e do
     def self.run_cocoapods_scenario(template_path)
         # Optional file, which adds extra cocoapods configs to a template
         template_config_path = "#{template_path}.config"
-        extra_config = File.exist?(template_config_path) ? JSON.load(template_config_path) : {}
+        extra_config = File.exist?(template_config_path) ? JSON.load(File.read(template_config_path)) : {}
         producer_configuration = cocoapods_configuration_string({'mode' => 'producer'}.merge(extra_config))
         consumer_configuration = cocoapods_configuration_string(extra_config)
         expectations = build_expectations(template_path)
@@ -268,7 +268,7 @@ namespace :e2e do
 
         template_config_path = "#{template_path}.expectations"
         if File.exist?(template_config_path)
-            extra_config = File.exist?(template_config_path) ? JSON.load(template_config_path) : {}
+            extra_config = File.exist?(template_config_path) ? JSON.load(File.read(template_config_path)) : {}
             expectations.merge!(extra_config)
         end
         OpenStruct.new(expectations)
