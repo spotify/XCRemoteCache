@@ -42,9 +42,9 @@ namespace :e2e do
         # Run scenarios for all Podfile scenarios
         for podfile_path in Dir.glob('e2eTests/**/*.Podfile')
             run_cocoapods_scenario(podfile_path)
-            # Revert all side effects
-            clean
         end
+        # Revert all side effects
+        clean
     end
 
     # run E2E tests for standalone (non-CocoaPods) projects
@@ -140,7 +140,6 @@ namespace :e2e do
     # Revert any local changes in the test project
     def self.clean_git
         system("git clean -xdf #{E2E_COCOAPODS_SAMPLE_DIR}")
-        system("git checkout -f #{E2E_COCOAPODS_SAMPLE_DIR}")
     end
 
     # Cleans all extra locations that a test creates
