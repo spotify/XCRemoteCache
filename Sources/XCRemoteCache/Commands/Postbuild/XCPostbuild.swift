@@ -275,7 +275,7 @@ public class XCPostbuild {
 
             // Trigger build completion
             if context.disabled {
-                infoLog("XCRemoteCache explicitly disabled for \(context.targetName), \(context.platform), \(context.configuration)")
+                infoLog("XCRC fully disabled for \(context.targetName), \(context.platform), \(context.configuration)")
                 // Cutoff the process is disabled, but generate an "empty" list of dependencies
                 try? modeController.disable()
                 return
