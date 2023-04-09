@@ -321,7 +321,7 @@ module CocoapodsXCRemoteCacheModifier
       end
 
       def self.add_build_setting(build_settings, key, value, exclude_sdks_configurations)
-        build_settings[key] = [value]
+        build_settings[key] = value
         for exclude_sdks_configuration in exclude_sdks_configurations
           build_settings["#{key}[sdk=#{exclude_sdks_configuration}]"] = [""]
         end
@@ -337,14 +337,14 @@ module CocoapodsXCRemoteCacheModifier
       # Delete all build setting for a key, including settings like "[skd=*,arch=*]"
       def self.delete_build_setting(build_settings, key)
         for build_setting_key in build_settings.keys
-          build_settings.delete(reset_build_setting) if key = reset_build_setting || key.start_with?("#{key}[")
+          build_settings.delete(build_setting_key) if build_setting_key == key || build_setting_key.start_with?("#{key}[")
         end
       end
 
       # Sets value for a key only for a subset of sdk configurations
       def self.add_build_setting_for_sdks(build_settings, key, value, sdk_configurations)
         for sdk_configuration in sdk_configurations
-          build_settings["#{key}[sdk=#{sdk_configuration}]"] = [value]
+          build_settings["#{key}[sdk=#{sdk_configuration}]"] = value
         end
       end
 
