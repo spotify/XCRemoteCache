@@ -50,6 +50,11 @@ public class XCPostbuild {
             exit(1, "FATAL: Postbuild initialization failed with error: \(error)")
         }
 
+        guard !context.disabled else {
+            infoLog("XCRemoteCache explicitly disabled for \(context.targetName), \(context.platform), \(context.configuration)")
+            return
+        }
+
         // Postbuild cannot disable marker, so NoopMarkerWriter used instead of a real file writer
         let modeController = PhaseCacheModeController(
             tempDir: context.targetTempDir,

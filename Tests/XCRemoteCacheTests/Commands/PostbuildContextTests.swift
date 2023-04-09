@@ -159,4 +159,31 @@ class PostbuildContextTests: FileXCTestCase {
 
         XCTAssertNil(context.publicHeadersFolderPath)
     }
+
+    func testDisabledEnvIsFalseByDefault() throws {
+        var envs = Self.SampleEnvs
+        envs.removeValue(forKey: "XCRC_DISABLED")
+
+        let context = try PostbuildContext(config, env: envs)
+
+        XCTAssertFalse(context.disabled)
+    }
+
+    func testDisabledIsTrueForYesEnv() throws {
+        var envs = Self.SampleEnvs
+        envs["XCRC_DISABLED"] = "YES"
+
+        let context = try PostbuildContext(config, env: envs)
+
+        XCTAssertTrue(context.disabled)
+    }
+
+    func testDisabledIsFalseForNonYesEnv() throws {
+        var envs = Self.SampleEnvs
+        envs["XCRC_DISABLED"] = "NO"
+
+        let context = try PostbuildContext(config, env: envs)
+
+        XCTAssertFalse(context.disabled)
+    }
 }
