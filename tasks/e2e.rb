@@ -81,7 +81,7 @@ namespace :e2e do
             system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode consumer")
             build_project(nil, "StandaloneApp.xcodeproj", 'WatchExtension', 'watch', 'watchOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
             build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', 'iphone', 'iOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
-            valide_hit_rate(DEFAULT_EXPECTATIONS)
+            valide_hit_rate(OpenStruct.new(DEFAULT_EXPECTATIONS))
 
             puts 'Building standalone consumer with local change...'
             # Extra: validate local compilation of the Standalone ObjC code
