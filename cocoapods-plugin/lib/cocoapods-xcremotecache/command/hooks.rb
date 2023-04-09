@@ -150,6 +150,7 @@ module CocoapodsXCRemoteCacheModifier
           debug_prefix_map_replacement = '$(SRCROOT' + ':dir:standardizepath' * repo_distance + ')'
           add_cflags!(config.build_settings, '-fdebug-prefix-map', "#{debug_prefix_map_replacement}=$(XCREMOTE_CACHE_FAKE_SRCROOT)", exclude_sdks_configurations)
           add_swiftflags!(config.build_settings, '-debug-prefix-map', "#{debug_prefix_map_replacement}=$(XCREMOTE_CACHE_FAKE_SRCROOT)", exclude_sdks_configurations)
+          delete_build_setting(config.build_settings, 'XCRC_DISABLED')
           add_build_setting_for_sdks(config.build_settings, 'XCRC_DISABLED', 'YES', exclude_sdks_configurations)
         end
 
@@ -323,6 +324,20 @@ module CocoapodsXCRemoteCacheModifier
         build_settings[key] = [value]
         for exclude_sdks_configuration in exclude_sdks_configurations
           build_settings["#{key}[sdk=#{exclude_sdks_configuration}]"] = [""]
+        end
+      end
+
+      # Deletes all previous build settings for a key, and sets a new value to all configurations
+      # but the sdks in exclude_sdks_configurations
+      def self.reset_build_setting(build_settings, key, value, exclude_sdks_configurations)
+        delete_build_setting(build_settings, key)
+        add_build_setting(build_settings, key, value, exclude_sdks_configurations)
+      end
+
+      # Delete all build setting for a key, including settings like "[skd=*,arch=*]"
+      def self.delete_build_setting(build_settings, key)
+        for build_setting_key in build_settings.keys
+          build_settings.delete(reset_build_setting) if key = reset_build_setting || key.start_with?("#{key}[")
         end
       end
 
