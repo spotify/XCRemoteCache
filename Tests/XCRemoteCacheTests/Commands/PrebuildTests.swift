@@ -358,7 +358,7 @@ class PrebuildTests: FileXCTestCase {
 
         XCTAssertEqual(globalCacheSwitcher.state, .enabled(sha: "1"))
     }
-    
+
     func testReturnsDisabledIfXCRCExplicitlyDisabled() throws {
         contextNonCached = PrebuildContext(
             targetTempDir: sampleURL,
@@ -374,7 +374,7 @@ class PrebuildTests: FileXCTestCase {
             overlayHeadersPath: "",
             disabled: true
         )
-        
+
         let prebuild = Prebuild(
             context: contextNonCached,
             networkClient: remoteNetwork,
@@ -385,7 +385,7 @@ class PrebuildTests: FileXCTestCase {
             metaReader: metaReader,
             artifactConsumerPrebuildPlugins: []
         )
-        
+
         XCTAssertEqual(try prebuild.perform(), .disabled)
     }
 }

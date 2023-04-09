@@ -55,7 +55,7 @@ extension Dictionary where Key == String, Value == String {
         }
         return value == "YES"
     }
-    
+
     func readEnv(key: String) throws -> Bool? {
         guard let value = self[key] else {
             return nil

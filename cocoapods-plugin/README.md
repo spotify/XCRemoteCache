@@ -55,7 +55,7 @@ An object that is passed to the `xcremotecache` can contain all properties suppo
 | `prettify_meta_files` | A Boolean value that opts-in pretty JSON formatting for meta files | `false` | ⬜️ |
 | `fake_src_root` | An arbitrary source location shared between producers and consumers. Should be unique for a project. | `/xxxxxxxxxx` | ⬜️ |
 | `disable_certificate_verification` | A Boolean value that opts-in SSL certificate validation is disabled | `false` | ⬜️ |
-| `exclude_sdks_configurations` | array of sdks to not integrate XCRemoteCache (e.g. "watchos*, watchsimulator*") | `[]`| ⬜️ |
+| `exclude_sdks_configurations` | array of sdks to not integrate XCRemoteCache (e.g. "watchos*, watchsimulator*") (Experimental) | `[]`| ⬜️ |
 
 ## Uninstalling
 

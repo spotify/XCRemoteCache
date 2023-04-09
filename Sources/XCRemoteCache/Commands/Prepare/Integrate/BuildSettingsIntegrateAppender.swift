@@ -35,14 +35,14 @@ class XcodeProjBuildSettingsIntegrateAppender: BuildSettingsIntegrateAppender {
     private let repoRoot: URL
     private let fakeSrcRoot: URL
     private let sdksExclude: [String]
-
+    
     init(mode: Mode, repoRoot: URL, fakeSrcRoot: URL, sdksExclude: [String]) {
         self.mode = mode
         self.repoRoot = repoRoot
         self.fakeSrcRoot = fakeSrcRoot
         self.sdksExclude = sdksExclude
     }
-
+    
     func appendToBuildSettings(buildSettings: BuildSettings, wrappers: XCRCBinariesPaths) -> BuildSettings {
         var result = buildSettings
         setBuildSetting(buildSettings: &result, key: "SWIFT_EXEC", value: wrappers.swiftc.path )
@@ -55,30 +55,30 @@ class XcodeProjBuildSettingsIntegrateAppender: BuildSettingsIntegrateAppender {
             setBuildSetting(buildSettings: &result, key: "LIPO", value: wrappers.lipo.path )
             setBuildSetting(buildSettings: &result, key: "LDPLUSPLUS", value: wrappers.ldplusplus.path )
         }
-
+        
         let existingSwiftFlags = result["OTHER_SWIFT_FLAGS"] as? String
         let existingCFlags = result["OTHER_CFLAGS"] as? String
         var swiftFlags = XcodeSettingsSwiftFlags(settingValue: existingSwiftFlags)
         var clangFlags = XcodeSettingsCFlags(settingValue: existingCFlags)
-
+        
         // Overriding debug prefix map for Swift and ObjC to have consistent absolute path for all debug symbols
         swiftFlags.assignFlag(key: "debug-prefix-map", value: "\(repoRoot.path)=$(XCRC_FAKE_SRCROOT)")
         clangFlags.assignFlag(key: "debug-prefix-map", value: "\(repoRoot.path)=$(XCRC_FAKE_SRCROOT)")
-
+        
         setBuildSetting(buildSettings: &result, key: "OTHER_SWIFT_FLAGS", value: swiftFlags.settingValue )
         setBuildSetting(buildSettings: &result, key: "OTHER_CFLAGS", value: clangFlags.settingValue )
-
+        
         setBuildSetting(buildSettings: &result, key: "XCRC_FAKE_SRCROOT", value: "\(fakeSrcRoot.path)" )
         setBuildSetting(buildSettings: &result, key: "XCRC_PLATFORM_PREFERRED_ARCH", value:
         """
         $(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)
         """
-                        )
-        
+        )
+
         explicitlyDisableSDKs(buildSettings: &result)
         return result
     }
-    
+
     private func setBuildSetting(buildSettings: inout BuildSettings, key: String, value: String?) {
         buildSettings[key] = value
         guard value != nil else {
@@ -90,7 +90,7 @@ class XcodeProjBuildSettingsIntegrateAppender: BuildSettingsIntegrateAppender {
             buildSettings["\(key)[sdk=\(skippedSDK)]"] = ""
         }
     }
-    
+
     // For all exlcuded SDKs passes XCRC_DISABLED=TRUE, which will cut-off early the pre_build phase
     private func explicitlyDisableSDKs(buildSettings: inout BuildSettings) {
         for skippedSDK in sdksExclude {

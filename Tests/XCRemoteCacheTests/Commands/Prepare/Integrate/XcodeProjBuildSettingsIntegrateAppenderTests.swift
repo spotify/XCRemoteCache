@@ -71,7 +71,7 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
 
         XCTAssertEqual(ldPlusPlus, binaries.ldplusplus.path)
     }
-    
+
     func testSinglesdksExcludeIsAppended() throws {
         let mode: Mode = .consumer
         let appender = XcodeProjBuildSettingsIntegrateAppender(mode: mode, repoRoot: rootURL, fakeSrcRoot: "/", sdksExclude: ["watchOS*"])
@@ -80,7 +80,7 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
 
         XCTAssertEqual(ldPlusPlusWatchOS, "")
     }
-    
+
     func testMultiplesdksExcludeAreAppended() throws {
         let mode: Mode = .consumer
         let appender = XcodeProjBuildSettingsIntegrateAppender(mode: mode, repoRoot: rootURL, fakeSrcRoot: "/", sdksExclude: ["watchOS*", "watchsimulator*"])
@@ -91,7 +91,7 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
         XCTAssertEqual(ldPlusPlusWatchOS, "")
         XCTAssertEqual(ldPlusPlusWatchSimulator, "")
     }
-    
+
     func testAddsDisabledFlagForExcludedSDKs() throws {
         let mode: Mode = .consumer
         let appender = XcodeProjBuildSettingsIntegrateAppender(mode: mode, repoRoot: rootURL, fakeSrcRoot: "/", sdksExclude: ["watchOS*", "watchsimulator*"])

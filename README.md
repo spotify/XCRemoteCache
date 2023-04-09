@@ -61,11 +61,11 @@ The artifact reuse flow is as follows: XCRemoteCache performs a target precheck 
 
 > Multiple commits that have the same target sources reuse artifact package on a remote server.
 
-### Accurate target input files 
+### Accurate target input files
 
-Finding a precise list of input and dependency files is a non-trivial task as Xcode heavily relies on implicit target dependencies. It means that Xcode is trying to use required dependencies from provided search paths and looks up `DerivedData`'s product dir. To find a narrow list of files to compute fingerprint hash, XCRemoteCache fetches a `meta.json` file from a server which contains remotelly generated fingerprint hash and a list of input files that should constitute a fingerprint. That list of input files was produced during the artifact generation process, based on `.d` output from `clang` and `swift` compilers. 
+Finding a precise list of input and dependency files is a non-trivial task as Xcode heavily relies on implicit target dependencies. It means that Xcode is trying to use required dependencies from provided search paths and looks up `DerivedData`'s product dir. To find a narrow list of files to compute fingerprint hash, XCRemoteCache fetches a `meta.json` file from a server which contains remotelly generated fingerprint hash and a list of input files that should constitute a fingerprint. That list of input files was produced during the artifact generation process, based on `.d` output from `clang` and `swift` compilers.
 
-Before building a project in Xcode, XCRemoteCache needs to find the best git commit sha for which artifacts will be used. This happens as a part of the `xcprepare` execution, which should be called after each merge or switching a branch. `xcprepare` finds a list of 10 most recent common sha with the remote repo branch using git's first-parent strategy and selects the newest one for which all artifacts have been uploaded. 
+Before building a project in Xcode, XCRemoteCache needs to find the best git commit sha for which artifacts will be used. This happens as a part of the `xcprepare` execution, which should be called after each merge or switching a branch. `xcprepare` finds a list of 10 most recent common sha with the remote repo branch using git's first-parent strategy and selects the newest one for which all artifacts have been uploaded.
 
 _The generation side is responsible to call `xcprepare mark` subcommand after each successful build. Marking process creates an empty marker file on a remote cache server with a given format: `#{commmmitSha}-#{TargetName}-#{Configuration}-#{Platform}-#{XcodeBuildNumber}-#{ContextBuildSettings}-#{SchemaID}.json`._
 
@@ -73,7 +73,7 @@ _The generation side is responsible to call `xcprepare mark` subcommand after ea
 
 #### New file added to the target
 
-Considering in the hash fingerprint only a list of previously observed files can give invalid results if a build contains a new source file as it isn't considered in the hash. 
+Considering in the hash fingerprint only a list of previously observed files can give invalid results if a build contains a new source file as it isn't considered in the hash.
 
 For a new `.swift` file in a swift-only target, `xcswiftc` automatically recognizes that case and forces local compilation of the entire target. For Objective-C or mixed targets, fallbacking to the local compilation is more difficult as some previous invocations (either `xccc` or `xcswiftc`) could already be finished with no-operation. To mitigate that, each wrapper appends invocation call to a side file (`history.compile`) just in case some other process would need to compile the entire target locally. If that happens, compilation of the newly added file acquires a target-wide lock that stops other wrapper invocations, executes already mocked steps one by one to backfill already skipped compilation steps.
 
@@ -99,13 +99,13 @@ By default, all targets are focused and these compare local fingerprint with one
 
 ## How to integrate XCRemoteCache with your Xcode project?
 
-To enable XCRemoteCache in the existing `.xcodeproj` you need to  add extra build settings and build phases to targets that you want to cache. 
+To enable XCRemoteCache in the existing `.xcodeproj` you need to  add extra build settings and build phases to targets that you want to cache.
 
-You can do that in an automatic way, using the XCRemoteCache-provided integration command, or manually modify your Xcode project.   
+You can do that in an automatic way, using the XCRemoteCache-provided integration command, or manually modify your Xcode project.
 
 ### 1. Download XCRemoteCache
 
-From the Github [Releases page](https://github.com/spotify/XCRemoteCache/releases), download the XCRemoteCache bundle zip. Unzip the bundle to a directory next to your `.xcodeproj`. 
+From the Github [Releases page](https://github.com/spotify/XCRemoteCache/releases), download the XCRemoteCache bundle zip. Unzip the bundle to a directory next to your `.xcodeproj`.
 
 _The following steps will assume the bundle has been unzipped to `xcremotecache` dir, placed next to the `.xcodeproj`._
 
@@ -113,7 +113,7 @@ _The following steps will assume the bundle has been unzipped to `xcremotecache`
 
 #### 2. Create a minimal XCRemoteCache configuration
 
-Create `.rcinfo` yaml file next to the `.xcodeproj` with a minimum set of configuration entries, like: 
+Create `.rcinfo` yaml file next to the `.xcodeproj` with a minimum set of configuration entries, like:
 ```yaml
 primary_repo: https://yourRepo.git
 cache_addresses:
@@ -152,7 +152,7 @@ xcremotecache/xcprepare integrate --input <yourProject.xcodeproj> --mode consume
 | `--lldb-init` | LLDBInit mode. Appends to .lldbinit a command required for debugging. Supported values: 'none' (do not append to .lldbinit), 'user' (append to ~/.lldbinit) | `user` | ⬜️ |
 | `--fake-src-root` | An arbitrary source location shared between producers and consumers. Should be unique for a project. | `/xxxxxxxxxx` | ⬜️ |
 | `--output` | Save the project with integrated XCRemoteCache to a separate location.  | N/A | ⬜️ |
-| `--sdks-exclude` | comma separated list of sdks to not integrate XCRemoteCache (e.g. "watchos*, watchsimulator*").  | `""` | ⬜️ |
+| `--sdks-exclude` | comma separated list of sdks to not integrate XCRemoteCache (e.g. "watchos*, watchsimulator*"). (Experimental)  | `""` | ⬜️ |
 
 </details>
 
@@ -161,7 +161,7 @@ xcremotecache/xcprepare integrate --input <yourProject.xcodeproj> --mode consume
 
 #### 2. Configure XCRemoteCache
 
-Create yaml configuration file `.rcinfo`, next to the `.xcodeproj`, with your full XCRemoteCache configuration, according to [the parameters list](#a-full-list-of-configuration-parameters) e.g.: 
+Create yaml configuration file `.rcinfo`, next to the `.xcodeproj`, with your full XCRemoteCache configuration, according to [the parameters list](#a-full-list-of-configuration-parameters) e.g.:
 
 ```yaml
 primary_repo: https://yourRepo.git
@@ -186,11 +186,11 @@ result: true
 commit: aabbccc00
 age: 0
 recommended_remote_address: https://xcremotecacheserver.com
-``` 
+```
 
 #### 4. Integrate with the Xcode project
 
-Configure Xcode targets that **should use** XCRemoteCache: 
+Configure Xcode targets that **should use** XCRemoteCache:
 
 1. Override Build Settings:
 * `CC` - `xccc_file` from your `.rcinfo` configuration (e.g. `xcremotecache/xccc`)
@@ -212,14 +212,14 @@ Configure Xcode targets that **should use** XCRemoteCache:
 2. Add a `Prebuild` build phase (before compilation):
 * command: `"$SCRIPT_INPUT_FILE_0"`
 * input files: location of `xcprebuild` (e.g. `xcremotecache/xcprebuild`)
-* output files: 
+* output files:
   * `$(TARGET_TEMP_DIR)/rc.enabled`
   * `$(DWARF_DSYM_FOLDER_PATH)/$(DWARF_DSYM_FILE_NAME)`
 * discovery dependency file: `$(TARGET_TEMP_DIR)/prebuild.d`
 3. Add `Postbuild` build phase (after compilation):
 * command: `"$SCRIPT_INPUT_FILE_0"`
 * input files: location of `xcpostbuild` command (e.g. `xcremotecache/xcpostbuild`)
-* output files: 
+* output files:
   * `$(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/$(XCRC_PLATFORM_PREFERRED_ARCH).swiftmodule.md5`
   * `$(TARGET_BUILD_DIR)/$(MODULES_FOLDER_PATH)/$(PRODUCT_MODULE_NAME).swiftmodule/$(XCRC_PLATFORM_PREFERRED_ARCH)-$(LLVM_TARGET_TRIPLE_VENDOR)-$(SWIFT_PLATFORM_TARGET_PREFIX)$(LLVM_TARGET_TRIPLE_SUFFIX).swiftmodule.md5`
 * discovery dependency file: `$(TARGET_TEMP_DIR)/postbuild.d`
@@ -233,13 +233,13 @@ Configure Xcode targets that **should use** XCRemoteCache:
 
 #### 5. Configure LLDB source-map (Optional)
 
-Rewriting source-map is required to support debugging and hit breakpoints, see [Debug symbols](#debug-symbols). 
+Rewriting source-map is required to support debugging and hit breakpoints, see [Debug symbols](#debug-symbols).
 
 1. Ooverride the following Build Settings for **all targets**:
 * `XCRC_SRCROOT` - `/xxxxxxxxxx` (or any other arbitrary string for your project)
 * add `-debug-prefix-map $(SRCROOT)=$(XCRC_SRCROOT)` to `OTHER_SWIFT_FLAGS`. _If it doesn't exist, define it as `$(inherited) -debug-prefix-map $(SRCROOT)=$(XCRC_SRCROOT)`_
 * add `-fdebug-prefix-map=$(SRCROOT)=$(XCRC_SRCROOT)` to `OTHER_CFLAGS`. _If it doesn't exists, define it as `$(inherited) -fdebug-prefix-map=$(SRCROOT)=$(XCRC_SRCROOT)`_
-2. Add `settings set target.source-map /xxxxxxxxxx /Users/account/src/PathToTheProject` to `~/.lldbinit` on end machine that builds a project with XCRemoteCache 
+2. Add `settings set target.source-map /xxxxxxxxxx /Users/account/src/PathToTheProject` to `~/.lldbinit` on end machine that builds a project with XCRemoteCache
 
 > `XCRC_SRCROOT` arbitrary path should be project-exclusive to avoid clashing.
 
@@ -247,11 +247,11 @@ _Tip: In some rare cases, Xcode caches `~/.lldbinit` content so make sure to res
 
 #### 6. Producer mode - Artifacts generation
 
-XCRemoteCache can operate in two main modes: `consumer` (default) tries to reuse artifacts available on the remote server and `producer` is used to generate all artifacts - it builds all targets locally and uploads meta and artifact files to the remote cache server. 
+XCRemoteCache can operate in two main modes: `consumer` (default) tries to reuse artifacts available on the remote server and `producer` is used to generate all artifacts - it builds all targets locally and uploads meta and artifact files to the remote cache server.
 
 ##### 6a. Configure producer mode
 
-To enable the `producer` mode, configure it directly in the `.rcinfo` file. 
+To enable the `producer` mode, configure it directly in the `.rcinfo` file.
 
 > Optionally, you can define `extra_configuration_file` in a `.rcinfo` with a path to the other yaml file that will override the default configuration in `.rcinfo`. That approach can be useful if you want to track main `.rcinfo` and keep your local configuration out of git.
 
@@ -361,7 +361,7 @@ Note: This step is not required if at least one of these is true:
 
 ## Backend cache server
 
-As a cache server, XCRemoteCache may use any REST server that supports PUT, GET and HEAD methods. 
+As a cache server, XCRemoteCache may use any REST server that supports PUT, GET and HEAD methods.
 
 For the development phase, you can try the simplest cache server available as a docker image in [backend-example](backend-example). For the production environment, it is recommended to configure a reliable, fast server, preferrably located in a close proximity to developer's machines.
 
@@ -395,7 +395,7 @@ XCRemoteCache supports Amazon S3 and Google Cloud Storage buckets to be used as 
 
 To set it up use the configuration parameters `aws_secret_key`, `aws_access_key`, `aws_region`, and `aws_service` in the `.rcinfo` file. Specify the URL to the bucket in cache-addresses field in the same file.
 
-XCRemoteCache also supports [AWS Temporary Access Keys](https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html#temporary-access-keys). Use additional `aws_security_token` parameter combined with `aws_secret_key`, `aws_access_key` to set it up. [This page](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html) describes how to receive a security token. 
+XCRemoteCache also supports [AWS Temporary Access Keys](https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html#temporary-access-keys). Use additional `aws_security_token` parameter combined with `aws_secret_key`, `aws_access_key` to set it up. [This page](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html) describes how to receive a security token.
 
 Example
 ```yaml
@@ -450,7 +450,7 @@ Note: This setup is not recommended and may not be supported in future XCRemoteC
 * Recommended: multi-targets Xcode project
 * Recommended: do not use fast-forward PR strategy (use merge or squash instead)
 * Recommended: avoid `DWARF with dSYM File` "Debug Information Format" build setting. Use `DWARF` instead
-* Recommended: avoid having a symbolic link in the source root (e.g. placing a project in `/tmp`) 
+* Recommended: avoid having a symbolic link in the source root (e.g. placing a project in `/tmp`)
 
 ## Limitations
 
@@ -467,9 +467,9 @@ Follow the [FAQ](docs/FAQ.md) page.
 
 Follow the [Development](docs/Development.md) guide. It has all the information on how to get started.
 
-## Release 
+## Release
 
-To release a version, in [Releases](https://github.com/spotify/XCRemoteCache/releases) draft a new release with `v0.3.0{-rc0}` tag format. 
+To release a version, in [Releases](https://github.com/spotify/XCRemoteCache/releases) draft a new release with `v0.3.0{-rc0}` tag format.
 Packages with binaries will be automatically uploaded to the GitHub [Releases](https://github.com/spotify/XCRemoteCache/releases) page.
 
 ### Releasing CocoaPods plugin
@@ -496,7 +496,7 @@ Reach us at the `#xcremotecache` channel in [Slack](https://slackin.spotify.com/
 
 ## Contributing
 
-We feel that a welcoming community is important and we ask that you follow Spotify's 
+We feel that a welcoming community is important and we ask that you follow Spotify's
 [Open Source Code of Conduct](https://github.com/spotify/code-of-conduct/blob/master/code-of-conduct.md)
 in all interactions with the community.
 

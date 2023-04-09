@@ -228,7 +228,7 @@ struct XCPrepareMain: ParsableCommand {
             transform: nonEmptyString
         )
         var fakeSrcRoot: String
-        
+
         @Option(name: .customLong("sdks-exclude"), default: "", help: """
         comma separated list of sdks to not integrate XCRemoteCache (e.g. "watchos*, watchsimulator*")
         """, transform: nonEmptyString)
