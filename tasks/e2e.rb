@@ -203,8 +203,7 @@ namespace :e2e do
         misses = stats_json_string.fetch('miss_count', 0)
         hits = stats_json_string.fetch('hit_count', 0)
         all_targets = misses + hits
-        raise "Failure: No XCRemoteCache targets invoked" if all_targets == 0
-        hit_rate = hits * 100 / all_targets
+        hit_rate = all_targets == 0 ? nil : hits * 100 / all_targets
         Stats.new(hits, misses, hit_rate)
     end
 

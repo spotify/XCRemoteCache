@@ -34,7 +34,7 @@ class PrepareMarkContextTests: XCTestCase {
         let repoPath = "/AbsolutePath"
         config.repoRoot = repoPath
 
-        let context = try PrepareMarkContext(config)
+        let context = try PrepareMarkContext(config, env: [:])
 
         XCTAssertEqual(context.repoRoot.path, repoPath)
     }
@@ -43,8 +43,20 @@ class PrepareMarkContextTests: XCTestCase {
         let repoPath = "."
         config.repoRoot = repoPath
 
-        let context = try PrepareMarkContext(config)
+        let context = try PrepareMarkContext(config, env: [:])
 
         XCTAssertEqual(context.repoRoot.path, "/Root")
+    }
+
+    func testDisabledIsFalseByDefault() throws {
+        let context = try PrepareMarkContext(config, env: [:])
+
+        XCTAssertFalse(context.disabled)
+    }
+
+    func testDisabledIsTrueForYes() throws {
+        let context = try PrepareMarkContext(config, env: ["XCRC_DISABLED": "YES"])
+
+        XCTAssertTrue(context.disabled)
     }
 }

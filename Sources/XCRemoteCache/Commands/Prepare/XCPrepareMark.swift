@@ -47,10 +47,15 @@ public class XCPrepareMark {
         let xcodeVersion: String
         do {
             config = try XCRemoteCacheConfigReader(env: env, fileReader: fileManager).readConfiguration()
-            context = try PrepareMarkContext(config)
+            context = try PrepareMarkContext(config, env: env)
             xcodeVersion = try xcode ?? XcodeProbeImpl(shell: shellGetStdout).read().buildVersion
         } catch {
             exit(1, "FATAL: Prepare initialization failed with error: \(error)")
+        }
+
+        guard !context.disabled else {
+            infoLog("XCRemoteCache explicitly disabled for marking.")
+            return
         }
 
         do {

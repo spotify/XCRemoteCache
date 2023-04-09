@@ -50,11 +50,6 @@ public class XCPostbuild {
             exit(1, "FATAL: Postbuild initialization failed with error: \(error)")
         }
 
-        guard !context.disabled else {
-            infoLog("XCRemoteCache explicitly disabled for \(context.targetName), \(context.platform), \(context.configuration)")
-            return
-        }
-
         // Postbuild cannot disable marker, so NoopMarkerWriter used instead of a real file writer
         let modeController = PhaseCacheModeController(
             tempDir: context.targetTempDir,
@@ -279,7 +274,12 @@ public class XCPostbuild {
             )
 
             // Trigger build completion
-            if try modeController.isEnabled() {
+            if context.disabled {
+                infoLog("XCRemoteCache explicitly disabled for \(context.targetName), \(context.platform), \(context.configuration)")
+                // Cutoff the process is disabled, but generate an "empty" list of dependencies
+                try? modeController.disable()
+                return
+            } else if try modeController.isEnabled() {
                 // Decorate .swiftmodule in the product dir with fingerprint(s) overrides from a cache artifact
                 try postbuildAction.performBuildCompletion()
             } else if context.mode == .consumer {
