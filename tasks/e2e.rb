@@ -1,4 +1,5 @@
 require 'json'
+require "ostruct"
 
 desc 'Support for E2E tests: building XCRemoteCache-enabled xcodeproj using xcodebuild'
 namespace :e2e do
@@ -21,6 +22,10 @@ namespace :e2e do
         'mode' => 'consumer',
         'final_target' => 'XCRemoteCacheSample',
         'artifact_maximum_age' => 0
+    }
+    DEFAULT_EXPECTATIONS = {
+        'misses' => 0,
+        'hit_rate' => 100
     }
 
     Stats = Struct.new(:hits, :misses, :hit_rate)
@@ -76,7 +81,7 @@ namespace :e2e do
             system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode consumer")
             build_project(nil, "StandaloneApp.xcodeproj", 'WatchExtension', 'watch', 'watchOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
             build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', 'iphone', 'iOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
-            valide_hit_rate
+            valide_hit_rate(DEFAULT_EXPECTATIONS)
 
             puts 'Building standalone consumer with local change...'
             # Extra: validate local compilation of the Standalone ObjC code
@@ -204,16 +209,28 @@ namespace :e2e do
     end
 
     # validate 100% hit rate
-    def self.valide_hit_rate
+    def self.valide_hit_rate(expectations)
         status = read_stats()
         all_targets = status.misses + status.hits
-        raise "Failure: Hit rate is only #{status.hit_rate}% (#{all_targets})" if status.misses > 0
+        unless expectations.misses.nil?
+            raise "Failure: Unexpected misses: #{status.misses} (#{all_targets}). Expected #{expectations.misses}". if status.misses != expectations.misses
+        end
+        unless expectations.hit_rate.nil?
+            raise "Failure: Hit rate is #{status.hit_rate}% (#{all_targets}). Expected #{expectations.hit_rate}%" if status.hit_rate != expectations.hit_rate
+        end
+        unless expectations.hits.nil?
+            raise "Failure: Hits count is #{status.hit_rate}% (#{all_targets}). Expected #{expectations.hits}" if status.hits != expectations.hits
+        end
         puts("Hit rate: #{status.hit_rate}% (#{status.hits}/#{all_targets})")
     end
 
     def self.run_cocoapods_scenario(template_path)
-        producer_configuration = cocoapods_configuration_string({'mode' => 'producer'})
-        consumer_configuration = cocoapods_configuration_string()
+        # Optional file, which adds extra cocoapods configs to a template
+        template_config_path = "#{template_path}.config"
+        extra_config = File.exist?(template_config_path) ? JSON.load(template_config_path) : {}
+        producer_configuration = cocoapods_configuration_string({'mode' => 'producer'}.merge(extra_config))
+        consumer_configuration = cocoapods_configuration_string(extra_config)
+        expectations = build_expectations(template_path)
 
         puts("****** Scenario: #{template_path}")
 
@@ -233,12 +250,27 @@ namespace :e2e do
         puts('Building consumer ...')
         Dir.chdir(E2E_COCOAPODS_SAMPLE_DIR) do
             build_project_cocoapods('iphone', 'iOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
-            valide_hit_rate
+            valide_hit_rate(expectations)
         end
     end
 
     def self.prepare_for_standalone(dir)
         clean_git
         system("ln -s $(pwd)/releases #{dir}/#{XCRC_BINARIES}")
+    end
+
+    # Returns a hash of all expectations that should be validated for a template
+    # The implementation assumes 100% hitrate and extra expecations can be provided in an optional file
+    # #{template_path}.expectations
+    def self.build_expectations(template_path)
+        expectations = DEFAULT_EXPECTATIONS
+        return expectations if template_path.nil?
+
+        template_config_path = "#{template_path}.expectations"
+        if File.exist?(template_config_path)
+            extra_config = File.exist?(template_config_path) ? JSON.load(template_config_path) : {}
+            expectations.merge!(extra_config)
+        end
+        OpenStruct.new(expectations)
     end
 end
