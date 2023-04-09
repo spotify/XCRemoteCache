@@ -213,7 +213,7 @@ namespace :e2e do
         status = read_stats()
         all_targets = status.misses + status.hits
         unless expectations.misses.nil?
-            raise "Failure: Unexpected misses: #{status.misses} (#{all_targets}). Expected #{expectations.misses}". if status.misses != expectations.misses
+            raise "Failure: Unexpected misses: #{status.misses} (#{all_targets}). Expected #{expectations.misses}" if status.misses != expectations.misses
         end
         unless expectations.hit_rate.nil?
             raise "Failure: Hit rate is #{status.hit_rate}% (#{all_targets}). Expected #{expectations.hit_rate}%" if status.hit_rate != expectations.hit_rate
