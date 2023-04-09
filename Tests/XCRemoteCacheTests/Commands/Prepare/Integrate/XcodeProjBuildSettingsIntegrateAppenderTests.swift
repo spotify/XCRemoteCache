@@ -45,7 +45,12 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
     func testProducerSettingFakeSrcRoot() throws {
         let mode: Mode = .producer
         let fakeRootURL: URL = "/xxxxxxxxxxP"
-        let appender = XcodeProjBuildSettingsIntegrateAppender(mode: mode, repoRoot: rootURL, fakeSrcRoot: fakeRootURL, sdksExclude: [])
+        let appender = XcodeProjBuildSettingsIntegrateAppender(
+            mode: mode,
+            repoRoot: rootURL,
+            fakeSrcRoot: fakeRootURL,
+            sdksExclude: []
+        )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
         let resultURL = try XCTUnwrap(result["XCRC_FAKE_SRCROOT"] as? String)
 
@@ -55,7 +60,12 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
     func testConsumerSettingFakeSrcRoot() throws {
         let mode: Mode = .consumer
         let fakeRootURL: URL = "/xxxxxxxxxxC"
-        let appender = XcodeProjBuildSettingsIntegrateAppender(mode: mode, repoRoot: rootURL, fakeSrcRoot: fakeRootURL, sdksExclude: [])
+        let appender = XcodeProjBuildSettingsIntegrateAppender(
+            mode: mode,
+            repoRoot: rootURL,
+            fakeSrcRoot: fakeRootURL,
+            sdksExclude: []
+        )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
         let resultURL: String = try XCTUnwrap(result["XCRC_FAKE_SRCROOT"] as? String)
 
@@ -65,7 +75,12 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
     func testConsumerSettingLdPlusPlus() throws {
         let mode: Mode = .consumer
         let fakeRootURL: URL = "/xxxxxxxxxxC"
-        let appender = XcodeProjBuildSettingsIntegrateAppender(mode: mode, repoRoot: rootURL, fakeSrcRoot: fakeRootURL, sdksExclude: [])
+        let appender = XcodeProjBuildSettingsIntegrateAppender(
+            mode: mode,
+            repoRoot: rootURL,
+            fakeSrcRoot: fakeRootURL,
+            sdksExclude: []
+        )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
         let ldPlusPlus: String = try XCTUnwrap(result["LDPLUSPLUS"] as? String)
 
@@ -74,7 +89,12 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
 
     func testSinglesdksExcludeIsAppended() throws {
         let mode: Mode = .consumer
-        let appender = XcodeProjBuildSettingsIntegrateAppender(mode: mode, repoRoot: rootURL, fakeSrcRoot: "/", sdksExclude: ["watchOS*"])
+        let appender = XcodeProjBuildSettingsIntegrateAppender(
+            mode: mode,
+            repoRoot: rootURL,
+            fakeSrcRoot: "/",
+            sdksExclude: ["watchOS*"]
+        )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
         let ldPlusPlusWatchOS: String = try XCTUnwrap(result["LDPLUSPLUS[sdk=watchOS*]"] as? String)
 
@@ -83,7 +103,12 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
 
     func testMultiplesdksExcludeAreAppended() throws {
         let mode: Mode = .consumer
-        let appender = XcodeProjBuildSettingsIntegrateAppender(mode: mode, repoRoot: rootURL, fakeSrcRoot: "/", sdksExclude: ["watchOS*", "watchsimulator*"])
+        let appender = XcodeProjBuildSettingsIntegrateAppender(
+            mode: mode,
+            repoRoot: rootURL,
+            fakeSrcRoot: "/",
+            sdksExclude: ["watchOS*", "watchsimulator*"]
+        )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
         let ldPlusPlusWatchOS: String = try XCTUnwrap(result["LDPLUSPLUS[sdk=watchOS*]"] as? String)
         let ldPlusPlusWatchSimulator: String = try XCTUnwrap(result["LDPLUSPLUS[sdk=watchsimulator*]"] as? String)
@@ -94,7 +119,12 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
 
     func testAddsDisabledFlagForExcludedSDKs() throws {
         let mode: Mode = .consumer
-        let appender = XcodeProjBuildSettingsIntegrateAppender(mode: mode, repoRoot: rootURL, fakeSrcRoot: "/", sdksExclude: ["watchOS*", "watchsimulator*"])
+        let appender = XcodeProjBuildSettingsIntegrateAppender(
+            mode: mode,
+            repoRoot: rootURL,
+            fakeSrcRoot: "/",
+            sdksExclude: ["watchOS*", "watchsimulator*"]
+        )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
         let disabledWatchOS: String = try XCTUnwrap(result["XCRC_DISABLED[sdk=watchOS*]"] as? String)
         let disabledWatchSimulator: String = try XCTUnwrap(result["XCRC_DISABLED[sdk=watchsimulator*]"] as? String)
