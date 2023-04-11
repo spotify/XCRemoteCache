@@ -310,7 +310,7 @@ module CocoapodsXCRemoteCacheModifier
       end
 
       def self.add_swiftflags!(options, key, value, exclude_sdks_configurations)
-        reset_build_setting(options, 'OTHER_SWIFT_FLAGS', remove_swiftflags!(options, key) << "#{key}=#{value}", exclude_sdks_configurations)
+        reset_build_setting(options, 'OTHER_SWIFT_FLAGS', remove_swiftflags!(options, key) + " #{key} #{value}", exclude_sdks_configurations)
       end
 
       def self.remove_swiftflags!(options, key)
