@@ -152,6 +152,7 @@ xcremotecache/xcprepare integrate --input <yourProject.xcodeproj> --mode consume
 | `--lldb-init` | LLDBInit mode. Appends to .lldbinit a command required for debugging. Supported values: 'none' (do not append to .lldbinit), 'user' (append to ~/.lldbinit) | `user` | ⬜️ |
 | `--fake-src-root` | An arbitrary source location shared between producers and consumers. Should be unique for a project. | `/xxxxxxxxxx` | ⬜️ |
 | `--output` | Save the project with integrated XCRemoteCache to a separate location.  | N/A | ⬜️ |
+| `--sdks-exclude` | comma separated list of sdks to not integrate XCRemoteCache (e.g. "watchos*, watchsimulator*"). (Experimental)  | `""` | ⬜️ |
 
 </details>
 

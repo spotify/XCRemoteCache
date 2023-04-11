@@ -31,10 +31,12 @@ public struct PrepareMarkContext {
     let recommendedCacheAddress: URL
     /// All remote servers to mark
     let cacheAddresses: [URL]
+    /// XCRemoteCache is explicitly disabled
+    let disabled: Bool
 }
 
 extension PrepareMarkContext {
-    init(_ config: XCRemoteCacheConfig) throws {
+    init(_ config: XCRemoteCacheConfig, env: [String: String]) throws {
         let sourceRoot = URL(fileURLWithPath: config.sourceRoot, isDirectory: true)
         repoRoot = URL(fileURLWithPath: config.repoRoot, relativeTo: sourceRoot)
         guard let address = URL(string: config.recommendedCacheAddress) else {
@@ -43,5 +45,6 @@ extension PrepareMarkContext {
         }
         recommendedCacheAddress = address
         cacheAddresses = try config.cacheAddresses.map(URL.build)
+        disabled = try env.readEnv(key: "XCRC_DISABLED") ?? false
     }
 }

@@ -274,7 +274,12 @@ public class XCPostbuild {
             )
 
             // Trigger build completion
-            if try modeController.isEnabled() {
+            if context.disabled {
+                infoLog("XCRC fully disabled for \(context.targetName), \(context.platform), \(context.configuration)")
+                // Cutoff the process is disabled, but generate an "empty" list of dependencies
+                try? modeController.disable()
+                return
+            } else if try modeController.isEnabled() {
                 // Decorate .swiftmodule in the product dir with fingerprint(s) overrides from a cache artifact
                 try postbuildAction.performBuildCompletion()
             } else if context.mode == .consumer {

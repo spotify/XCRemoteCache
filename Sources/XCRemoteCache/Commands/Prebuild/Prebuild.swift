@@ -20,6 +20,7 @@
 import Foundation
 
 enum PrebuildResult: Equatable {
+    case disabled
     case incompatible
     case compatible(localDependencies: [URL])
 }
@@ -57,6 +58,9 @@ class Prebuild {
 
     // swiftlint:disable:next function_body_length
     public func perform() throws -> PrebuildResult {
+        guard !context.disabled else {
+            return .disabled
+        }
         guard case .available(let commit) = context.remoteCommit else {
             return .incompatible
         }

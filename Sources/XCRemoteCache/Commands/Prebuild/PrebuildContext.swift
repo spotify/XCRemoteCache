@@ -46,6 +46,8 @@ public struct PrebuildContext {
     /// location of the json file that define virtual files system overlay
     /// (mappings of the virtual location file -> local file path)
     let overlayHeadersPath: URL
+    /// XCRemoteCache is explicitly disabled
+    let disabled: Bool
 }
 
 extension PrebuildContext {
@@ -69,5 +71,6 @@ extension PrebuildContext {
         thinnedTargets = thinFocusedTargetsString?.split(separator: ",").map(String.init)
         /// Note: The file has yaml extension, even it is in the json format
         overlayHeadersPath = targetTempDir.appendingPathComponent("all-product-headers.yaml")
+        disabled = try env.readEnv(key: "XCRC_DISABLED") ?? false
     }
 }

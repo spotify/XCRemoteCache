@@ -63,7 +63,8 @@ class PrebuildTests: FileXCTestCase {
             compilationHistoryFile: compilationHistory,
             turnOffRemoteCacheOnFirstTimeout: true,
             targetName: "",
-            overlayHeadersPath: ""
+            overlayHeadersPath: "",
+            disabled: false
         )
         contextCached = PrebuildContext(
             targetTempDir: sampleURL,
@@ -76,7 +77,8 @@ class PrebuildTests: FileXCTestCase {
             compilationHistoryFile: compilationHistory,
             turnOffRemoteCacheOnFirstTimeout: true,
             targetName: "",
-            overlayHeadersPath: ""
+            overlayHeadersPath: "",
+            disabled: false
         )
         organizer = ArtifactOrganizerFake(artifactRoot: artifactsRoot, unzippedExtension: "unzip")
         globalCacheSwitcher = InMemoryGlobalCacheSwitcher()
@@ -241,7 +243,8 @@ class PrebuildTests: FileXCTestCase {
             compilationHistoryFile: compilationHistory,
             turnOffRemoteCacheOnFirstTimeout: true,
             targetName: "",
-            overlayHeadersPath: ""
+            overlayHeadersPath: "",
+            disabled: false
         )
 
         let prebuild = Prebuild(
@@ -272,7 +275,8 @@ class PrebuildTests: FileXCTestCase {
             compilationHistoryFile: compilationHistory,
             turnOffRemoteCacheOnFirstTimeout: true,
             targetName: "",
-            overlayHeadersPath: ""
+            overlayHeadersPath: "",
+            disabled: false
         )
         metaContent = try generateMeta(fingerprint: generator.generate(), filekey: "1")
         let downloadedArtifactPackage = artifactsRoot.appendingPathComponent("1")
@@ -335,7 +339,8 @@ class PrebuildTests: FileXCTestCase {
             compilationHistoryFile: compilationHistory,
             turnOffRemoteCacheOnFirstTimeout: false,
             targetName: "",
-            overlayHeadersPath: ""
+            overlayHeadersPath: "",
+            disabled: false
         )
         try globalCacheSwitcher.enable(sha: "1")
         let prebuild = Prebuild(
@@ -352,5 +357,35 @@ class PrebuildTests: FileXCTestCase {
         XCTAssertThrowsError(try prebuild.perform())
 
         XCTAssertEqual(globalCacheSwitcher.state, .enabled(sha: "1"))
+    }
+
+    func testReturnsDisabledIfXCRCExplicitlyDisabled() throws {
+        contextNonCached = PrebuildContext(
+            targetTempDir: sampleURL,
+            productsDir: sampleURL,
+            moduleName: nil,
+            remoteCommit: .unavailable,
+            remoteCommitLocation: sampleURL,
+            recommendedCacheAddress: sampleURL,
+            forceCached: false,
+            compilationHistoryFile: compilationHistory,
+            turnOffRemoteCacheOnFirstTimeout: true,
+            targetName: "",
+            overlayHeadersPath: "",
+            disabled: true
+        )
+
+        let prebuild = Prebuild(
+            context: contextNonCached,
+            networkClient: remoteNetwork,
+            remapper: remapper,
+            fingerprintAccumulator: generator,
+            artifactsOrganizer: organizer,
+            globalCacheSwitcher: globalCacheSwitcher,
+            metaReader: metaReader,
+            artifactConsumerPrebuildPlugins: []
+        )
+
+        XCTAssertEqual(try prebuild.perform(), .disabled)
     }
 }

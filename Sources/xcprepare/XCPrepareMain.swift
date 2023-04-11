@@ -229,6 +229,11 @@ struct XCPrepareMain: ParsableCommand {
         )
         var fakeSrcRoot: String
 
+        @Option(name: .customLong("sdks-exclude"), default: "", help: """
+        comma separated list of sdks to not integrate XCRemoteCache (e.g. "watchos*, watchsimulator*")
+        """, transform: nonEmptyString)
+        var sdksExclude: String
+
 
         func run() throws {
             XCIntegrate(
@@ -243,6 +248,7 @@ struct XCPrepareMain: ParsableCommand {
                 consumerEligiblePlatforms: consumerEligiblePlatforms,
                 lldbMode: lldbInit,
                 fakeSrcRoot: fakeSrcRoot,
+                sdksExclude: sdksExclude,
                 output: output
             ).main()
         }

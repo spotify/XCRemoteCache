@@ -87,6 +87,8 @@ public struct PostbuildContext {
     let irrelevantDependenciesPaths: [String]
     /// Location of public headers. Not always available (e.g. static libraries)
     var publicHeadersFolderPath: URL?
+    /// XCRemoteCache is explicitly disabled
+    let disabled: Bool
 }
 
 extension PostbuildContext {
@@ -146,5 +148,6 @@ extension PostbuildContext {
             // generated and it is up to a project configuration to place it in a common location (e.g. static library)
             publicHeadersFolderPath = builtProductsDir.appendingPathComponent(publicHeadersPath)
         }
+        disabled = try env.readEnv(key: "XCRC_DISABLED") ?? false
     }
 }
