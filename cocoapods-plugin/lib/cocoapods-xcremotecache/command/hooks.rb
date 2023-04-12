@@ -133,20 +133,20 @@ module CocoapodsXCRemoteCacheModifier
           # apply only for relevant Configurations
           next if exclude_build_configurations.include?(config.name)
           if mode == 'consumer'
-            add_build_setting(config.build_settings, 'CC', "$SRCROOT/#{parent_dir(xc_cc_path, repo_distance)}", exclude_sdks_configurations)
+            reset_build_setting(config.build_settings, 'CC', "$SRCROOT/#{parent_dir(xc_cc_path, repo_distance)}", exclude_sdks_configurations)
           elsif mode == 'producer' || mode == 'producer-fast'
             config.build_settings.delete('CC') if config.build_settings.key?('CC')
           end
-          add_build_setting(config.build_settings, 'SWIFT_EXEC', "$SRCROOT/#{srcroot_relative_xc_location}/xcswiftc", exclude_sdks_configurations)
-          add_build_setting(config.build_settings, 'LIBTOOL', "$SRCROOT/#{srcroot_relative_xc_location}/xclibtool", exclude_sdks_configurations)
-          add_build_setting(config.build_settings, 'LD', "$SRCROOT/#{srcroot_relative_xc_location}/xcld", exclude_sdks_configurations)
-          add_build_setting(config.build_settings, 'LDPLUSPLUS', "$SRCROOT/#{srcroot_relative_xc_location}/xcldplusplus", exclude_sdks_configurations)
-          add_build_setting(config.build_settings, 'LIPO', "$SRCROOT/#{srcroot_relative_xc_location}/xclipo", exclude_sdks_configurations)
-          add_build_setting(config.build_settings, 'SWIFT_USE_INTEGRATED_DRIVER', 'NO', exclude_sdks_configurations)
+          reset_build_setting(config.build_settings, 'SWIFT_EXEC', "$SRCROOT/#{srcroot_relative_xc_location}/xcswiftc", exclude_sdks_configurations)
+          reset_build_setting(config.build_settings, 'LIBTOOL', "$SRCROOT/#{srcroot_relative_xc_location}/xclibtool", exclude_sdks_configurations)
+          reset_build_setting(config.build_settings, 'LD', "$SRCROOT/#{srcroot_relative_xc_location}/xcld", exclude_sdks_configurations)
+          reset_build_setting(config.build_settings, 'LDPLUSPLUS', "$SRCROOT/#{srcroot_relative_xc_location}/xcldplusplus", exclude_sdks_configurations)
+          reset_build_setting(config.build_settings, 'LIPO', "$SRCROOT/#{srcroot_relative_xc_location}/xclipo", exclude_sdks_configurations)
+          reset_build_setting(config.build_settings, 'SWIFT_USE_INTEGRATED_DRIVER', 'NO', exclude_sdks_configurations)
 
-          add_build_setting(config.build_settings, 'XCREMOTE_CACHE_FAKE_SRCROOT', fake_src_root, exclude_sdks_configurations)
-          add_build_setting(config.build_settings, 'XCRC_PLATFORM_PREFERRED_ARCH', "$(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)", exclude_sdks_configurations)
-          add_build_setting(config.build_settings, XCRC_COOCAPODS_ROOT_KEY, "$SRCROOT/#{srcroot_relative_project_location}", exclude_sdks_configurations)
+          reset_build_setting(config.build_settings, 'XCREMOTE_CACHE_FAKE_SRCROOT', fake_src_root, exclude_sdks_configurations)
+          reset_build_setting(config.build_settings, 'XCRC_PLATFORM_PREFERRED_ARCH', "$(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)", exclude_sdks_configurations)
+          reset_build_setting(config.build_settings, XCRC_COOCAPODS_ROOT_KEY, "$SRCROOT/#{srcroot_relative_project_location}", exclude_sdks_configurations)
           debug_prefix_map_replacement = '$(SRCROOT' + ':dir:standardizepath' * repo_distance + ')'
           add_cflags!(config.build_settings, '-fdebug-prefix-map', "#{debug_prefix_map_replacement}=$(XCREMOTE_CACHE_FAKE_SRCROOT)", exclude_sdks_configurations)
           add_swiftflags!(config.build_settings, '-debug-prefix-map', "#{debug_prefix_map_replacement}=$(XCREMOTE_CACHE_FAKE_SRCROOT)", exclude_sdks_configurations)
@@ -299,8 +299,7 @@ module CocoapodsXCRemoteCacheModifier
       end
 
       def self.add_cflags!(options, key, value, exclude_sdks_configurations)
-        return if options.fetch('OTHER_CFLAGS',[]).include?(value)
-        add_build_setting(options, 'OTHER_CFLAGS', remove_cflags!(options, key) << "#{key}=#{value}", exclude_sdks_configurations)
+        reset_build_setting(options, 'OTHER_CFLAGS', remove_cflags!(options, key) << "#{key}=#{value}", exclude_sdks_configurations)
       end
 
       def self.remove_cflags!(options, key)
@@ -311,8 +310,7 @@ module CocoapodsXCRemoteCacheModifier
       end
 
       def self.add_swiftflags!(options, key, value, exclude_sdks_configurations)
-        return if options.fetch('OTHER_SWIFT_FLAGS','').include?(value)
-        add_build_setting(options, 'OTHER_SWIFT_FLAGS', remove_swiftflags!(options, key) << "#{key}=#{value}", exclude_sdks_configurations)
+        reset_build_setting(options, 'OTHER_SWIFT_FLAGS', remove_swiftflags!(options, key) + " #{key} #{value}", exclude_sdks_configurations)
       end
 
       def self.remove_swiftflags!(options, key)
