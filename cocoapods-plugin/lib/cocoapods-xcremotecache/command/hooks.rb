@@ -141,6 +141,8 @@ module CocoapodsXCRemoteCacheModifier
           # Settings SWIFT_EXEC to '' breaks SwiftDriver intengration so resetting it to the original value 'swiftc'
           add_build_setting_for_sdks(config.build_settings, 'SWIFT_EXEC', 'swiftc', exclude_sdks_configurations)
           reset_build_setting(config.build_settings, 'LIBTOOL', "$SRCROOT/#{srcroot_relative_xc_location}/xclibtool", exclude_sdks_configurations)
+          # Settings LIBTOOL to '' breaks SwiftDriver intengration so resetting it to the original value 'libtool'
+          add_build_setting_for_sdks(config.build_settings, 'LIBTOOL', 'libtool', exclude_sdks_configurations)
           reset_build_setting(config.build_settings, 'LD', "$SRCROOT/#{srcroot_relative_xc_location}/xcld", exclude_sdks_configurations)
           reset_build_setting(config.build_settings, 'LDPLUSPLUS', "$SRCROOT/#{srcroot_relative_xc_location}/xcldplusplus", exclude_sdks_configurations)
           reset_build_setting(config.build_settings, 'LIPO', "$SRCROOT/#{srcroot_relative_xc_location}/xclipo", exclude_sdks_configurations)
