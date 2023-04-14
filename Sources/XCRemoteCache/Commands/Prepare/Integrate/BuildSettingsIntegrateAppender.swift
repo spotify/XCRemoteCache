@@ -53,7 +53,12 @@ class XcodeProjBuildSettingsIntegrateAppender: BuildSettingsIntegrateAppender {
             setBuildSetting(buildSettings: &result, key: "LD", value: wrappers.ld.path )
             // Setting LIBTOOL to '' breaks SwiftDriver intengration so resetting it to the original value
             // 'libtool' for all excluded configurations
-            setBuildSetting(buildSettings: &result, key: "LIBTOOL", value: wrappers.libtool.path, excludedValue: "libtool")
+            setBuildSetting(
+                buildSettings: &result,
+                key: "LIBTOOL",
+                value: wrappers.libtool.path,
+                excludedValue: "libtool"
+            )
             setBuildSetting(buildSettings: &result, key: "LIPO", value: wrappers.lipo.path )
             setBuildSetting(buildSettings: &result, key: "LDPLUSPLUS", value: wrappers.ldplusplus.path )
         }
