@@ -51,7 +51,9 @@ class XcodeProjBuildSettingsIntegrateAppender: BuildSettingsIntegrateAppender {
         if case .consumer = mode {
             setBuildSetting(buildSettings: &result, key: "CC", value: wrappers.cc.path )
             setBuildSetting(buildSettings: &result, key: "LD", value: wrappers.ld.path )
-            setBuildSetting(buildSettings: &result, key: "LIBTOOL", value: wrappers.libtool.path )
+            // Setting LIBTOOL to '' breaks SwiftDriver intengration so resetting it to the original value
+            // 'libtool' for all excluded configurations
+            setBuildSetting(buildSettings: &result, key: "LIBTOOL", value: wrappers.libtool.path, excludedValue: "libtool")
             setBuildSetting(buildSettings: &result, key: "LIPO", value: wrappers.lipo.path )
             setBuildSetting(buildSettings: &result, key: "LDPLUSPLUS", value: wrappers.ldplusplus.path )
         }
@@ -79,7 +81,7 @@ class XcodeProjBuildSettingsIntegrateAppender: BuildSettingsIntegrateAppender {
         return result
     }
 
-    private func setBuildSetting(buildSettings: inout BuildSettings, key: String, value: String?) {
+    private func setBuildSetting(buildSettings: inout BuildSettings, key: String, value: String?, excludedValue: String = "") {
         buildSettings[key] = value
         guard value != nil else {
             // no need to exclude as the value will
@@ -87,7 +89,7 @@ class XcodeProjBuildSettingsIntegrateAppender: BuildSettingsIntegrateAppender {
         }
         // Erase all overrides for a given sdk so a default toolchain is used
         for skippedSDK in sdksExclude {
-            buildSettings["\(key)[sdk=\(skippedSDK)]"] = ""
+            buildSettings["\(key)[sdk=\(skippedSDK)]"] = excludedValue
         }
     }
 
