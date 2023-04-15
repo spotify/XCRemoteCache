@@ -101,6 +101,20 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
         XCTAssertEqual(ldPlusPlusWatchOS, "")
     }
 
+    func testLibtoolIsSetForExcludedSdks() throws {
+        let mode: Mode = .consumer
+        let appender = XcodeProjBuildSettingsIntegrateAppender(
+            mode: mode,
+            repoRoot: rootURL,
+            fakeSrcRoot: "/",
+            sdksExclude: ["watchOS*"]
+        )
+        let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
+        let libtoolWatchOS: String = try XCTUnwrap(result["LIBTOOL[sdk=watchOS*]"] as? String)
+
+        XCTAssertEqual(libtoolWatchOS, "libtool")
+    }
+
     func testMultiplesdksExcludeAreAppended() throws {
         let mode: Mode = .consumer
         let appender = XcodeProjBuildSettingsIntegrateAppender(
