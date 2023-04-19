@@ -209,7 +209,8 @@ extension XCRemoteCacheConfig {
         merge.disableVFSOverlay = scheme.disableVFSOverlay ?? disableVFSOverlay
         merge.customRewriteEnvs = scheme.customRewriteEnvs ?? customRewriteEnvs
         merge.irrelevantDependenciesPaths = scheme.irrelevantDependenciesPaths ?? irrelevantDependenciesPaths
-        merge.gracefullyHandleMissingCommonSha = scheme.gracefullyHandleMissingCommonSha ?? gracefullyHandleMissingCommonSha
+        merge.gracefullyHandleMissingCommonSha =
+            scheme.gracefullyHandleMissingCommonSha ?? gracefullyHandleMissingCommonSha
         return merge
     }
 
