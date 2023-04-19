@@ -52,6 +52,8 @@ public struct PrepareContext {
     let cacheHealthPathProbeCount: Int
     /// clang wrapper output file
     let xcccCommand: URL
+    /// gracefully disable remote cache for missing common sha with the primary branch
+    let gracefullyHandleMissingCommonSha: Bool
 }
 
 extension PrepareContext {
@@ -77,5 +79,6 @@ extension PrepareContext {
         cacheAddresses = try config.cacheAddresses.map(URL.build)
         cacheHealthPath = config.cacheHealthPath
         cacheHealthPathProbeCount = config.cacheHealthPathProbeCount
+        gracefullyHandleMissingCommonSha = config.gracefullyHandleMissingCommonSha
     }
 }

@@ -89,4 +89,66 @@ class PrepareTests: XCTestCase {
 
         XCTAssertEqual(result, .preparedFor(sha: .init(sha: "2", age: 0), recommendedCacheAddress: remoteURL))
     }
+
+    func testFailsForMissingCommonShaWhenConfiguredToGrefullyDisable() throws {
+        git = GitClientFake(shaHistory: [], primaryBranchIndex: 0)
+        config.gracefullyHandleMissingCommonSha = true
+
+        let prepare = Prepare(
+            context: try PrepareContext(config, offline: false),
+            gitClient: git,
+            networkClients: [],
+            ccBuilder: CCWrapperBuilderFake(),
+            fileAccessor: FileManager.default,
+            globalCacheSwitcher: globalCacheSwitcher,
+            cacheInvalidator: CacheInvalidatorFake()
+        )
+
+        let result = try prepare.prepare()
+
+        XCTAssertEqual(result, .failed)
+    }
+
+    func testDisablesGlobalCacheForMissingCommonShaWhenConfiguredToGrefullyDisable() throws {
+        git = GitClientFake(shaHistory: [], primaryBranchIndex: 0)
+        config.gracefullyHandleMissingCommonSha = true
+        try globalCacheSwitcher.enable(sha: "starting_state")
+
+        let prepare = Prepare(
+            context: try PrepareContext(config, offline: false),
+            gitClient: git,
+            networkClients: [],
+            ccBuilder: CCWrapperBuilderFake(),
+            fileAccessor: FileManager.default,
+            globalCacheSwitcher: globalCacheSwitcher,
+            cacheInvalidator: CacheInvalidatorFake()
+        )
+
+        _ = try prepare.prepare()
+
+        XCTAssertEqual(globalCacheSwitcher.state, .disabled)
+    }
+
+    func testThrowsForMissingCommonSha() throws {
+        git = GitClientFake(shaHistory: [], primaryBranchIndex: 0)
+        config.gracefullyHandleMissingCommonSha = false
+
+        let prepare = Prepare(
+            context: try PrepareContext(config, offline: false),
+            gitClient: git,
+            networkClients: [],
+            ccBuilder: CCWrapperBuilderFake(),
+            fileAccessor: FileManager.default,
+            globalCacheSwitcher: globalCacheSwitcher,
+            cacheInvalidator: CacheInvalidatorFake()
+        )
+
+        XCTAssertThrowsError(try prepare.prepare()) { error in
+            switch error {
+            case GitClientError.noCommonShaWithPrimaryRepo: break
+            default:
+                XCTFail("Not expected error")
+            }
+        }
+    }
 }
