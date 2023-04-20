@@ -148,7 +148,7 @@ public struct XCRemoteCacheConfig: Encodable {
     /// Note: The regex can match either partially or fully the filepath, e.g. `\\.modulemap$` will exclude
     /// all `.modulemap` files
     var irrelevantDependenciesPaths: [String] = []
-    /// It true, do not fail `prepare` if cannot find the most recent commont commits with the primary branch
+    /// If true, do not fail `prepare` if cannot find the most recent common commits with the primary branch
     /// That might useful on CI, where a shallow clone is used
     var gracefullyHandleMissingCommonSha: Bool = false
 }
