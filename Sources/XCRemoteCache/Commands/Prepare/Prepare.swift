@@ -77,7 +77,18 @@ class Prepare: PrepareLogic {
             guard fileAccessor.fileExists(atPath: PhaseCacheModeController.xcodeSelectLink.path) else {
                 throw PrepareError.missingXcodeSelectDirectory
             }
-            let commonSha = try gitClient.getCommonPrimarySha()
+
+            let commonSha: String
+            do {
+                commonSha = try gitClient.getCommonPrimarySha()
+            } catch let GitClientError.noCommonShaWithPrimaryRepo(remoteName, error) {
+                guard context.gracefullyHandleMissingCommonSha else {
+                    throw GitClientError.noCommonShaWithPrimaryRepo(remoteName: remoteName, error: error)
+                }
+                infoLog("Cannot find a common sha with the primary branch: \(error). Gracefully disabling remote cache")
+                try disable()
+                return .failed
+            }
 
             if context.offline {
                 // Optimistically take first common sha

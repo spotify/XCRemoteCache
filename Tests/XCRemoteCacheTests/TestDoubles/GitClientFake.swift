@@ -34,7 +34,10 @@ class GitClientFake: GitClient {
     }
 
     func getCommonPrimarySha() throws -> String {
-        shaHistory[primaryBranchIndex].sha
+        guard shaHistory.count > primaryBranchIndex else {
+            throw GitClientError.noCommonShaWithPrimaryRepo(remoteName: "testing", error: "SampleError")
+        }
+        return shaHistory[primaryBranchIndex].sha
     }
 
     func getShaDate(sha: String) throws -> Date {
