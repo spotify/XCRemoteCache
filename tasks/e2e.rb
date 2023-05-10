@@ -61,7 +61,7 @@ namespace :e2e do
             clean_git
             # Run integrate the project
             system("pwd")
-            system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode producer --final-producer-target StandaloneApp")
+            system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode producer")
             # Build the project to fill in the cache
             build_project(nil, "StandaloneApp.xcodeproj", 'WatchExtension', 'watch', 'watchOS')
             build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp')
@@ -78,7 +78,7 @@ namespace :e2e do
 
         prepare_for_standalone(consumer_srcroot)
         Dir.chdir(consumer_srcroot) do
-            system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode consumer")
+            system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode consumer --final-producer-target StandaloneApp --consumer-eligible-configurations Release --configurations-exclude Debug")
             build_project(nil, "StandaloneApp.xcodeproj", 'WatchExtension', 'watch', 'watchOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
             build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', 'iphone', 'iOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
             valide_hit_rate(OpenStruct.new(DEFAULT_EXPECTATIONS))
@@ -172,7 +172,7 @@ namespace :e2e do
             'workspace' => workspace,
             'project' => project,
             'scheme' => scheme,
-            'configuration' => 'Debug',
+            'configuration' => 'Release',
             'sdk' => "#{sdk}simulator",
             'destination' => "generic/platform=#{platform} Simulator",
             'derivedDataPath' => DERIVED_DATA_PATH,
