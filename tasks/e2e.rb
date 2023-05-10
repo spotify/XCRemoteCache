@@ -66,6 +66,7 @@ namespace :e2e do
             build_project(nil, "StandaloneApp.xcodeproj", 'WatchExtension', 'watch', 'watchOS')
             build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp')
             system("#{XCRC_BINARIES}/xcprepare stats --reset --format json")
+            system("#{XCRC_BINARIES}/xcprepare mark --configuration Release --platform iphonesimulator")
         end
 
         puts 'Building standalone consumer...'
