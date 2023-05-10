@@ -25,6 +25,8 @@ public enum XCLibtoolMode: Equatable {
     case createLibrary(output: String, filelist: String, dependencyInfo: String)
     /// Creating a universal library (multiple-architectures) from a set of input .a static libraries
     case createUniversalBinary(output: String, inputs: [String])
+    /// print the toolchain version
+    case version
 }
 
 public class XCLibtool {
@@ -50,6 +52,8 @@ public class XCLibtool {
                 toolName: "Libtool",
                 fallbackCommand: "libtool"
             )
+        case .version:
+            logic = FallbackXCLibtoolLogic(fallbackCommand: "libtool")
         }
     }
 

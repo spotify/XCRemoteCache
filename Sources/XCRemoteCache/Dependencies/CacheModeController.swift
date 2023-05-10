@@ -110,7 +110,7 @@ class PhaseCacheModeController: CacheModeController {
         } catch {
             // Gracefully don't disable a cache
             // That may happen if building a target for the first time
-            errorLog("Couldn't verify if should disable RC for \(commitValue).")
+            debugLog("Couldn't verify if should disable RC for \(commitValue).")
         }
         return false
     }
