@@ -61,7 +61,7 @@ namespace :e2e do
             clean_git
             # Run integrate the project
             system("pwd")
-            system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode producer")
+            system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode producer --configurations-exclude Debug")
             # Build the project to fill in the cache
             build_project(nil, "StandaloneApp.xcodeproj", 'WatchExtension', 'watch', 'watchOS')
             build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp')
