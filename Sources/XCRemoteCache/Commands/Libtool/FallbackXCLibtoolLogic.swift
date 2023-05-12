@@ -30,7 +30,6 @@ class FallbackXCLibtoolLogic: XCLibtoolLogic {
         let args = ProcessInfo().arguments
         let paramList = [fallbackCommand] + args.dropFirst()
         let cargs = paramList.map { strdup($0) } + [nil]
-        /// C-function `execv`` returns only when the command fails
         execvp(fallbackCommand, cargs)
 
         exit(1)
