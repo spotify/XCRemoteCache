@@ -32,7 +32,7 @@ class FallbackXCLibtoolLogic: XCLibtoolLogic {
         let cargs = paramList.map { strdup($0) } + [nil]
         execvp(fallbackCommand, cargs)
 
-        /// C-function `execv` returns only when the command fails
+        /// C-function execv returns only when the command fails
         exit(1)
     }
 }
