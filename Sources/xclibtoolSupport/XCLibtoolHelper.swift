@@ -32,9 +32,12 @@ public class XCLibtoolHelper {
         var inputLibraries: [String] = []
         var filelist: String?
         var dependencyInfo: String?
+        var asksForVersion = false
         var i = 0
         while i < args.count {
             switch args[i] {
+            case "-V":
+                asksForVersion = true
             case "-o":
                 output = args[i + 1]
                 i += 1
@@ -51,6 +54,9 @@ public class XCLibtoolHelper {
                 break
             }
             i += 1
+        }
+        if asksForVersion {
+            return .version
         }
         guard let outputInput = output else {
             throw XCLibtoolHelperError.missingOutput

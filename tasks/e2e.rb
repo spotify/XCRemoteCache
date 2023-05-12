@@ -52,6 +52,7 @@ namespace :e2e do
         clean_server
         start_nginx
         configure_git
+        configuration = 'Release'
         # Prepare binaries for the standalone mode
         prepare_for_standalone(E2E_STANDALONE_SAMPLE_DIR)
 
@@ -61,11 +62,12 @@ namespace :e2e do
             clean_git
             # Run integrate the project
             system("pwd")
-            system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode producer --final-producer-target StandaloneApp")
+            system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode producer --configurations-exclude Debug")
             # Build the project to fill in the cache
-            build_project(nil, "StandaloneApp.xcodeproj", 'WatchExtension', 'watch', 'watchOS')
-            build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp')
+            build_project(nil, "StandaloneApp.xcodeproj", 'WatchExtension', 'watch', 'watchOS', configuration)
+            build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', 'iphone', 'iOS', configuration)
             system("#{XCRC_BINARIES}/xcprepare stats --reset --format json")
+            system("#{XCRC_BINARIES}/xcprepare mark --configuration Release --platform iphonesimulator")
         end
 
         puts 'Building standalone consumer...'
@@ -78,16 +80,16 @@ namespace :e2e do
 
         prepare_for_standalone(consumer_srcroot)
         Dir.chdir(consumer_srcroot) do
-            system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode consumer")
-            build_project(nil, "StandaloneApp.xcodeproj", 'WatchExtension', 'watch', 'watchOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
-            build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', 'iphone', 'iOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
+            system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode consumer --final-producer-target StandaloneApp --consumer-eligible-configurations Release --configurations-exclude Debug")
+            build_project(nil, "StandaloneApp.xcodeproj", 'WatchExtension', 'watch', 'watchOS', configuration, {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
+            build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', 'iphone', 'iOS', configuration, {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
             valide_hit_rate(OpenStruct.new(DEFAULT_EXPECTATIONS))
 
             puts 'Building standalone consumer with local change...'
             # Extra: validate local compilation of the Standalone ObjC code
             system("echo '' >> StandaloneApp/StandaloneObjc.m")
-            build_project(nil, "StandaloneApp.xcodeproj", 'WatchExtension', 'watch', 'watchOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer_local"})
-            build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', 'iphone', 'iOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer_local"})
+            build_project(nil, "StandaloneApp.xcodeproj", 'WatchExtension', 'watch', 'watchOS', configuration, {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer_local"})
+            build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', 'iphone', 'iOS', configuration, {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer_local"})
         end
 
         # Revert all side effects
@@ -167,12 +169,12 @@ namespace :e2e do
         end
     end
 
-    def self.build_project(workspace, project, scheme, sdk = 'iphone', platform = 'iOS', extra_args = {})
+    def self.build_project(workspace, project, scheme, sdk = 'iphone', platform = 'iOS', configuration = 'Debug', extra_args = {})
         xcodebuild_args = {
             'workspace' => workspace,
             'project' => project,
             'scheme' => scheme,
-            'configuration' => 'Debug',
+            'configuration' => configuration,
             'sdk' => "#{sdk}simulator",
             'destination' => "generic/platform=#{platform} Simulator",
             'derivedDataPath' => DERIVED_DATA_PATH,
@@ -193,9 +195,9 @@ namespace :e2e do
         end
     end
 
-    def self.build_project_cocoapods(sdk = 'iphone', platform = 'iOS', extra_args = {})
+    def self.build_project_cocoapods(sdk = 'iphone', platform = 'iOS', configuration = 'Debug', extra_args = {})
         system('pod install')
-        build_project('XCRemoteCacheSample.xcworkspace', nil, 'XCRemoteCacheSample', sdk, platform, extra_args)
+        build_project('XCRemoteCacheSample.xcworkspace', nil, 'XCRemoteCacheSample', sdk, platform, configuration, extra_args)
     end
 
     def self.read_stats
@@ -248,7 +250,7 @@ namespace :e2e do
         dump_podfile(consumer_configuration, template_path)
         puts('Building consumer ...')
         Dir.chdir(E2E_COCOAPODS_SAMPLE_DIR) do
-            build_project_cocoapods('iphone', 'iOS', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
+            build_project_cocoapods('iphone', 'iOS', 'Debug', {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
             valide_hit_rate(expectations)
         end
     end
