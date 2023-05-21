@@ -57,6 +57,8 @@ public struct XCRemoteCacheConfig: Encodable {
     var clangCommand: String = "clang"
     /// Command for a standard Swift compilation (swiftc)
     var swiftcCommand: String = "swiftc"
+    /// Command for a standard Swift frontend compilation (swift-frontend)
+    var swiftFrontendCommand: String = "swift-frontend"
     /// Path of the primary repository that produces cache artifacts
     var primaryRepo: String = ""
     /// Main (primary) branch that produces cache artifacts (default to 'master')

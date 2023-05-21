@@ -26,6 +26,7 @@ import XCRemoteCache
 public class XCSwiftcFrontendMain {
     // swiftlint:disable:next function_body_length
     public func main() {
+        let env = ProcessInfo.processInfo.environment
         let command = ProcessInfo().processName
         let args = ProcessInfo().arguments
         
@@ -103,6 +104,7 @@ public class XCSwiftcFrontendMain {
             let frontend = try XCSwiftFrontend(
                 command: command,
                 inputArgs: argInput,
+                env: env,
                 dependenciesWriter: FileDependenciesWriter.init,
                 touchFactory: FileTouch.init)
             frontend.run()
