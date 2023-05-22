@@ -81,8 +81,26 @@ public class XCSwiftc {
         let markerReader = FileMarkerReader(markerURL, fileManager: fileManager)
         let markerWriter = FileMarkerWriter(markerURL, fileAccessor: fileManager)
 
-        let inputReader = SwiftcFilemapInputEditor(context.filemap, fileManager: fileManager)
-        let fileListEditor = FileListEditor(context.fileList, fileManager: fileManager)
+        let inputReader: SwiftcInputReader
+        switch context.outputs {
+        case .fileMap(let path):
+            inputReader = SwiftcFilemapInputEditor(URL(fileURLWithPath: path), fileManager: fileManager)
+        case .map(let map):
+            // static
+            // TODO: check if first 2 ars can always be `nil`
+            inputReader = StaticSwiftcInputReader(
+                moduleDependencies: nil,
+                swiftDependencies: nil,
+                compilationFiles: Array(map.values)
+            )
+        }
+        let fileListReader: ListReader
+        switch context.inputs {
+            case .fileList(let path):
+                fileListReader = FileListEditor(URL(fileURLWithPath: path), fileManager: fileManager)
+            case .list(let paths):
+            fileListReader = StaticFileListReader(list: paths.map( URL(fileURLWithPath:)))
+        }
         let artifactOrganizer = ZipArtifactOrganizer(
             targetTempDir: context.tempDir,
             // xcswiftc  doesn't call artifact preprocessing
@@ -119,7 +137,7 @@ public class XCSwiftc {
         let shellOut = ProcessShellOut()
 
         let swiftc = Swiftc(
-            inputFileListReader: fileListEditor,
+            inputFileListReader: fileListReader,
             markerReader: markerReader,
             allowedFilesListScanner: allowedFilesListScanner,
             artifactOrganizer: artifactOrganizer,

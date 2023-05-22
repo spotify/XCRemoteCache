@@ -132,7 +132,7 @@ class Swiftc: SwiftcProtocol {
 
         // Read swiftmodule location from XCRemoteCache
         // arbitrary format swiftmodule/${arch}/${moduleName}.swift{module|doc|sourceinfo}
-        let moduleName = context.modulePathOutput.deletingPathExtension().lastPathComponent
+        let moduleName = context.moduleName
         let allCompilations = try inputFilesReader.read()
         let artifactSwiftmoduleDir = artifactLocation
             .appendingPathComponent("swiftmodule")
@@ -145,20 +145,27 @@ class Swiftc: SwiftcProtocol {
                 }
         )
 
-        // Build -Swift.h location from XCRemoteCache arbitrary format include/${arch}/${target}-Swift.h
-        let artifactSwiftModuleObjCDir = artifactLocation
-            .appendingPathComponent("include")
-            .appendingPathComponent(context.arch)
-            .appendingPathComponent(context.moduleName)
-        // Move cached xxxx-Swift.h to the location passed in arglist
-        // Alternatively, artifactSwiftModuleObjCFile could be built as a first .h file in artifactSwiftModuleObjCDir
-        let artifactSwiftModuleObjCFile = artifactSwiftModuleObjCDir
-            .appendingPathComponent(context.objcHeaderOutput.lastPathComponent)
-
-        _ = try productsGenerator.generateFrom(
-            artifactSwiftModuleFiles: artifactSwiftmoduleFiles,
-            artifactSwiftModuleObjCFile: artifactSwiftModuleObjCFile
-        )
+        // emit module (if requested)
+        for step in context.steps {
+            guard case .emitModule(let objcHeaderOutput, _) = step else {
+                break
+            }
+            
+            // Build -Swift.h location from XCRemoteCache arbitrary format include/${arch}/${target}-Swift.h
+            let artifactSwiftModuleObjCDir = artifactLocation
+                .appendingPathComponent("include")
+                .appendingPathComponent(context.arch)
+                .appendingPathComponent(context.moduleName)
+            // Move cached xxxx-Swift.h to the location passed in arglist
+            // Alternatively, artifactSwiftModuleObjCFile could be built as a first .h file in artifactSwiftModuleObjCDir
+            let artifactSwiftModuleObjCFile = artifactSwiftModuleObjCDir
+                .appendingPathComponent(objcHeaderOutput.lastPathComponent)
+            
+            _ = try productsGenerator.generateFrom(
+                artifactSwiftModuleFiles: artifactSwiftmoduleFiles,
+                artifactSwiftModuleObjCFile: artifactSwiftModuleObjCFile
+            )
+        }
 
         try plugins.forEach {
             try $0.generate(for: allCompilations)

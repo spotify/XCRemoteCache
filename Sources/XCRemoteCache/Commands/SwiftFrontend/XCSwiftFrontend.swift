@@ -296,7 +296,7 @@ public class XCSwiftFrontend {
         )
         let shellOut = ProcessShellOut()
 
-        let swiftc = SwiftFrontend(
+        let swiftFrontend = SwiftFrontend(
             markerReader: markerReader,
             allowedFilesListScanner: allowedFilesListScanner,
             artifactOrganizer: artifactOrganizer,

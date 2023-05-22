@@ -41,6 +41,20 @@ protocol ListWriter {
     func writerListFilesURLs(_ list: [URL]) throws
 }
 
+class StaticFileListReader: ListReader {
+    private let list: [URL]
+    init(list: [URL]){
+        self.list = list
+    }
+    func listFilesURLs() throws -> [URL] {
+        list
+    }
+    
+    func canRead() -> Bool {
+        true
+    }
+}
+
 /// Reads&Writes files that list files using one-file-per-line format
 class FileListEditor: ListReader, ListWriter {
     private let file: URL

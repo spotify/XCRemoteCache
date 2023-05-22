@@ -45,10 +45,11 @@ struct SwiftCompilationInfo: Encodable, Equatable {
 struct SwiftModuleCompilationInfo: Encodable, Equatable {
     // not present for incremental builds
     let dependencies: URL?
-    let swiftDependencies: URL
+    // not present for the swift-frontend '-c' invocation
+    let swiftDependencies: URL?
 }
 
-struct SwiftFileCompilationInfo: Encodable, Equatable {
+public struct SwiftFileCompilationInfo: Encodable, Equatable {
     let file: URL
     // not present for WMO builds
     let dependencies: URL?
@@ -56,6 +57,32 @@ struct SwiftFileCompilationInfo: Encodable, Equatable {
     let object: URL?
     // not present for WMO builds
     let swiftDependencies: URL?
+}
+
+class StaticSwiftcInputReader: SwiftcInputReader {
+    private let moduleDependencies: URL?
+    private let swiftDependencies: URL?
+    private let compilationFiles: [SwiftFileCompilationInfo]
+    
+    init(
+        moduleDependencies: URL?,
+        swiftDependencies: URL?,
+        compilationFiles: [SwiftFileCompilationInfo]
+    ) {
+        self.moduleDependencies = moduleDependencies
+        self.swiftDependencies = swiftDependencies
+        self.compilationFiles = compilationFiles
+    }
+    
+    func read() throws -> SwiftCompilationInfo {
+        return .init(
+            info: .init(
+                dependencies: moduleDependencies,
+                swiftDependencies: swiftDependencies
+            ),
+            files: compilationFiles
+        )
+    }
 }
 
 class SwiftcFilemapInputEditor: SwiftcInputReader, SwiftcInputWriter {
