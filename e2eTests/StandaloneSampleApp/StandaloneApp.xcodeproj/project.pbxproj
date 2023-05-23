@@ -234,7 +234,6 @@
 				36201A242843B3D3002FF70F /* Frameworks */,
 				36201A252843B3D3002FF70F /* CopyFiles */,
 				36201A3A2843BE0E002FF70F /* Copy Swift Objective-C Interface Header */,
-				4E7D74B02A109228002EF202 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -378,23 +377,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "ditto \"${SCRIPT_INPUT_FILE_0}\" \"${SCRIPT_OUTPUT_FILE_0}\"\n[ -f \"${SCRIPT_INPUT_FILE_1}\" ] && ditto \"${SCRIPT_INPUT_FILE_1}\" \"${SCRIPT_OUTPUT_FILE_1}\" || rm \"${SCRIPT_OUTPUT_FILE_1}\"\n\n";
-		};
-		4E7D74B02A109228002EF202 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

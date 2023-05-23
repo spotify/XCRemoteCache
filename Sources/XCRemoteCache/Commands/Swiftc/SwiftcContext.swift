@@ -19,7 +19,6 @@
 
 import Foundation
 
-
 public struct SwiftcContext {
     public struct SwiftcStepEmitModule {
         let objcHeaderOutput: URL
@@ -61,9 +60,7 @@ public struct SwiftcContext {
     }
 
     let steps: SwiftcSteps
-//    let objcHeaderOutput: URL
     let moduleName: String
-//    let modulePathOutput: URL
     /// A source that defines output files locations (.d, .swiftmodule etc.)
     let outputs: CompilationFilesOutputs
     let target: String
@@ -88,14 +85,10 @@ public struct SwiftcContext {
         /// are placed next to it. This path is used to infere the arch and TARGET_TEMP_DIR
         exampleWorkspaceFilePath: String
     ) throws {
-//        self.objcHeaderOutput = URL(fileURLWithPath: objcHeaderOutput)
         self.moduleName = moduleName
-//        self.modulePathOutput = URL(fileURLWithPath: modulePathOutput)
         self.steps = steps
         self.outputs = outputs
-//        self.filemap = URL(fileURLWithPath: filemap)
         self.target = target
-//        self.fileList = URL(fileURLWithPath: fileList)
         self.inputs = inputs
         // modulePathOutput is place in $TARGET_TEMP_DIR/Objects-normal/$ARCH/$TARGET_NAME.swiftmodule
         // That may be subject to change for other Xcode versions

@@ -22,7 +22,7 @@ import XCRemoteCache
 
 /// Wrapper for a `swift-frontend` that skips compilation and produces empty output files (.o). As a compilation dependencies
 /// (.d) file, it copies all dependency files from the prebuild marker file
-/// Fallbacks to a standard `swiftc` when the Ramote cache is not applicable (e.g. modified sources)
+/// Fallbacks to a standard `swift-frontend` when the ramote cache is not applicable (e.g. modified sources)
 public class XCSwiftcFrontendMain {
     // swiftlint:disable:next function_body_length
     public func main() {
@@ -31,15 +31,11 @@ public class XCSwiftcFrontendMain {
         let args = ProcessInfo().arguments
         
         
-        
         var compile = false
         var emitModule = false
         var objcHeaderOutput: String?
         var moduleName: String?
-//        var modulePathOutput: String?
-//        var filemap: String?
         var target: String?
-//        var swiftFileList: String?
         var inputPaths: [String] = []
         var primaryInputPaths: [String] = []
         var outputPaths: [String] = []
@@ -61,10 +57,6 @@ public class XCSwiftcFrontendMain {
                 objcHeaderOutput = args[i + 1]
             case "-module-name":
                 moduleName = args[i + 1]
-//            case "-emit-module-path":
-//                modulePathOutput = args[i + 1]
-//            case "-output-file-map":
-//                filemap = args[i + 1]
             case "-target":
                 target = args[i + 1]
             case "-serialize-diagnostics-path":
@@ -116,7 +108,6 @@ public class XCSwiftcFrontendMain {
             frontend.run()
         } catch {
             let swiftFrontendCommand = "swift-frontend"
-//            print("Fallbacking to compilation using \(swiftFrontendCommand).")
 
             let args = ProcessInfo().arguments
             let paramList = [swiftFrontendCommand] + args.dropFirst()
