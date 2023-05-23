@@ -64,7 +64,7 @@ public class XCSwiftAbstract<T> {
     }
     
     func buildContext() -> (XCRemoteCacheConfig, SwiftcContext){
-        fatalError("Override in \(Self.self)")
+        fatalError("Need to override in \(Self.self)")
     }
     
     // swiftlint:disable:next function_body_length
