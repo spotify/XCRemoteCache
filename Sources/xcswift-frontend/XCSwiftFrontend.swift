@@ -41,6 +41,7 @@ public class XCSwiftcFrontendMain {
         var target: String?
 //        var swiftFileList: String?
         var inputPaths: [String] = []
+        var primaryInputPaths: [String] = []
         var outputPaths: [String] = []
         var dependenciesPaths: [String] = []
         var diagnosticsPaths: [String] = []
@@ -78,6 +79,10 @@ public class XCSwiftcFrontendMain {
             case "-emit-module-doc-path":
                 // .swiftsourceinfo
                 docPath = args[i + 1]
+            case "-primary-file":
+                // .swift
+                primaryInputPaths.append(args[i + 1])
+                inputPaths.append(args[i + 1])
             default:
                 if arg.hasPrefix(".swift") {
                     inputPaths.append(arg)
@@ -93,6 +98,7 @@ public class XCSwiftcFrontendMain {
             objcHeaderOutput: objcHeaderOutput,
             moduleName: moduleName,
             target: target,
+            primaryInputPaths: primaryInputPaths,
             inputPaths: inputPaths,
             outputPaths: outputPaths,
             dependenciesPaths: dependenciesPaths,

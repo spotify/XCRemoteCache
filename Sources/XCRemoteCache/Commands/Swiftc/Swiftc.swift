@@ -146,11 +146,7 @@ class Swiftc: SwiftcProtocol {
         )
 
         // emit module (if requested)
-        for step in context.steps {
-            guard case .emitModule(let objcHeaderOutput, _) = step else {
-                break
-            }
-            
+        if let emitModule = context.steps.emitModule {            
             // Build -Swift.h location from XCRemoteCache arbitrary format include/${arch}/${target}-Swift.h
             let artifactSwiftModuleObjCDir = artifactLocation
                 .appendingPathComponent("include")
@@ -159,7 +155,7 @@ class Swiftc: SwiftcProtocol {
             // Move cached xxxx-Swift.h to the location passed in arglist
             // Alternatively, artifactSwiftModuleObjCFile could be built as a first .h file in artifactSwiftModuleObjCDir
             let artifactSwiftModuleObjCFile = artifactSwiftModuleObjCDir
-                .appendingPathComponent(objcHeaderOutput.lastPathComponent)
+                .appendingPathComponent(emitModule.objcHeaderOutput.lastPathComponent)
             
             _ = try productsGenerator.generateFrom(
                 artifactSwiftModuleFiles: artifactSwiftmoduleFiles,
@@ -183,8 +179,10 @@ class Swiftc: SwiftcProtocol {
                 try cachedDependenciesWriterFactory.generate(output: individualDeps)
             }
         }
-        // Save .d for the entire module
-        try cachedDependenciesWriterFactory.generate(output: allCompilations.info.swiftDependencies)
+        // Save .d for the entire module (might not be required in the `swift-frontend -c` mode)
+        if let swiftDependencies = allCompilations.info.swiftDependencies {
+            try cachedDependenciesWriterFactory.generate(output: swiftDependencies)
+        }
         // Generate .d file with all deps in the "-master.d" (e.g. for WMO)
         if let wmoDeps = allCompilations.info.dependencies {
             try cachedDependenciesWriterFactory.generate(output: wmoDeps)

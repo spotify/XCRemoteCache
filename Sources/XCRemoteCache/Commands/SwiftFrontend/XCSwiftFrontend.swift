@@ -93,6 +93,8 @@ enum SwiftFrontendArgInputError: Error {
     case bothCompilationAndEmitAction
     // no .swift files have been passed as input files
     case noCompilationInputs
+    // no -primary-file .swift files have been passed as input files
+    case noPrimaryFileCompilationInputs
     // number of -emit-dependencies-path doesn't match compilation inputs
     case dependenciesOuputCountDoesntMatch(expected: Int, parsed: Int)
     // number of -serialize-diagnostics-path doesn't match compilation inputs
@@ -119,21 +121,27 @@ public struct SwiftFrontendArgInput {
     let objcHeaderOutput: String?
     let moduleName: String?
     let target: String?
+    let primaryInputPaths: [String]
     let inputPaths: [String]
     var outputPaths: [String]
     var dependenciesPaths: [String]
+    // Extra params
+    // Diagnostics are not supported yet in the XCRemoteCache (cached artifacts assumes no warnings)
     var diagnosticsPaths: [String]
+    // Unsed for now:
+    // .swiftsourceinfo and .swiftdoc will be placed next to the .swiftmodule
     let sourceInfoPath: String?
     let docPath: String?
 
     /// Manual initializer implementation required to be public
-    public init(compile: Bool, emitModule: Bool, objcHeaderOutput: String?, moduleName: String?, target: String?, inputPaths: [String], outputPaths: [String], dependenciesPaths: [String], diagnosticsPaths: [String],
+    public init(compile: Bool, emitModule: Bool, objcHeaderOutput: String?, moduleName: String?, target: String?, primaryInputPaths: [String], inputPaths: [String], outputPaths: [String], dependenciesPaths: [String], diagnosticsPaths: [String],
                 sourceInfoPath: String?, docPath: String?) {
         self.compile = compile
         self.emitModule = emitModule
         self.objcHeaderOutput = objcHeaderOutput
         self.moduleName = moduleName
         self.target = target
+        self.primaryInputPaths = primaryInputPaths
         self.inputPaths = inputPaths
         self.outputPaths = outputPaths
         self.dependenciesPaths = dependenciesPaths
@@ -142,11 +150,12 @@ public struct SwiftFrontendArgInput {
         self.docPath = docPath
     }
     
-    func generateAction() throws -> SwiftFrontendAction {
+    func generateSwiftcContext(config: XCRemoteCacheConfig) throws -> SwiftcContext {
         guard compile != emitModule else {
             throw SwiftFrontendArgInputError.bothCompilationAndEmitAction
         }
         let inputPathsCount = inputPaths.count
+        let primaryInputPathsCount = primaryInputPaths.count
         guard inputPathsCount > 0 else {
             throw SwiftFrontendArgInputError.noCompilationInputs
         }
@@ -156,28 +165,47 @@ public struct SwiftFrontendArgInput {
         guard let moduleName = moduleName else {
             throw SwiftFrontendArgInputError.emiMissingModuleName
         }
-        let inputURLs: [URL] = inputPaths.map(URL.init(fileURLWithPath:))
-        
+
         if compile {
-            guard [inputPathsCount, 0].contains(dependenciesPaths.count) else {
+            guard primaryInputPathsCount > 0 else {
+                throw SwiftFrontendArgInputError.noPrimaryFileCompilationInputs
+            }
+            guard [primaryInputPathsCount, 0].contains(dependenciesPaths.count) else {
                 throw SwiftFrontendArgInputError.dependenciesOuputCountDoesntMatch(expected: inputPathsCount, parsed: dependenciesPaths.count)
             }
-            guard [inputPathsCount, 0].contains(diagnosticsPaths.count) else {
+            guard [primaryInputPathsCount, 0].contains(diagnosticsPaths.count) else {
                 throw SwiftFrontendArgInputError.diagnosticsOuputCountDoesntMatch(expected: inputPathsCount, parsed: diagnosticsPaths.count)
             }
-            guard outputPaths.count == inputPathsCount else {
+            guard outputPaths.count == primaryInputPathsCount else {
                 throw SwiftFrontendArgInputError.outputsOuputCountDoesntMatch(expected: inputPathsCount, parsed: outputPaths.count)
             }
-            let compilationFileInfos: [SwiftFileCompilationInfo] = (0..<inputPathsCount).map { i in
-                return SwiftFileCompilationInfo(
-                    file: inputURLs[i],
-                    dependencies: dependenciesPaths.first.map(URL.init(fileURLWithPath:)),
-                    object: outputPaths.first.map(URL.init(fileURLWithPath:)),
-                    swiftDependencies: dependenciesPaths.first.map(URL.init(fileURLWithPath:))
+            let primaryInputFilesURLs: [URL] = primaryInputPaths.map(URL.init(fileURLWithPath:))
+            
+            let steps: SwiftcContext.SwiftcSteps = SwiftcContext.SwiftcSteps(
+                compileFilesScope: .subset(primaryInputFilesURLs),
+                emitModule: nil
+            )
+            
+            let compilationFileInfoMap: [String: SwiftFileCompilationInfo] = (0..<primaryInputPathsCount).reduce([String: SwiftFileCompilationInfo]()) { (prev, i) in
+                var new = prev
+                new[primaryInputPaths[i]] = SwiftFileCompilationInfo(
+                    file: primaryInputFilesURLs[i],
+                    dependencies: dependenciesPaths.get(i).map(URL.init(fileURLWithPath:)),
+                    object: outputPaths.get(i).map(URL.init(fileURLWithPath:)),
+                    swiftDependencies: dependenciesPaths.get(i).map(URL.init(fileURLWithPath:))
                 )
-            }
-            let compilationInfo = SwiftFrontendCompilationInfo(target: target, moduleName: moduleName)
-            return .compile(compilationInfo: compilationInfo, compilationFiles: compilationFileInfos)
+                return new
+            }            
+            
+            return try .init(
+                config: config,
+                moduleName: moduleName,
+                steps: steps,
+                outputs: .map(compilationFileInfoMap),
+                target: target,
+                inputs: .list(outputPaths),
+                exampleWorkspaceFilePath: outputPaths[0]
+            )
         } else {
             guard outputPaths.count == 1 else {
                 throw SwiftFrontendArgInputError.emitModulOuputCountIsNot1(parsed: outputPaths.count)
@@ -194,32 +222,30 @@ public struct SwiftFrontendArgInput {
             guard diagnosticsPaths.count <= 1 else {
                 throw SwiftFrontendArgInputError.emitModuleDiagnosticsOuputCountIsHigherThan1(parsed: diagnosticsPaths.count)
             }
-            let moduleInfo: SwiftFrontendEmitModuleInfo = SwiftFrontendEmitModuleInfo(
-                inputs: inputURLs,
-                objcHeader: URL.init(fileURLWithPath: objcHeaderOutput),
-                diagnostics: diagnosticsPaths.first.map(URL.init(fileURLWithPath:)),
-                dependencies: dependenciesPaths.first.map(URL.init(fileURLWithPath:)),
-                output: URL.init(fileURLWithPath: outputPaths[0]),
-                target: target,
-                moduleName: moduleName,
-                sourceInfo: sourceInfoPath.map(URL.init(fileURLWithPath:)),
-                doc: docPath.map(URL.init(fileURLWithPath:))
+            let steps: SwiftcContext.SwiftcSteps = SwiftcContext.SwiftcSteps(
+                compileFilesScope: .none,
+                emitModule: SwiftcContext.SwiftcStepEmitModule(
+                    objcHeaderOutput: URL(fileURLWithPath: objcHeaderOutput),
+                    modulePathOutput: URL(fileURLWithPath: outputPaths[0])
+                )
             )
-            return .emitModule(emitModuleInfo: moduleInfo, inputFiles: inputURLs)
+            return try .init(
+                config: config,
+                moduleName: moduleName,
+                steps: steps,
+                outputs: .map([:]),
+                target: target,
+                inputs: .list([]),
+                exampleWorkspaceFilePath: objcHeaderOutput
+            )
         }
     }
 }
 
-public class XCSwiftFrontend {
-    private let command: String
-    // raw representation of args in the "string" domain
-    private let inputArgs: SwiftFrontendArgInput
+public class XCSwiftFrontend: XCSwiftAbstract<SwiftFrontendArgInput> {
     private let env: [String: String]
-    // validated and frontend action
-    private let action: SwiftFrontendAction
-    private let dependenciesWriterFactory: (URL, FileManager) -> DependenciesWriter
-    private let touchFactory: (URL, FileManager) -> Touch
-
+    private var cachedSwiftdContext: (XCRemoteCacheConfig, SwiftcContext)?
+    
     public init(
         command: String,
         inputArgs: SwiftFrontendArgInput,
@@ -227,104 +253,54 @@ public class XCSwiftFrontend {
         dependenciesWriter: @escaping (URL, FileManager) -> DependenciesWriter,
         touchFactory: @escaping (URL, FileManager) -> Touch
     ) throws {
-        self.command = command
-        self.inputArgs = inputArgs
         self.env = env
-        dependenciesWriterFactory = dependenciesWriter
-        self.touchFactory = touchFactory
-        
-        self.action = try inputArgs.generateAction()
+        super.init(
+            command: command,
+            inputArgs: inputArgs,
+            dependenciesWriter: dependenciesWriter,
+            touchFactory: touchFactory
+        )
     }
 
-    // swiftlint:disable:next function_body_length
-    public func run() {
+    override func buildContext() -> (XCRemoteCacheConfig, SwiftcContext) {
+        if let cachedSwiftdContext = cachedSwiftdContext {
+            return cachedSwiftdContext
+        }
+        
         let fileManager = FileManager.default
         let config: XCRemoteCacheConfig
-        let context: SwiftFrontendContext
+        let context: SwiftcContext
         
         do {
             let srcRoot: URL = URL(fileURLWithPath: fileManager.currentDirectoryPath)
             config = try XCRemoteCacheConfigReader(srcRootPath: srcRoot.path, fileReader: fileManager)
                 .readConfiguration()
-            context = try SwiftFrontendContext(config: config, env: env, input: inputArgs, action: action)
+            context = try SwiftcContext(config: config, input: inputArgs)
         } catch {
             exit(1, "FATAL: XCSwiftFrontend initialization failed with error: \(error)")
         }
-        
-        
-        let swiftFrontendCommand = config.swiftFrontendCommand
-        let markerURL = context.tempDir.appendingPathComponent(config.modeMarkerPath)
-        
-        
-        let markerReader = FileMarkerReader(markerURL, fileManager: fileManager)
-        let markerWriter = FileMarkerWriter(markerURL, fileAccessor: fileManager)
-
-        
-//        let inputReader = SwiftcFilemapInputEditor(context.filemap, fileManager: fileManager)
-//        let fileListEditor = FileListEditor(context.fileList, fileManager: fileManager)
-        let artifactOrganizer = ZipArtifactOrganizer(
-            targetTempDir: context.tempDir,
-            // xcswiftc  doesn't call artifact preprocessing
-            artifactProcessors: [],
-            fileManager: fileManager
-        )
-        // TODO: check for allowedFile comparing a list of all inputfiles, not dependencies from a marker
-        let makerReferencedFilesListScanner = FileListScannerImpl(markerReader, caseSensitive: false)
-        let allowedFilesListScanner = ExceptionsFilteredFileListScanner(
-            allowedFilenames: ["\(config.thinTargetMockFilename).swift"],
-            disallowedFilenames: [],
-            scanner: makerReferencedFilesListScanner
-        )
-        let artifactBuilder: ArtifactSwiftProductsBuilder = ArtifactSwiftProductsBuilderImpl(
-            workingDir: context.tempDir,
-            moduleName: context.moduleName,
-            fileManager: fileManager
-        )
-        let productsGenerator = DiskSwiftFrontendProductsGenerator(
-            action: action,
-            diskCopier: HardLinkDiskCopier(fileManager: fileManager)
-        )
-        let allInvocationsStorage = ExistingFileStorage(
-            storageFile: context.invocationHistoryFile,
-            command: swiftFrontendCommand
-        )
-        // When fallbacking to local compilation do not call historical `swiftc` invocations
-        // The current fallback invocation already compiles all files in a target
-        let invocationStorage = FilteredInvocationStorage(
-            storage: allInvocationsStorage,
-            retrieveIgnoredCommands: [swiftFrontendCommand]
-        )
-        let shellOut = ProcessShellOut()
-
-        let swiftFrontend = SwiftFrontend(
-            markerReader: markerReader,
-            allowedFilesListScanner: allowedFilesListScanner,
-            artifactOrganizer: artifactOrganizer,
-            context: context,
-            markerWriter: markerWriter,
-            productsGenerator: productsGenerator,
-            fileManager: fileManager,
-            dependenciesWriterFactory: dependenciesWriterFactory,
-            touchFactory: touchFactory,
-            plugins: []
-        )
-        /*let orchestrator = SwiftcOrchestrator(
-            mode: context.mode,
-            swiftc: swiftc,
-            swiftcCommand: swiftcCommand,
-            objcHeaderOutput: context.objcHeaderOutput,
-            moduleOutput: context.modulePathOutput,
-            arch: context.arch,
-            artifactBuilder: artifactBuilder,
-            producerFallbackCommandProcessors: [],
-            invocationStorage: invocationStorage,
-            shellOut: shellOut
-        )
+        let builtContext = (config, context)
+        self.cachedSwiftdContext = builtContext
+        return builtContext
+    }
+    
+    override public func run() {
         do {
+            /// The LLBUILD_BUILD_ID ENV that describes the swiftc (parent) invocation
+            let llbuildId: String = try env.readEnv(key: "LLBUILD_BUILD_ID")
+            let (_, context) = buildContext()
+            
+            let sharedLockFileURL = context.tempDir.appendingPathComponent(llbuildId).appendingPathExtension("lock")
+            let sharedLock = ExclusiveFile(sharedLockFileURL, mode: .override)
+            
+            let action: SwiftFrontendOrchestrator.Action = inputArgs.emitModule ? .emitModule : .compile
+            let orchestrator = SwiftFrontendOrchestrator(mode: context.mode, action: action, lockAccessor: sharedLock)
+            
             try orchestrator.run()
         } catch {
-            exit(1, "Swiftc failed with error: \(error)")
+            printWarning("Cannot correctly orchestrate the \(command) with params \(inputArgs): error: \(error)")
         }
-         */
+        
+        super.run()
     }
 }

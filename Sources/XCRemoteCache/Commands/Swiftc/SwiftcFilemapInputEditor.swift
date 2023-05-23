@@ -138,14 +138,14 @@ extension SwiftModuleCompilationInfo {
         guard let dict = object as? [String: String] else {
             throw SwiftcInputReaderError.invalidFormat
         }
-        swiftDependencies = try dict.readURL(key: "swift-dependencies")
+        swiftDependencies = dict.readURL(key: "swift-dependencies")
         dependencies = dict.readURL(key: "dependencies")
     }
 
     func dump() -> [String: String] {
         return [
             "dependencies": dependencies?.path,
-            "swift-dependencies": swiftDependencies.path,
+            "swift-dependencies": swiftDependencies?.path,
         ].compactMapValues { $0 }
     }
 }

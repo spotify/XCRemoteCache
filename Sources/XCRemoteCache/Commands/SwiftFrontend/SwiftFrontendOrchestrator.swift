@@ -29,32 +29,30 @@ class SwiftFrontendOrchestrator {
     /// Safe to use forced unwrapping
     private static let emitModuleContent = "done".data(using: .utf8)!
     
-    private let mode: SwiftFrontendContext.SwiftFrontendMode
-    private let action: SwiftFrontendAction
+    enum Action {
+        case emitModule
+        case compile
+    }
+    private let mode: SwiftcContext.SwiftcMode
+    private let action: Action
     private let lockAccessor: ExclusiveFileAccessor
 
     init(
-        mode: SwiftFrontendContext.SwiftFrontendMode,
-        action: SwiftFrontendAction,
+        mode: SwiftcContext.SwiftcMode,
+        action: Action,
         lockAccessor: ExclusiveFileAccessor
     ) {
         self.mode = mode
         self.action = action
         self.lockAccessor = lockAccessor
     }
+    
     func run() throws {
-        switch mode {
-        case .consumer(commit: .available):
-            /// attemp to mock
-            try executeMockAttemp()
-        case .consumer:
-            // TODO: fallback
-        case .producerFast:
-            // TODO: not supported yet
-        case .producer:
-            
+        guard case .consumer(commit: .available) = mode else {
+            // no need to lock anything - just allow fallbacking to the `swiftc or swift-frontend`
+            return
         }
-        
+        try waitForEmitModuleLock()
     }
     private func executeMockAttemp() throws {
         switch action {

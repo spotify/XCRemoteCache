@@ -21,9 +21,19 @@ import Foundation
 
 
 public struct SwiftcContext {
-    public enum SwiftcStep {
-        case compileFiles
-        case emitModule(objcHeaderOutput: URL, modulePathOutput: URL)
+    public struct SwiftcStepEmitModule {
+        let objcHeaderOutput: URL
+        let modulePathOutput: URL
+    }
+    public enum SwiftcStepCompileFilesScope {
+        case none
+        case all
+        case subset([URL])
+    }
+    
+    public struct SwiftcSteps {
+        let compileFilesScope: SwiftcStepCompileFilesScope
+        let emitModule: SwiftcStepEmitModule?
     }
     
     /// Defines how a list of input files (*.swift) is passed to the invocation
@@ -50,7 +60,7 @@ public struct SwiftcContext {
         case producerFast
     }
 
-    let steps: [SwiftcStep]
+    let steps: SwiftcSteps
 //    let objcHeaderOutput: URL
     let moduleName: String
 //    let modulePathOutput: URL
@@ -66,11 +76,10 @@ public struct SwiftcContext {
     /// File that stores all compilation invocation arguments
     let invocationHistoryFile: URL
 
-
     public init(
         config: XCRemoteCacheConfig,
         moduleName: String,
-        steps: [SwiftcStep],
+        steps: SwiftcSteps,
         outputs: CompilationFilesOutputs,
         target: String,
         inputs: CompilationFilesSource,
@@ -121,13 +130,13 @@ public struct SwiftcContext {
         config: XCRemoteCacheConfig,
         input: SwiftcArgInput
     ) throws {
-        let steps: [SwiftcStep] = [
-            .compileFiles,
-            .emitModule(
+        let steps = SwiftcSteps(
+            compileFilesScope: .all,
+            emitModule: SwiftcStepEmitModule(
                 objcHeaderOutput: URL(fileURLWithPath: (input.objcHeaderOutput)),
                 modulePathOutput: URL(fileURLWithPath: input.modulePathOutput)
             )
-        ]
+        )
         let outputs = CompilationFilesOutputs.fileMap(input.filemap)
         let inputs = CompilationFilesSource.fileList(input.fileList)
         try self.init(
@@ -145,14 +154,6 @@ public struct SwiftcContext {
         config: XCRemoteCacheConfig,
         input: SwiftFrontendArgInput
     ) throws {
-        try self.init(
-            config: config,
-            objcHeaderOutput: input.objcHeaderOutput,
-            moduleName: input.moduleName,
-            modulePathOutput: input.modulePathOutput,
-            filemap: input.filemap,
-            target: input.target,
-            fileList: input.fileList
-        )
+        self = try input.generateSwiftcContext(config: config)
     }
 }
