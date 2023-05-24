@@ -146,17 +146,18 @@ class Swiftc: SwiftcProtocol {
         )
 
         // emit module (if requested)
-        if let emitModule = context.steps.emitModule {            
+        if let emitModule = context.steps.emitModule {
             // Build -Swift.h location from XCRemoteCache arbitrary format include/${arch}/${target}-Swift.h
             let artifactSwiftModuleObjCDir = artifactLocation
                 .appendingPathComponent("include")
                 .appendingPathComponent(context.arch)
                 .appendingPathComponent(context.moduleName)
             // Move cached xxxx-Swift.h to the location passed in arglist
-            // Alternatively, artifactSwiftModuleObjCFile could be built as a first .h file in artifactSwiftModuleObjCDir
+            // Alternatively, artifactSwiftModuleObjCFile could be built as a first .h
+            // file in artifactSwiftModuleObjCDir
             let artifactSwiftModuleObjCFile = artifactSwiftModuleObjCDir
                 .appendingPathComponent(emitModule.objcHeaderOutput.lastPathComponent)
-            
+
             _ = try productsGenerator.generateFrom(
                 artifactSwiftModuleFiles: artifactSwiftmoduleFiles,
                 artifactSwiftModuleObjCFile: artifactSwiftModuleObjCFile

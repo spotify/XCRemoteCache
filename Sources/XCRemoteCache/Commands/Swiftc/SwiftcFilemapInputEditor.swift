@@ -63,7 +63,7 @@ class StaticSwiftcInputReader: SwiftcInputReader {
     private let moduleDependencies: URL?
     private let swiftDependencies: URL?
     private let compilationFiles: [SwiftFileCompilationInfo]
-    
+
     init(
         moduleDependencies: URL?,
         swiftDependencies: URL?,
@@ -73,7 +73,7 @@ class StaticSwiftcInputReader: SwiftcInputReader {
         self.swiftDependencies = swiftDependencies
         self.compilationFiles = compilationFiles
     }
-    
+
     func read() throws -> SwiftCompilationInfo {
         return .init(
             info: .init(

@@ -50,7 +50,7 @@ public class XCSwiftAbstract<T> {
     let inputArgs: T
     private let dependenciesWriterFactory: (URL, FileManager) -> DependenciesWriter
     private let touchFactory: (URL, FileManager) -> Touch
-    
+
     public init(
         command: String,
         inputArgs: T,
@@ -62,16 +62,16 @@ public class XCSwiftAbstract<T> {
         dependenciesWriterFactory = dependenciesWriter
         self.touchFactory = touchFactory
     }
-    
+
     func buildContext() -> (XCRemoteCacheConfig, SwiftcContext) {
         fatalError("Need to override in \(Self.self)")
     }
-    
+
     // swiftlint:disable:next function_body_length
     public func run() {
         let fileManager = FileManager.default
         let (config, context) = buildContext()
-        
+
         let swiftcCommand = config.swiftcCommand
         let markerURL = context.tempDir.appendingPathComponent(config.modeMarkerPath)
         let markerReader = FileMarkerReader(markerURL, fileManager: fileManager)
