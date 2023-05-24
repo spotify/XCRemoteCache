@@ -43,13 +43,13 @@ protocol ListWriter {
 
 class StaticFileListReader: ListReader {
     private let list: [URL]
-    init(list: [URL]){
+    init(list: [URL]) {
         self.list = list
     }
     func listFilesURLs() throws -> [URL] {
         list
     }
-    
+
     func canRead() -> Bool {
         true
     }
