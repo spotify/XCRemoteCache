@@ -63,7 +63,7 @@ public class XCSwiftAbstract<T> {
         self.touchFactory = touchFactory
     }
     
-    func buildContext() -> (XCRemoteCacheConfig, SwiftcContext){
+    func buildContext() -> (XCRemoteCacheConfig, SwiftcContext) {
         fatalError("Need to override in \(Self.self)")
     }
     
@@ -92,10 +92,10 @@ public class XCSwiftAbstract<T> {
         }
         let fileListReader: ListReader
         switch context.inputs {
-            case .fileList(let path):
-                fileListReader = FileListEditor(URL(fileURLWithPath: path), fileManager: fileManager)
-            case .list(let paths):
-                fileListReader = StaticFileListReader(list: paths.map(URL.init(fileURLWithPath:)))
+        case .fileList(let path):
+            fileListReader = FileListEditor(URL(fileURLWithPath: path), fileManager: fileManager)
+        case .list(let paths):
+            fileListReader = StaticFileListReader(list: paths.map(URL.init(fileURLWithPath:)))
         }
         let artifactOrganizer = ZipArtifactOrganizer(
             targetTempDir: context.tempDir,
@@ -172,7 +172,7 @@ public class XCSwiftAbstract<T> {
 }
 
 public class XCSwiftc: XCSwiftAbstract<SwiftcArgInput> {
-    override func buildContext() -> (XCRemoteCacheConfig, SwiftcContext){
+    override func buildContext() -> (XCRemoteCacheConfig, SwiftcContext) {
         let fileReader = FileManager.default
         let config: XCRemoteCacheConfig
         let context: SwiftcContext

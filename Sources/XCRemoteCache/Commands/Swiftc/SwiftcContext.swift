@@ -29,12 +29,12 @@ public struct SwiftcContext {
         case all
         case subset([URL])
     }
-    
+
     public struct SwiftcSteps {
         let compileFilesScope: SwiftcStepCompileFilesScope
         let emitModule: SwiftcStepEmitModule?
     }
-    
+
     /// Defines how a list of input files (*.swift) is passed to the invocation
     public enum CompilationFilesSource {
         /// defined in a separate file (via @/.../*.SwiftFileList)
@@ -42,7 +42,7 @@ public struct SwiftcContext {
         /// explicitly passed a list of files
         case list([String])
     }
-    
+
     /// Defines how a list of output files (*.d, *.o etc.) is passed to the invocation
     public enum CompilationFilesOutputs {
         /// defined in a separate file (via -output-file-map)
@@ -50,7 +50,7 @@ public struct SwiftcContext {
         /// explicitly passed in the invocation
         case map([String: SwiftFileCompilationInfo])
     }
-    
+
     enum SwiftcMode: Equatable {
         case producer
         /// Commit sha of the commit to use during remote cache

@@ -20,17 +20,16 @@
 import Foundation
 import XCRemoteCache
 
-/// Wrapper for a `swift-frontend` that skips compilation and produces empty output files (.o). As a compilation dependencies
+/// Wrapper for a `swift-frontend` that skips compilation and
+/// produces empty output files (.o). As a compilation dependencies
 /// (.d) file, it copies all dependency files from the prebuild marker file
 /// Fallbacks to a standard `swift-frontend` when the ramote cache is not applicable (e.g. modified sources)
 public class XCSwiftcFrontendMain {
-    // swiftlint:disable:next function_body_length
+    // swiftlint:disable:next function_body_length cyclomatic_complexity
     public func main() {
         let env = ProcessInfo.processInfo.environment
         let command = ProcessInfo().processName
         let args = ProcessInfo().arguments
-        
-        
         var compile = false
         var emitModule = false
         var objcHeaderOutput: String?
@@ -43,7 +42,7 @@ public class XCSwiftcFrontendMain {
         var diagnosticsPaths: [String] = []
         var sourceInfoPath: String?
         var docPath: String?
-        
+
         for i in 0..<args.count {
             let arg = args[i]
             switch arg {
