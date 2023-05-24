@@ -62,7 +62,7 @@ class SwiftcTests: FileXCTestCase {
 
         input = SwiftcArgInput(
             objcHeaderOutput: "Target-Swift.h",
-            moduleName: "",
+            moduleName: "Target",
             modulePathOutput: modulePathOutput.path,
             filemap: "",
             target: "",
@@ -276,7 +276,7 @@ class SwiftcTests: FileXCTestCase {
 
     func testCompilationUsesArchSpecificSwiftmoduleFiles() throws {
         let artifactRoot = URL(fileURLWithPath: "/cachedArtifact")
-        let artifactObjCHeader = URL(fileURLWithPath: "/cachedArtifact/include/archTest/Target-Swift.h")
+        let artifactObjCHeader = URL(fileURLWithPath: "/cachedArtifact/include/archTest/Target/Target-Swift.h")
         let artifactSwiftmodule = URL(fileURLWithPath: "/cachedArtifact/swiftmodule/archTest/Target.swiftmodule")
         let artifactSwiftdoc = URL(fileURLWithPath: "/cachedArtifact/swiftmodule/archTest/Target.swiftdoc")
         let artifactSwiftSourceInfo = URL(
