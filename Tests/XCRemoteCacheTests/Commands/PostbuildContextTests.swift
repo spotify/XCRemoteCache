@@ -28,7 +28,7 @@ class PostbuildContextTests: FileXCTestCase {
         "TARGET_TEMP_DIR": "TARGET_TEMP_DIR",
         "DERIVED_FILE_DIR": "DERIVED_FILE_DIR",
         "ARCHS": "x86_64",
-        "OBJECT_FILE_DIR_normal": "/OBJECT_FILE_DIR_normal" ,
+        "OBJECT_FILE_DIR_normal": "/OBJECT_FILE_DIR_normal",
         "CONFIGURATION": "CONFIGURATION",
         "PLATFORM_NAME": "PLATFORM_NAME",
         "XCODE_PRODUCT_BUILD_VERSION": "XCODE_PRODUCT_BUILD_VERSION",

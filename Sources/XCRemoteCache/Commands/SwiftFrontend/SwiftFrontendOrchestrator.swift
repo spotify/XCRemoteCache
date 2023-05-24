@@ -28,7 +28,7 @@ class SwiftFrontendOrchestrator {
     /// Content saved to the shared file
     /// Safe to use forced unwrapping
     private static let emitModuleContent = "done".data(using: .utf8)!
-    
+
     enum Action {
         case emitModule
         case compile
@@ -46,7 +46,7 @@ class SwiftFrontendOrchestrator {
         self.action = action
         self.lockAccessor = lockAccessor
     }
-    
+
     func run() throws {
         guard case .consumer(commit: .available) = mode else {
             // no need to lock anything - just allow fallbacking to the `swiftc or swift-frontend`
@@ -54,6 +54,7 @@ class SwiftFrontendOrchestrator {
         }
         try waitForEmitModuleLock()
     }
+
     private func executeMockAttemp() throws {
         switch action {
         case .emitModule:
@@ -62,19 +63,19 @@ class SwiftFrontendOrchestrator {
             try waitForEmitModuleLock()
         }
     }
-    
+
     private func validateEmitModuleStep() throws {
         try lockAccessor.exclusiveAccess { handle in
             // TODO: check if the mocking compilation can happen (make sure
             // all input files are listed in the list of dependencies)
-            
+
             handle.write(SwiftFrontendOrchestrator.emitModuleContent)
         }
     }
-    
+
     /// Locks a shared file in a loop until its content non-empty, which means the "parent" emit-module has finished
     private func waitForEmitModuleLock() throws {
-        while (true) {
+        while true {
             // TODO: add a max timeout
             try lockAccessor.exclusiveAccess { handle in
                 if !handle.availableData.isEmpty {
