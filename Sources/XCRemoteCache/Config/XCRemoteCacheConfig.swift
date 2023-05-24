@@ -153,6 +153,8 @@ public struct XCRemoteCacheConfig: Encodable {
     /// If true, do not fail `prepare` if cannot find the most recent common commits with the primary branch
     /// That might useful on CI, where a shallow clone is used
     var gracefullyHandleMissingCommonSha: Bool = false
+    /// Enable experimental integration with swift-frontend added in Xcode 13
+    var enableSwiftFrontendIntegration: Bool = false
 }
 
 extension XCRemoteCacheConfig {
@@ -213,6 +215,7 @@ extension XCRemoteCacheConfig {
         merge.irrelevantDependenciesPaths = scheme.irrelevantDependenciesPaths ?? irrelevantDependenciesPaths
         merge.gracefullyHandleMissingCommonSha =
             scheme.gracefullyHandleMissingCommonSha ?? gracefullyHandleMissingCommonSha
+        merge.enableSwiftFrontendIntegration = scheme.enableSwiftFrontendIntegration ?? enableSwiftFrontendIntegration
         return merge
     }
 
@@ -281,6 +284,7 @@ struct ConfigFileScheme: Decodable {
     let customRewriteEnvs: [String]?
     let irrelevantDependenciesPaths: [String]?
     let gracefullyHandleMissingCommonSha: Bool?
+    let enableSwiftFrontendIntegration: Bool?
 
     // Yams library doesn't support encoding strategy, see https://github.com/jpsim/Yams/issues/84
     enum CodingKeys: String, CodingKey {
@@ -332,6 +336,7 @@ struct ConfigFileScheme: Decodable {
         case customRewriteEnvs = "custom_rewrite_envs"
         case irrelevantDependenciesPaths = "irrelevant_dependencies_paths"
         case gracefullyHandleMissingCommonSha = "gracefully_handle_missing_common_sha"
+        case enableSwiftFrontendIntegration = "enable_swift_frontend_integration"
     }
 }
 

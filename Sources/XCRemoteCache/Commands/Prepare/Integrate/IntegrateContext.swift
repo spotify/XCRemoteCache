@@ -38,7 +38,8 @@ extension IntegrateContext {
         env: [String: String],
         binariesDir: URL,
         fakeSrcRoot: String,
-        outputPath: String?
+        outputPath: String?,
+        useFontendIntegration: Bool
     ) throws {
         projectPath = URL(fileURLWithPath: input)
         let srcRoot = projectPath.deletingLastPathComponent()
@@ -47,10 +48,11 @@ extension IntegrateContext {
         configOverride = URL(fileURLWithPath: configOverridePath, relativeTo: srcRoot)
         output = outputPath.flatMap(URL.init(fileURLWithPath:))
         self.fakeSrcRoot = URL(fileURLWithPath: fakeSrcRoot)
+        let swiftcBinaryName = useFontendIntegration ? "swiftc" : "xcswiftc"
         binaries = XCRCBinariesPaths(
             prepare: binariesDir.appendingPathComponent("xcprepare"),
             cc: binariesDir.appendingPathComponent("xccc"),
-            swiftc: binariesDir.appendingPathComponent("xcswiftc"),
+            swiftc: binariesDir.appendingPathComponent(swiftcBinaryName),
             libtool: binariesDir.appendingPathComponent("xclibtool"),
             lipo: binariesDir.appendingPathComponent("xclipo"),
             ld: binariesDir.appendingPathComponent("xcld"),

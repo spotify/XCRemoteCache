@@ -88,7 +88,8 @@ public class XCIntegrate {
                 env: env,
                 binariesDir: binariesDir,
                 fakeSrcRoot: fakeSrcRoot,
-                outputPath: output
+                outputPath: output,
+                useFontendIntegration: config.enableSwiftFrontendIntegration
             )
             let configurationOracle = IncludeExcludeOracle(
                 excludes: configurationsExclude.integrateArrayArguments,
