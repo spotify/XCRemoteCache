@@ -48,6 +48,9 @@ public struct PrebuildContext {
     let overlayHeadersPath: URL
     /// XCRemoteCache is explicitly disabled
     let disabled: Bool
+    /// The LLBUILD_BUILD_ID ENV that describes the compilation identifier
+    /// it is used in the swift-frontend flow
+    let llbuildIdLockFile: URL
 }
 
 extension PrebuildContext {
@@ -72,5 +75,7 @@ extension PrebuildContext {
         /// Note: The file has yaml extension, even it is in the json format
         overlayHeadersPath = targetTempDir.appendingPathComponent("all-product-headers.yaml")
         disabled = try env.readEnv(key: "XCRC_DISABLED") ?? false
+        let llbuildId: String = try env.readEnv(key: "LLBUILD_BUILD_ID")
+        llbuildIdLockFile = XCSwiftFrontend.generateLlbuildIdSharedLock(llbuildId: llbuildId, tmpDir: targetTempDir)
     }
 }

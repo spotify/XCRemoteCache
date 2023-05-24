@@ -45,6 +45,7 @@ class PostbuildContextTests: FileXCTestCase {
         "DERIVED_SOURCES_DIR": "DERIVED_SOURCES_DIR",
         "CURRENT_VARIANT": "normal",
         "PUBLIC_HEADERS_FOLDER_PATH": "/usr/local/include",
+        "LLBUILD_BUILD_ID": "1"
     ]
 
     override func setUpWithError() throws {

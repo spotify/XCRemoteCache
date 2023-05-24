@@ -89,6 +89,9 @@ public struct PostbuildContext {
     var publicHeadersFolderPath: URL?
     /// XCRemoteCache is explicitly disabled
     let disabled: Bool
+    /// The LLBUILD_BUILD_ID ENV that describes the compilation identifier
+    /// it is used in the swift-frontend flow
+    let llbuildIdLockFile: URL
 }
 
 extension PostbuildContext {
@@ -149,5 +152,7 @@ extension PostbuildContext {
             publicHeadersFolderPath = builtProductsDir.appendingPathComponent(publicHeadersPath)
         }
         disabled = try env.readEnv(key: "XCRC_DISABLED") ?? false
+        let llbuildId: String = try env.readEnv(key: "LLBUILD_BUILD_ID")
+        llbuildIdLockFile = XCSwiftFrontend.generateLlbuildIdSharedLock(llbuildId: llbuildId, tmpDir: targetTempDir)
     }
 }

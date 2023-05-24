@@ -57,7 +57,8 @@ class PostbuildTests: FileXCTestCase {
         overlayHeadersPath: "",
         irrelevantDependenciesPaths: [],
         publicHeadersFolderPath: nil,
-        disabled: false
+        disabled: false,
+        llbuildIdLockFile: "/file"
     )
     private var network = RemoteNetworkClientImpl(
         NetworkClientFake(fileManager: .default),

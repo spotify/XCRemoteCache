@@ -34,6 +34,7 @@ class PhaseCacheModeControllerTests: XCTestCase {
             dependenciesWriter: FileDependenciesWriter.init,
             dependenciesReader: { _, _ in dependenciesReader },
             markerWriter: FileMarkerWriter.init,
+            llbuildLockFile: "/file",
             fileManager: FileManager.default
         )
 
@@ -51,6 +52,7 @@ class PhaseCacheModeControllerTests: XCTestCase {
             dependenciesWriter: FileDependenciesWriter.init,
             dependenciesReader: { _, _ in dependenciesReader },
             markerWriter: FileMarkerWriter.init,
+            llbuildLockFile: "/tmp/lock",
             fileManager: FileManager.default
         )
 
@@ -68,6 +70,7 @@ class PhaseCacheModeControllerTests: XCTestCase {
             dependenciesWriter: FileDependenciesWriter.init,
             dependenciesReader: { _, _ in dependenciesReader },
             markerWriter: FileMarkerWriter.init,
+            llbuildLockFile: "/tmp/lock",
             fileManager: FileManager.default
         )
 
@@ -85,6 +88,7 @@ class PhaseCacheModeControllerTests: XCTestCase {
             dependenciesWriter: { _, _ in dependenciesWriter },
             dependenciesReader: { _, _ in DependenciesReaderFake(dependencies: [:]) },
             markerWriter: { _, _ in MarkerWriterSpy() },
+            llbuildLockFile: "/tmp/lock",
             fileManager: FileManager.default
         )
 
@@ -105,6 +109,7 @@ class PhaseCacheModeControllerTests: XCTestCase {
             dependenciesWriter: { _, _ in dependenciesWriter },
             dependenciesReader: { _, _ in DependenciesReaderFake(dependencies: [:]) },
             markerWriter: { _, _ in MarkerWriterSpy() },
+            llbuildLockFile: "/tmp/lock",
             fileManager: FileManager.default
         )
 
@@ -125,6 +130,7 @@ class PhaseCacheModeControllerTests: XCTestCase {
             dependenciesWriter: { _, _ in DependenciesWriterSpy() },
             dependenciesReader: { _, _ in DependenciesReaderFake(dependencies: [:]) },
             markerWriter: { _, _ in markerWriter },
+            llbuildLockFile: "/tmp/lock",
             fileManager: FileManager.default
         )
 
@@ -142,6 +148,7 @@ class PhaseCacheModeControllerTests: XCTestCase {
             dependenciesWriter: { _, _ in DependenciesWriterSpy() },
             dependenciesReader: { _, _ in DependenciesReaderFake(dependencies: [:]) },
             markerWriter: { _, _ in MarkerWriterSpy() },
+            llbuildLockFile: "/tmp/lock",
             fileManager: FileManager.default
         )
 
@@ -163,6 +170,7 @@ class PhaseCacheModeControllerTests: XCTestCase {
             dependenciesWriter: { _, _ in dependenciesWriter },
             dependenciesReader: { _, _ in DependenciesReaderFake(dependencies: [:]) },
             markerWriter: { _, _ in markerWriterSpy },
+            llbuildLockFile: "/tmp/lock",
             fileManager: FileManager.default
         )
 

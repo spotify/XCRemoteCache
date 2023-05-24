@@ -64,7 +64,8 @@ class PrebuildTests: FileXCTestCase {
             turnOffRemoteCacheOnFirstTimeout: true,
             targetName: "",
             overlayHeadersPath: "",
-            disabled: false
+            disabled: false,
+            llbuildIdLockFile: "/tmp/lock"
         )
         contextCached = PrebuildContext(
             targetTempDir: sampleURL,
@@ -78,7 +79,8 @@ class PrebuildTests: FileXCTestCase {
             turnOffRemoteCacheOnFirstTimeout: true,
             targetName: "",
             overlayHeadersPath: "",
-            disabled: false
+            disabled: false,
+            llbuildIdLockFile: "/tmp/lock"
         )
         organizer = ArtifactOrganizerFake(artifactRoot: artifactsRoot, unzippedExtension: "unzip")
         globalCacheSwitcher = InMemoryGlobalCacheSwitcher()
@@ -244,7 +246,8 @@ class PrebuildTests: FileXCTestCase {
             turnOffRemoteCacheOnFirstTimeout: true,
             targetName: "",
             overlayHeadersPath: "",
-            disabled: false
+            disabled: false,
+            llbuildIdLockFile: "/tmp/lock"
         )
 
         let prebuild = Prebuild(
@@ -276,7 +279,8 @@ class PrebuildTests: FileXCTestCase {
             turnOffRemoteCacheOnFirstTimeout: true,
             targetName: "",
             overlayHeadersPath: "",
-            disabled: false
+            disabled: false,
+            llbuildIdLockFile: "/tmp/lock"
         )
         metaContent = try generateMeta(fingerprint: generator.generate(), filekey: "1")
         let downloadedArtifactPackage = artifactsRoot.appendingPathComponent("1")
@@ -340,7 +344,8 @@ class PrebuildTests: FileXCTestCase {
             turnOffRemoteCacheOnFirstTimeout: false,
             targetName: "",
             overlayHeadersPath: "",
-            disabled: false
+            disabled: false,
+            llbuildIdLockFile: "/tmp/lock"
         )
         try globalCacheSwitcher.enable(sha: "1")
         let prebuild = Prebuild(
@@ -372,7 +377,8 @@ class PrebuildTests: FileXCTestCase {
             turnOffRemoteCacheOnFirstTimeout: true,
             targetName: "",
             overlayHeadersPath: "",
-            disabled: true
+            disabled: true,
+            llbuildIdLockFile: "/tmp/lock"
         )
 
         let prebuild = Prebuild(
