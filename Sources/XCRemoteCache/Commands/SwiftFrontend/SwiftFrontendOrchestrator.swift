@@ -19,12 +19,19 @@
 
 import Foundation
 
-/// Performs the `swift-frontend` logic:
+/// Manages  the `swift-frontend` logic
+protocol SwiftFrontendOrchestrator {
+    /// Executes the criticial secion according to the required order
+    /// - Parameter criticalSection: the block that should be synchronized
+    func run(criticalSection: () -> ()) throws
+}
+
+/// The default orchestrator that manages the order or swift-frontend invocations.
 /// For emit-module (the "first" process) action, it locks a shared file between all swift-frontend invcations,
 /// verifies that the mocking can be done and continues the mocking/fallbacking along the lock release
 /// For the compilation action, tries to ackquire a lock and waits until the "emit-module" makes a decision
 /// if the compilation should be skipped and a "mocking" should used instead
-class SwiftFrontendOrchestrator {
+class CommonSwiftFrontendOrchestrator {
     /// Content saved to the shared file
     /// Safe to use forced unwrapping
     private static let emitModuleContent = "done".data(using: .utf8)!
@@ -47,39 +54,59 @@ class SwiftFrontendOrchestrator {
         self.lockAccessor = lockAccessor
     }
 
-    func run() throws {
+    func run(criticalSection: () throws -> ()) throws {
         guard case .consumer(commit: .available) = mode else {
             // no need to lock anything - just allow fallbacking to the `swiftc or swift-frontend`
+            // if we face producer or a consumer where RC is disabled (we have already caught the
+            // cache miss)
+            try criticalSection()
             return
         }
-        try waitForEmitModuleLock()
+        try waitForEmitModuleLock(criticalSection: criticalSection)
     }
 
-    private func executeMockAttemp() throws {
+    private func executeMockAttemp(criticalSection: () throws -> ()) throws {
         switch action {
         case .emitModule:
-            try validateEmitModuleStep()
+            try validateEmitModuleStep(criticalSection: criticalSection)
         case .compile:
-            try waitForEmitModuleLock()
+            try waitForEmitModuleLock(criticalSection: criticalSection)
         }
     }
 
-    private func validateEmitModuleStep() throws {
-        try lockAccessor.exclusiveAccess { handle in
-            // TODO: check if the mocking compilation can happen (make sure
-            // all input files are listed in the list of dependencies)
 
-            handle.write(SwiftFrontendOrchestrator.emitModuleContent)
+    /// Fro emit-module, wraps the critical section with the shared lock so other processes (compilation)
+    /// have to wait until it finishes.
+    /// Once the emit-module is done, the "magical" string is saved to the file and the lock is released
+    ///
+    /// Note: The design of wrapping the entire "emit-module" has a small performance downside if inside
+    /// the critical section, the code realizes that remote cache cannot be used (in practice - a new file has been added)
+    /// None of compilation process (so with '-c' args) can continue until the entire emit-module logic finishes.
+    /// Because it is expected to happen no that often and emit-module is usually quite fast, this makes the
+    /// implementation way simpler. If we ever want to optimize it, we should release the lock as early
+    /// as we know, the remote cache cannot be used. Then all other compilation process (-c) can run
+    /// in parallel with emit-module
+    private func validateEmitModuleStep(criticalSection: () throws -> ()) throws {
+        try lockAccessor.exclusiveAccess { handle in
+            defer {
+                handle.write(Self.self.emitModuleContent)
+            }
+            do {
+                try criticalSection()
+            }
         }
     }
 
     /// Locks a shared file in a loop until its content non-empty, which means the "parent" emit-module has finished
-    private func waitForEmitModuleLock() throws {
+    private func waitForEmitModuleLock(criticalSection: () throws -> ()) throws {
+        // emit-module process should really quickly retain a lock (it is always invoked
+        // by Xcode as a first process)
         while true {
-            // TODO: add a max timeout
+            // TODO: consider adding a max timeout to cover a case when emit-module crashes
             try lockAccessor.exclusiveAccess { handle in
                 if !handle.availableData.isEmpty {
-                    // the file is not empty so emit-module is done with the "check"
+                    // the file is not empty so the emit-module process is done with the "check"
+                    try criticalSection()
                     return
                 }
             }

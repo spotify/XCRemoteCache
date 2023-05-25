@@ -45,15 +45,15 @@ public struct SwiftcArgInput {
     }
 }
 
-public class XCSwiftAbstract<T> {
+public class XCSwiftAbstract<InputArgs> {
     let command: String
-    let inputArgs: T
+    let inputArgs: InputArgs
     private let dependenciesWriterFactory: (URL, FileManager) -> DependenciesWriter
     private let touchFactory: (URL, FileManager) -> Touch
 
     public init(
         command: String,
-        inputArgs: T,
+        inputArgs: InputArgs,
         dependenciesWriter: @escaping (URL, FileManager) -> DependenciesWriter,
         touchFactory: @escaping (URL, FileManager) -> Touch
     ) {

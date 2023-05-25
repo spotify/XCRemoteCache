@@ -252,15 +252,13 @@ public class XCSwiftFrontend: XCSwiftAbstract<SwiftFrontendArgInput> {
             let sharedLockFileURL = XCSwiftFrontend.generateLlbuildIdSharedLock(llbuildId: llbuildId, tmpDir: context.tempDir)
             let sharedLock = ExclusiveFile(sharedLockFileURL, mode: .override)
 
-            let action: SwiftFrontendOrchestrator.Action = inputArgs.emitModule ? .emitModule : .compile
-            let orchestrator = SwiftFrontendOrchestrator(mode: context.mode, action: action, lockAccessor: sharedLock)
+            let action: CommonSwiftFrontendOrchestrator.Action = inputArgs.emitModule ? .emitModule : .compile
+            let swiftFrontendOrchestrator = CommonSwiftFrontendOrchestrator(mode: context.mode, action: action, lockAccessor: sharedLock)
 
-            try orchestrator.run()
+            try swiftFrontendOrchestrator.run(criticalSection: super.run)
         } catch {
             printWarning("Cannot correctly orchestrate the \(command) with params \(inputArgs): error: \(error)")
         }
-
-        super.run()
     }
 }
 
