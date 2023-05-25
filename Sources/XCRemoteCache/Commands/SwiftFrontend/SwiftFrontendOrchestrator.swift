@@ -62,7 +62,7 @@ class CommonSwiftFrontendOrchestrator {
             try criticalSection()
             return
         }
-        try waitForEmitModuleLock(criticalSection: criticalSection)
+        try executeMockAttemp(criticalSection: criticalSection)
     }
 
     private func executeMockAttemp(criticalSection: () throws -> ()) throws {
@@ -101,13 +101,14 @@ class CommonSwiftFrontendOrchestrator {
     private func waitForEmitModuleLock(criticalSection: () throws -> ()) throws {
         // emit-module process should really quickly retain a lock (it is always invoked
         // by Xcode as a first process)
-        while true {
+        var executed = false
+        while !executed {
             // TODO: consider adding a max timeout to cover a case when emit-module crashes
             try lockAccessor.exclusiveAccess { handle in
                 if !handle.availableData.isEmpty {
                     // the file is not empty so the emit-module process is done with the "check"
                     try criticalSection()
-                    return
+                    executed = true
                 }
             }
         }
