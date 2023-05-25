@@ -203,7 +203,6 @@ public struct SwiftFrontendArgInput {
 
 public class XCSwiftFrontend: XCSwiftAbstract<SwiftFrontendArgInput> {
     private let env: [String: String]
-    private var cachedSwiftdContext: (XCRemoteCacheConfig, SwiftcContext)?
 
     public init(
         command: String,
@@ -222,10 +221,6 @@ public class XCSwiftFrontend: XCSwiftAbstract<SwiftFrontendArgInput> {
     }
 
     override func buildContext() -> (XCRemoteCacheConfig, SwiftcContext) {
-        if let cachedSwiftdContext = cachedSwiftdContext {
-            return cachedSwiftdContext
-        }
-
         let fileManager = FileManager.default
         let config: XCRemoteCacheConfig
         let context: SwiftcContext
@@ -238,9 +233,9 @@ public class XCSwiftFrontend: XCSwiftAbstract<SwiftFrontendArgInput> {
         } catch {
             exit(1, "FATAL: XCSwiftFrontend initialization failed with error: \(error)")
         }
-        let builtContext = (config, context)
-        self.cachedSwiftdContext = builtContext
-        return builtContext
+        // do not cache this context, as it is subject to change when
+        // the emit-module finds that the cached artifact cannot be used
+        return (config, context)
     }
 
     override public func run() {
