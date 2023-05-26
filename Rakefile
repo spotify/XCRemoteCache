@@ -10,7 +10,7 @@ DERIVED_DATA_DIR = File.join('.build').freeze
 RELEASES_ROOT_DIR = File.join('releases').freeze
 
 EXECUTABLE_NAME = 'XCRemoteCache'
-EXECUTABLE_NAMES = ['xclibtool', 'xcpostbuild', 'xcprebuild', 'xcprepare', 'xcswiftc', 'swiftc', 'xcswift-frontend', 'xcld', 'xcldplusplus', 'xclipo']
+EXECUTABLE_NAMES = ['xclibtool', 'xcpostbuild', 'xcprebuild', 'xcprepare', 'xcswiftc', 'swiftc', 'xcswift-frontend', 'swift-frontend', 'xcld', 'xcldplusplus', 'xclipo']
 PROJECT_NAME = 'XCRemoteCache'
 
 SWIFTLINT_ENABLED = true
@@ -60,8 +60,9 @@ task :build, [:configuration, :arch, :sdks, :is_archive] do |task, args|
     # Path of the executable looks like: `.build/(debug|release)/XCRemoteCache`
     build_path_base = File.join(DERIVED_DATA_DIR, args.configuration)
     # swift-frontent integration requires that the SWIFT_EXEC is `swiftc` so create
-    # a symbolic link between swiftc->xcswiftc
+    # a symbolic link between swiftc->xcswiftc and swift-frontend->xcswift-frontend
     system("cd #{build_path_base} && ln -s xcswiftc swiftc")
+    system("cd #{build_path_base} && ln -s xcswift-frontend swift-frontend")
     sdk_build_paths = EXECUTABLE_NAMES.map {|e| File.join(build_path_base, e)}
 
     build_paths.push(sdk_build_paths)
