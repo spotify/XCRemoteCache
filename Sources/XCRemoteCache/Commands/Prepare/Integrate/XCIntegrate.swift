@@ -89,7 +89,7 @@ public class XCIntegrate {
                 binariesDir: binariesDir,
                 fakeSrcRoot: fakeSrcRoot,
                 outputPath: output,
-                useFontendIntegration: config.enableSwiftFrontendIntegration
+                useFontendIntegration: config.enableSwifDriverIntegration
             )
             let configurationOracle = IncludeExcludeOracle(
                 excludes: configurationsExclude.integrateArrayArguments,
@@ -99,11 +99,18 @@ public class XCIntegrate {
                 excludes: targetsExclude.integrateArrayArguments,
                 includes: targetsInclude.integrateArrayArguments
             )
+            let buildSettingsAppenderOptions: BuildSettingsIntegrateAppenderOption
+            if config.enableSwifDriverIntegration {
+                buildSettingsAppenderOptions = []
+            } else {
+                buildSettingsAppenderOptions = [.disableSwiftDriverIntegration]
+            }
             let buildSettingsAppender = XcodeProjBuildSettingsIntegrateAppender(
                 mode: context.mode,
                 repoRoot: context.repoRoot,
                 fakeSrcRoot: context.fakeSrcRoot,
-                sdksExclude: sdksExclude.integrateArrayArguments
+                sdksExclude: sdksExclude.integrateArrayArguments,
+                options: buildSettingsAppenderOptions
             )
             let lldbPatcher: LLDBInitPatcher
             switch lldbMode {
