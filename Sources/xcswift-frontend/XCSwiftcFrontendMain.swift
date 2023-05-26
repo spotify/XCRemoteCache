@@ -104,7 +104,7 @@ public class XCSwiftcFrontendMain {
                 env: env,
                 dependenciesWriter: FileDependenciesWriter.init,
                 touchFactory: FileTouch.init)
-            frontend.run()
+            try frontend.run()
         } catch {
             let swiftFrontendCommand = "swift-frontend"
 

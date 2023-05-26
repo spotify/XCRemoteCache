@@ -240,7 +240,7 @@ public class XCSwiftFrontend: XCSwiftAbstract<SwiftFrontendArgInput> {
         return (config, context)
     }
 
-    override public func run() {
+    override public func run() throws {
         do {
             /// The LLBUILD_BUILD_ID ENV that describes the swiftc (parent) invocation
             let llbuildId: String = try env.readEnv(key: "LLBUILD_BUILD_ID")
@@ -259,7 +259,8 @@ public class XCSwiftFrontend: XCSwiftAbstract<SwiftFrontendArgInput> {
 
             try swiftFrontendOrchestrator.run(criticalSection: super.run)
         } catch {
-            printWarning("Cannot correctly orchestrate the \(command) with params \(inputArgs): error: \(error)")
+            defaultLog("Cannot correctly orchestrate the \(command) with params \(inputArgs): error: \(error)")
+            throw error
         }
     }
 }

@@ -68,7 +68,7 @@ public class XCSwiftAbstract<InputArgs> {
     }
 
     // swiftlint:disable:next function_body_length
-    public func run() {
+    public func run() throws {
         let fileManager = FileManager.default
         let (config, context) = buildContext()
 
@@ -163,11 +163,7 @@ public class XCSwiftAbstract<InputArgs> {
             invocationStorage: invocationStorage,
             shellOut: shellOut
         )
-        do {
-            try orchestrator.run()
-        } catch {
-            exit(1, "Swiftc failed with error: \(error)")
-        }
+        try orchestrator.run()
     }
 }
 
