@@ -202,6 +202,8 @@ public struct SwiftFrontendArgInput {
 }
 
 public class XCSwiftFrontend: XCSwiftAbstract<SwiftFrontendArgInput> {
+    // don't lock individual compilation invocations for more than 10s
+    private static let MaxLockingTimeout: TimeInterval = 10
     private let env: [String: String]
 
     public init(
@@ -248,7 +250,12 @@ public class XCSwiftFrontend: XCSwiftAbstract<SwiftFrontendArgInput> {
             let sharedLock = ExclusiveFile(sharedLockFileURL, mode: .override)
 
             let action: CommonSwiftFrontendOrchestrator.Action = inputArgs.emitModule ? .emitModule : .compile
-            let swiftFrontendOrchestrator = CommonSwiftFrontendOrchestrator(mode: context.mode, action: action, lockAccessor: sharedLock)
+            let swiftFrontendOrchestrator = CommonSwiftFrontendOrchestrator(
+                mode: context.mode,
+                action: action,
+                lockAccessor: sharedLock,
+                maxLockTimeout: Self.self.MaxLockingTimeout
+            )
 
             try swiftFrontendOrchestrator.run(criticalSection: super.run)
         } catch {

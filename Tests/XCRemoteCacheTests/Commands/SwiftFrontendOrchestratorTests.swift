@@ -24,6 +24,7 @@ import XCTest
 final class SwiftFrontendOrchestratorTests: FileXCTestCase {
     private let prohibitedAccessor = DisallowedExclusiveFileAccessor()
     private var nonEmptyFile: URL!
+    private let maxLocking: TimeInterval = 10
 
     override func setUp() async throws {
         nonEmptyFile = try prepareTempDir().appendingPathComponent("lock.lock")
@@ -33,7 +34,8 @@ final class SwiftFrontendOrchestratorTests: FileXCTestCase {
         let orchestrator = CommonSwiftFrontendOrchestrator(
             mode: .producer,
             action: .compile,
-            lockAccessor: prohibitedAccessor
+            lockAccessor: prohibitedAccessor,
+            maxLockTimeout: maxLocking
         )
 
         var invoked = false
@@ -47,7 +49,8 @@ final class SwiftFrontendOrchestratorTests: FileXCTestCase {
         let orchestrator = CommonSwiftFrontendOrchestrator(
             mode: .consumer(commit: .unavailable),
             action: .compile,
-            lockAccessor: prohibitedAccessor
+            lockAccessor: prohibitedAccessor,
+            maxLockTimeout: maxLocking
         )
 
         var invoked = false
@@ -62,7 +65,8 @@ final class SwiftFrontendOrchestratorTests: FileXCTestCase {
         let orchestrator = CommonSwiftFrontendOrchestrator(
             mode: .consumer(commit: .available(commit: "")),
             action: .emitModule,
-            lockAccessor: lock
+            lockAccessor: lock,
+            maxLockTimeout: maxLocking
         )
 
         var invoked = false
@@ -78,12 +82,30 @@ final class SwiftFrontendOrchestratorTests: FileXCTestCase {
         let orchestrator = CommonSwiftFrontendOrchestrator(
             mode: .consumer(commit: .available(commit: "")),
             action: .compile,
-            lockAccessor: lock
+            lockAccessor: lock,
+            maxLockTimeout: maxLocking
         )
 
         var invoked = false
         try orchestrator.run {
             XCTAssertTrue(lock.isLocked)
+            invoked = true
+        }
+        XCTAssertTrue(invoked)
+    }
+
+    func testExecutesActionWithoutLockIfLockingFileIsEmptyForALongTime() throws {
+        let lock = FakeExclusiveFileAccessor(pattern: [])
+        let orchestrator = CommonSwiftFrontendOrchestrator(
+            mode: .consumer(commit: .available(commit: "")),
+            action: .compile,
+            lockAccessor: lock,
+            maxLockTimeout: 0
+        )
+
+        var invoked = false
+        try orchestrator.run {
+            XCTAssertFalse(lock.isLocked)
             invoked = true
         }
         XCTAssertTrue(invoked)

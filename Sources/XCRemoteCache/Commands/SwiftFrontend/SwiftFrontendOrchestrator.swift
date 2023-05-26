@@ -43,15 +43,18 @@ class CommonSwiftFrontendOrchestrator {
     private let mode: SwiftcContext.SwiftcMode
     private let action: Action
     private let lockAccessor: ExclusiveFileAccessor
+    private let maxLockTimeout: TimeInterval
 
     init(
         mode: SwiftcContext.SwiftcMode,
         action: Action,
-        lockAccessor: ExclusiveFileAccessor
+        lockAccessor: ExclusiveFileAccessor,
+        maxLockTimeout: TimeInterval
     ) {
         self.mode = mode
         self.action = action
         self.lockAccessor = lockAccessor
+        self.maxLockTimeout = maxLockTimeout
     }
 
     func run(criticalSection: () throws -> ()) throws {
@@ -102,14 +105,23 @@ class CommonSwiftFrontendOrchestrator {
         // emit-module process should really quickly retain a lock (it is always invoked
         // by Xcode as a first process)
         var executed = false
+        let startingDate = Date()
         while !executed {
-            // TODO: consider adding a max timeout to cover a case when emit-module crashes
             try lockAccessor.exclusiveAccess { handle in
                 if !handle.availableData.isEmpty {
                     // the file is not empty so the emit-module process is done with the "check"
                     try criticalSection()
                     executed = true
                 }
+            }
+            // When a max locking time is achieved, execute anyway
+            if !executed && Date().timeIntervalSince(startingDate) > self.maxLockTimeout {
+                errorLog("""
+                Executing command \(action) without lock synchronization. That may be cause by the\
+                crashed or extremly long emit-module. Contact XCRemoteCache authors about this error.
+                """)
+                try criticalSection()
+                executed = true
             }
         }
     }
