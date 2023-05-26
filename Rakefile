@@ -133,7 +133,9 @@ def create_release_zip(build_paths)
   # Create and move files into the release directory
   mkdir_p release_dir
   build_paths.each {|p|
-    cp_r p, release_dir
+    # -r for recursive
+    # -P for copying symbolic link as is
+    system("cp -rP #{p} #{release_dir}")
   }
   
   output_artifact_basename = "#{PROJECT_NAME}.zip"
@@ -142,7 +144,8 @@ def create_release_zip(build_paths)
     # -X: no extras (uid, gid, file times, ...)
     # -x: exclude .DS_Store
     # -r: recursive
-    system("zip -X -x '*.DS_Store' -r #{output_artifact_basename} .") or abort "zip failure"
+    # -y: to store symbolic links (used for swiftc -> xcswiftc)
+    system("zip -X -x '*.DS_Store' -r -y #{output_artifact_basename} .") or abort "zip failure"
     # List contents of zip file
     system("unzip -l #{output_artifact_basename}") or abort "unzip failure"
   end
