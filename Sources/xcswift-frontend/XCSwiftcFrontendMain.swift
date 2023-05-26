@@ -106,7 +106,9 @@ public class XCSwiftcFrontendMain {
                 touchFactory: FileTouch.init)
             try frontend.run()
         } catch {
-            let swiftFrontendCommand = "swift-frontend"
+            let developerDir = env["DEVELOPER_DIR"]!
+            // limitation: always using the Xcode's toolchain
+            let swiftFrontendCommand = "\(developerDir)/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend"
 
             let args = ProcessInfo().arguments
             let paramList = [swiftFrontendCommand] + args.dropFirst()
