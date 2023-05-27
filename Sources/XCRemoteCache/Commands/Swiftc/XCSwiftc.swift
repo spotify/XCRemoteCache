@@ -63,14 +63,14 @@ public class XCSwiftAbstract<InputArgs> {
         self.touchFactory = touchFactory
     }
 
-    func buildContext() -> (XCRemoteCacheConfig, SwiftcContext) {
+    func buildContext() throws -> (XCRemoteCacheConfig, SwiftcContext) {
         fatalError("Need to override in \(Self.self)")
     }
 
     // swiftlint:disable:next function_body_length
     public func run() throws {
         let fileManager = FileManager.default
-        let (config, context) = buildContext()
+        let (config, context) = try buildContext()
 
         let swiftcCommand = config.swiftcCommand
         let markerURL = context.tempDir.appendingPathComponent(config.modeMarkerPath)
@@ -82,8 +82,9 @@ public class XCSwiftAbstract<InputArgs> {
         case .fileMap(let path):
             inputReader = SwiftcFilemapInputEditor(URL(fileURLWithPath: path), fileManager: fileManager)
         case .map(let map):
-            // static
+            // static - passed via the arguments list
             // TODO: check if first 2 ars can always be `nil`
+            // with Xcode 13, inputs via cmd are only used for compilations
             inputReader = StaticSwiftcInputReader(
                 moduleDependencies: nil,
                 swiftDependencies: nil,
@@ -168,18 +169,15 @@ public class XCSwiftAbstract<InputArgs> {
 }
 
 public class XCSwiftc: XCSwiftAbstract<SwiftcArgInput> {
-    override func buildContext() -> (XCRemoteCacheConfig, SwiftcContext) {
+    override func buildContext() throws -> (XCRemoteCacheConfig, SwiftcContext) {
         let fileReader = FileManager.default
         let config: XCRemoteCacheConfig
         let context: SwiftcContext
-        do {
-            let srcRoot: URL = URL(fileURLWithPath: fileReader.currentDirectoryPath)
-            config = try XCRemoteCacheConfigReader(srcRootPath: srcRoot.path, fileReader: fileReader)
-                .readConfiguration()
-            context = try SwiftcContext(config: config, input: inputArgs)
-        } catch {
-            exit(1, "FATAL: Swiftc initialization failed with error: \(error)")
-        }
+        let srcRoot: URL = URL(fileURLWithPath: fileReader.currentDirectoryPath)
+        config = try XCRemoteCacheConfigReader(srcRootPath: srcRoot.path, fileReader: fileReader)
+            .readConfiguration()
+        context = try SwiftcContext(config: config, input: inputArgs)
+
         return (config, context)
     }
 }

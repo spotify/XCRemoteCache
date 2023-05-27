@@ -80,9 +80,8 @@ public struct SwiftcContext {
         outputs: CompilationFilesOutputs,
         target: String,
         inputs: CompilationFilesSource,
-        // TODO: make sure it is required
         /// any workspace file path - all other intermediate files for this compilation
-        /// are placed next to it. This path is used to infere the arch and TARGET_TEMP_DIR
+        /// are placed next to it. This path is used to infer the arch and TARGET_TEMP_DIR
         exampleWorkspaceFilePath: String
     ) throws {
         self.moduleName = moduleName

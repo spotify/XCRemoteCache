@@ -41,24 +41,6 @@ protocol SwiftcProductsGenerator {
     ) throws -> SwiftcProductsGeneratorOutput
 }
 
-/// Products generator that doesn't create any swiftmodule. It is used in the compilation swift-frontend mocking, where
-/// only individual .o files are created and not .swiftmodule of -Swift.h
-/// (which is part of swift-frontend -emit-module invocation)
-class NoopSwiftcProductsGenerator: SwiftcProductsGenerator {
-    func generateFrom(
-        artifactSwiftModuleFiles: [SwiftmoduleFileExtension: URL],
-        artifactSwiftModuleObjCFile: URL
-    ) throws -> SwiftcProductsGeneratorOutput {
-        printWarning("""
-        Invoking module generation from NoopSwiftcProductsGenerator which does nothing. \
-        It might be an error of the swift-frontend mocking.
-        """)
-        // TODO: Refactor API: this url is never used:
-        // NoopSwiftcProductsGenerator is intended only for the swift-frontend
-        let trivialURL = URL(fileURLWithPath: "/non-existing")
-        return SwiftcProductsGeneratorOutput(swiftmoduleDir: trivialURL, objcHeaderFile: trivialURL)
-    }
-}
 /// Generator that produces all products in the locations where Xcode expects it, using provided disk copier
 class DiskSwiftcProductsGenerator: SwiftcProductsGenerator {
     private let destinationSwiftmodulePaths: [SwiftmoduleFileExtension: URL]

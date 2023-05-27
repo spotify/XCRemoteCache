@@ -59,32 +59,6 @@ public struct SwiftFileCompilationInfo: Encodable, Equatable {
     let swiftDependencies: URL?
 }
 
-class StaticSwiftcInputReader: SwiftcInputReader {
-    private let moduleDependencies: URL?
-    private let swiftDependencies: URL?
-    private let compilationFiles: [SwiftFileCompilationInfo]
-
-    init(
-        moduleDependencies: URL?,
-        swiftDependencies: URL?,
-        compilationFiles: [SwiftFileCompilationInfo]
-    ) {
-        self.moduleDependencies = moduleDependencies
-        self.swiftDependencies = swiftDependencies
-        self.compilationFiles = compilationFiles
-    }
-
-    func read() throws -> SwiftCompilationInfo {
-        return .init(
-            info: .init(
-                dependencies: moduleDependencies,
-                swiftDependencies: swiftDependencies
-            ),
-            files: compilationFiles
-        )
-    }
-}
-
 class SwiftcFilemapInputEditor: SwiftcInputReader, SwiftcInputWriter {
 
     private let file: URL

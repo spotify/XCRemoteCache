@@ -76,7 +76,7 @@ class PhaseCacheModeController: CacheModeController {
     }
 
     func enable(allowedInputFiles: [URL], dependencies: [URL]) throws {
-        try cleanupLlbuildLock()
+        try cleanupLlBuildLock()
         // marker file contains filepaths that contribute to the build products
         // and should invalidate all other target steps (swiftc,libtool etc.)
         let targetSensitiveFiles = dependencies + [modeMarker, Self.xcodeSelectLink]
@@ -88,7 +88,7 @@ class PhaseCacheModeController: CacheModeController {
     }
 
     func disable() throws {
-        try cleanupLlbuildLock()
+        try cleanupLlBuildLock()
         guard !forceCached else {
             throw PhaseCacheModeControllerError.cannotUseRemoteCacheForForcedCacheMode
         }
@@ -120,7 +120,7 @@ class PhaseCacheModeController: CacheModeController {
         return false
     }
     
-    private func cleanupLlbuildLock() throws {
+    private func cleanupLlBuildLock() throws {
         if fileManager.fileExists(atPath: llbuildLockFile.path) {
             do {
                 try fileManager.removeItem(at: llbuildLockFile)

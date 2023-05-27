@@ -98,7 +98,6 @@ public class XCSwiftcFrontendMain {
             docPath: docPath
         )
         do {
-            try argInput.validate()
             let frontend = try XCSwiftFrontend(
                 command: command,
                 inputArgs: argInput,
