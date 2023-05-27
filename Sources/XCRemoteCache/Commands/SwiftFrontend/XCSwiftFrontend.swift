@@ -93,6 +93,9 @@ public struct SwiftFrontendArgInput {
         self.docPath = docPath
     }
 
+    /// An early validation of the swift-frontend args
+    /// Returns false an error, if the mode is not supported
+    /// and the fallback to the undelying command should be executed
     public func validate() throws {
         guard compile != emitModule else {
             throw SwiftFrontendArgInputError.bothCompilationAndEmitAction
@@ -101,9 +104,6 @@ public struct SwiftFrontendArgInput {
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func generateSwiftcContext(config: XCRemoteCacheConfig) throws -> SwiftcContext {
-        guard compile != emitModule else {
-            throw SwiftFrontendArgInputError.bothCompilationAndEmitAction
-        }
         let inputPathsCount = inputPaths.count
         let primaryInputsCount = primaryInputPaths.count
         guard inputPathsCount > 0 else {
