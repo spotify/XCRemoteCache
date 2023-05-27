@@ -93,6 +93,12 @@ public struct SwiftFrontendArgInput {
         self.docPath = docPath
     }
 
+    public func validate() throws {
+        guard compile != emitModule else {
+            throw SwiftFrontendArgInputError.bothCompilationAndEmitAction
+        }
+    }
+
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func generateSwiftcContext(config: XCRemoteCacheConfig) throws -> SwiftcContext {
         guard compile != emitModule else {
