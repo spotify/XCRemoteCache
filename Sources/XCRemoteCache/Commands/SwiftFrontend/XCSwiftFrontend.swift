@@ -73,7 +73,9 @@ public class XCSwiftFrontend: XCSwiftAbstract<SwiftFrontendArgInput> {
 
             try swiftFrontendOrchestrator.run(criticalSection: super.run)
         } catch {
-            defaultLog("Cannot correctly orchestrate the \(command) with params \(inputArgs): error: \(error)")
+            // Splitting into 2 invocations as os_log truncates a massage
+            defaultLog("Cannot correctly orchestrate the \(command) with params \(inputArgs)")
+            defaultLog("Cannot correctly orchestrate error: \(error)")
             throw error
         }
     }
