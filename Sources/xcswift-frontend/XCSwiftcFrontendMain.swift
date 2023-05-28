@@ -73,9 +73,8 @@ public class XCSwiftcFrontendMain {
             case "-primary-file":
                 // .swift
                 primaryInputPaths.append(args[i + 1])
-                inputPaths.append(args[i + 1])
             default:
-                if arg.hasPrefix(".swift") {
+                if arg.hasSuffix(".swift") {
                     inputPaths.append(arg)
                 }
             }
@@ -97,6 +96,12 @@ public class XCSwiftcFrontendMain {
             sourceInfoPath: sourceInfoPath,
             docPath: docPath
         )
+        // swift-frontened is first invoked with some "probing" args like
+        // -print-target-info
+        guard emitModule != compile else {
+            runFallback(envs: env)
+        }
+
         do {
             let frontend = try XCSwiftFrontend(
                 command: command,
@@ -106,17 +111,21 @@ public class XCSwiftcFrontendMain {
                 touchFactory: FileTouch.init)
             try frontend.run()
         } catch {
-            let developerDir = env["DEVELOPER_DIR"]!
-            // limitation: always using the Xcode's toolchain
-            let swiftFrontendCommand = "\(developerDir)/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend"
-
-            let args = ProcessInfo().arguments
-            let paramList = [swiftFrontendCommand] + args.dropFirst()
-            let cargs = paramList.map { strdup($0) } + [nil]
-            execvp(swiftFrontendCommand, cargs)
-
-            /// C-function `execv` returns only when the command fails
-            exit(1)
+            runFallback(envs: env)
         }
+    }
+
+    private func runFallback(envs env: [String: String]) -> Never {
+        let developerDir = env["DEVELOPER_DIR"]!
+        // limitation: always using the Xcode's toolchain
+        let swiftFrontendCommand = "\(developerDir)/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend"
+
+        let args = ProcessInfo().arguments
+        let paramList = [swiftFrontendCommand] + args.dropFirst()
+        let cargs = paramList.map { strdup($0) } + [nil]
+        execvp(swiftFrontendCommand, cargs)
+
+        /// C-function `execv` returns only when the command fails
+        exit(1)
     }
 }
