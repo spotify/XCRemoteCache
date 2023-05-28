@@ -145,7 +145,8 @@ public struct SwiftFrontendArgInput {
                     file: primaryInputFilesURLs[i],
                     dependencies: dependenciesPaths.get(i).map(URL.init(fileURLWithPath:)),
                     object: outputPaths.get(i).map(URL.init(fileURLWithPath:)),
-                    swiftDependencies: dependenciesPaths.get(i).map(URL.init(fileURLWithPath:))
+                    // for now - swift-dependencies are not requested in the driver compilation mode
+                    swiftDependencies: nil
                 )
                 return new
             }
@@ -156,7 +157,7 @@ public struct SwiftFrontendArgInput {
                 steps: steps,
                 outputs: .map(compilationFileMap),
                 target: target,
-                inputs: .list(outputPaths),
+                inputs: .list(inputPaths),
                 exampleWorkspaceFilePath: outputPaths[0]
             )
         } else {
@@ -185,7 +186,8 @@ public struct SwiftFrontendArgInput {
                 compileFilesScope: .none,
                 emitModule: SwiftcContext.SwiftcStepEmitModule(
                     objcHeaderOutput: URL(fileURLWithPath: objcHeaderOutput),
-                    modulePathOutput: URL(fileURLWithPath: outputPaths[0])
+                    modulePathOutput: URL(fileURLWithPath: outputPaths[0]),
+                    dependencies: URL(fileURLWithPath: dependenciesPaths[0])
                 )
             )
             return try .init(
@@ -194,7 +196,7 @@ public struct SwiftFrontendArgInput {
                 steps: steps,
                 outputs: .map([:]),
                 target: target,
-                inputs: .list([]),
+                inputs: .list(inputPaths),
                 exampleWorkspaceFilePath: objcHeaderOutput
             )
         }

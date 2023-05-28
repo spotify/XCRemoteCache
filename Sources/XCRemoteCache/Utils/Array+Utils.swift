@@ -21,7 +21,7 @@ import Foundation
 
 public extension Array {
     func get(_ i: Index) -> Element? {
-        guard count < i else {
+        guard count > i else {
             return nil
         }
         return self[i]

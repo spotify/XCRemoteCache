@@ -78,6 +78,9 @@ public class XCSwiftAbstract<InputArgs> {
         let markerWriter = FileMarkerWriter(markerURL, fileAccessor: fileManager)
 
         let inputReader: SwiftcInputReader
+        // TODO: consider renaming
+        // outputs and outputs of the swift step are described in a map together
+        // and the file/list is named "output"
         switch context.outputs {
         case .fileMap(let path):
             inputReader = SwiftcFilemapInputEditor(URL(fileURLWithPath: path), fileManager: fileManager)
@@ -86,7 +89,7 @@ public class XCSwiftAbstract<InputArgs> {
             // TODO: check if first 2 ars can always be `nil`
             // with Xcode 13, inputs via cmd are only used for compilations
             inputReader = StaticSwiftcInputReader(
-                moduleDependencies: nil,
+                moduleDependencies: context.steps.emitModule?.dependencies,
                 swiftDependencies: nil,
                 compilationFiles: Array(map.values)
             )

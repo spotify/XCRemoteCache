@@ -23,6 +23,7 @@ public struct SwiftcContext {
     public struct SwiftcStepEmitModule {
         let objcHeaderOutput: URL
         let modulePathOutput: URL
+        let dependencies: URL?
     }
     public enum SwiftcStepCompileFilesScope {
         case none
@@ -126,7 +127,8 @@ public struct SwiftcContext {
             compileFilesScope: .all,
             emitModule: SwiftcStepEmitModule(
                 objcHeaderOutput: URL(fileURLWithPath: (input.objcHeaderOutput)),
-                modulePathOutput: URL(fileURLWithPath: input.modulePathOutput)
+                modulePathOutput: URL(fileURLWithPath: input.modulePathOutput),
+                dependencies: nil
             )
         )
         let outputs = CompilationFilesOutputs.fileMap(input.filemap)
