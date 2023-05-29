@@ -25,7 +25,8 @@ namespace :e2e do
         'primary_branch' => GIT_BRANCH,
         'mode' => 'consumer',
         'final_target' => 'XCRemoteCacheSample',
-        'artifact_maximum_age' => 0
+        'artifact_maximum_age' => 0,
+        'enable_swift_driver_integration' => true
     }.freeze
     DEFAULT_EXPECTATIONS = {
         'misses' => 0,
