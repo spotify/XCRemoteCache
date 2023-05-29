@@ -63,6 +63,7 @@ public struct SwiftFrontendArgInput {
     // .swiftsourceinfo and .swiftdoc will be placed next to the .swiftmodule
     let sourceInfoPath: String?
     let docPath: String?
+    let supplementaryOutputFileMap: String?
 
     /// Manual initializer implementation required to be public
     public init(
@@ -77,7 +78,8 @@ public struct SwiftFrontendArgInput {
         dependenciesPaths: [String],
         diagnosticsPaths: [String],
         sourceInfoPath: String?,
-        docPath: String?
+        docPath: String?,
+        supplementaryOutputFileMap: String?
     ) {
         self.compile = compile
         self.emitModule = emitModule
@@ -91,6 +93,7 @@ public struct SwiftFrontendArgInput {
         self.diagnosticsPaths = diagnosticsPaths
         self.sourceInfoPath = sourceInfoPath
         self.docPath = docPath
+        self.supplementaryOutputFileMap = supplementaryOutputFileMap
     }
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
@@ -139,23 +142,28 @@ public struct SwiftFrontendArgInput {
                 emitModule: nil
             )
 
-            let compilationFileMap = (0..<primaryInputsCount).reduce([String: SwiftFileCompilationInfo]()) { prev, i in
-                var new = prev
-                new[primaryInputPaths[i]] = SwiftFileCompilationInfo(
-                    file: primaryInputFilesURLs[i],
-                    dependencies: dependenciesPaths.get(i).map(URL.init(fileURLWithPath:)),
-                    object: outputPaths.get(i).map(URL.init(fileURLWithPath:)),
-                    // for now - swift-dependencies are not requested in the driver compilation mode
-                    swiftDependencies: nil
-                )
-                return new
+            let compilationFilesOutputs: SwiftcContext.CompilationFilesOutputs
+            if let compimentaryFileMa = supplementaryOutputFileMap {
+                compilationFilesOutputs = .supplementaryFileMap(compimentaryFileMa)
+            } else {
+                compilationFilesOutputs = .map((0..<primaryInputsCount).reduce([String: SwiftFileCompilationInfo]()) { prev, i in
+                    var new = prev
+                    new[primaryInputPaths[i]] = SwiftFileCompilationInfo(
+                        file: primaryInputFilesURLs[i],
+                        dependencies: dependenciesPaths.get(i).map(URL.init(fileURLWithPath:)),
+                        object: outputPaths.get(i).map(URL.init(fileURLWithPath:)),
+                        // for now - swift-dependencies are not requested in the driver compilation mode
+                        swiftDependencies: nil
+                    )
+                    return new
+                })
             }
 
             return try .init(
                 config: config,
                 moduleName: moduleName,
                 steps: steps,
-                outputs: .map(compilationFileMap),
+                outputs: compilationFilesOutputs,
                 target: target,
                 inputs: .list(inputPaths),
                 exampleWorkspaceFilePath: outputPaths[0]

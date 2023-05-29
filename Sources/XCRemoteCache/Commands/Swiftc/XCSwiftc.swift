@@ -83,7 +83,9 @@ public class XCSwiftAbstract<InputArgs> {
         // and the file/list is named "output"
         switch context.outputs {
         case .fileMap(let path):
-            inputReader = SwiftcFilemapInputEditor(URL(fileURLWithPath: path), fileManager: fileManager)
+            inputReader = SwiftcFilemapInputEditor(URL(fileURLWithPath: path), fileFormat: .json, fileManager: fileManager)
+        case .supplementaryFileMap(let path):
+            inputReader = SwiftcFilemapInputEditor(URL(fileURLWithPath: path), fileFormat: .yaml, fileManager: fileManager)
         case .map(let map):
             // static - passed via the arguments list
             // TODO: check if first 2 ars can always be `nil`

@@ -42,6 +42,7 @@ public class XCSwiftcFrontendMain {
         var diagnosticsPaths: [String] = []
         var sourceInfoPath: String?
         var docPath: String?
+        var supplementaryOutputFileMap: String?
 
         for i in 0..<args.count {
             let arg = args[i]
@@ -73,6 +74,8 @@ public class XCSwiftcFrontendMain {
             case "-primary-file":
                 // .swift
                 primaryInputPaths.append(args[i + 1])
+            case "-supplementary-output-file-map":
+                supplementaryOutputFileMap = args[i + 1]
             default:
                 if arg.hasSuffix(".swift") {
                     inputPaths.append(arg)
@@ -94,7 +97,8 @@ public class XCSwiftcFrontendMain {
             dependenciesPaths: dependenciesPaths,
             diagnosticsPaths: diagnosticsPaths,
             sourceInfoPath: sourceInfoPath,
-            docPath: docPath
+            docPath: docPath,
+            supplementaryOutputFileMap: supplementaryOutputFileMap
         )
         // swift-frontened is first invoked with some "probing" args like
         // -print-target-info

@@ -48,6 +48,8 @@ public struct SwiftcContext {
     public enum CompilationFilesOutputs {
         /// defined in a separate file (via -output-file-map)
         case fileMap(String)
+        /// defined in a separate file (via -supplementary-output-file-map)
+        case supplementaryFileMap(String)
         /// explicitly passed in the invocation
         case map([String: SwiftFileCompilationInfo])
     }

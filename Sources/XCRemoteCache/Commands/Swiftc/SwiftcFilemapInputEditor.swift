@@ -18,11 +18,13 @@
 // under the License.
 
 import Foundation
+import Yams
 
 /// Errors with reading swiftc inputs
 enum SwiftcInputReaderError: Error {
     case readingFailed
     case invalidFormat
+    case invalidYamlFormat
     case missingField(String)
 }
 
@@ -49,7 +51,7 @@ struct SwiftModuleCompilationInfo: Encodable, Equatable {
     let swiftDependencies: URL?
 }
 
-public struct SwiftFileCompilationInfo: Encodable, Equatable {
+public struct SwiftFileCompilationInfo: Encodable, Hashable {
     let file: URL
     // not present for WMO builds
     let dependencies: URL?
@@ -61,11 +63,18 @@ public struct SwiftFileCompilationInfo: Encodable, Equatable {
 
 class SwiftcFilemapInputEditor: SwiftcInputReader, SwiftcInputWriter {
 
+    enum Format {
+        case json
+        case yaml
+    }
+
     private let file: URL
+    private let fileFormat: Format
     private let fileManager: FileManager
 
-    init(_ file: URL, fileManager: FileManager) {
+    init(_ file: URL, fileFormat: Format, fileManager: FileManager) {
         self.file = file
+        self.fileFormat = fileFormat
         self.fileManager = fileManager
     }
 
@@ -73,7 +82,7 @@ class SwiftcFilemapInputEditor: SwiftcInputReader, SwiftcInputWriter {
         guard let content = fileManager.contents(atPath: file.path) else {
             throw SwiftcInputReaderError.readingFailed
         }
-        guard let representation = try JSONSerialization.jsonObject(with: content, options: []) as? [String: Any] else {
+        guard let representation = try decodeFile(content: content) else {
             throw SwiftcInputReaderError.invalidFormat
         }
         return try SwiftCompilationInfo(from: representation)
@@ -83,11 +92,20 @@ class SwiftcFilemapInputEditor: SwiftcInputReader, SwiftcInputWriter {
         let data = try JSONSerialization.data(withJSONObject: info.dump(), options: [.prettyPrinted])
         fileManager.createFile(atPath: file.path, contents: data, attributes: nil)
     }
+
+    private func decodeFile(content: Data) throws -> [String: Any]? {
+        switch fileFormat {
+        case .json:
+            return try JSONSerialization.jsonObject(with: content, options: []) as? [String: Any]
+        case .yaml:
+            return try Yams.load(yaml: String(data: content, encoding: .utf8)!) as? [String: Any]
+        }
+    }
 }
 
 extension SwiftCompilationInfo {
     init(from object: [String: Any]) throws {
-        info = try SwiftModuleCompilationInfo(from: object[""])
+        info = try SwiftModuleCompilationInfo(from: object["", default: [:]])
         files = try object.reduce([]) { prev, new in
             let (key, value) = new
             if key.isEmpty {
