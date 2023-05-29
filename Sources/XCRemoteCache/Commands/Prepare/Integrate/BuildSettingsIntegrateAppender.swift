@@ -21,6 +21,11 @@ import Foundation
 
 typealias BuildSettings = [String: Any]
 
+struct BuildSettingsIntegrateAppenderOption: OptionSet {
+    let rawValue: Int
+
+    static let disableSwiftDriverIntegration = BuildSettingsIntegrateAppenderOption(rawValue: 1 << 0)
+}
 // Manages Xcode build settings
 protocol BuildSettingsIntegrateAppender {
     /// Appends XCRemoteCache-specific build settings
@@ -35,18 +40,28 @@ class XcodeProjBuildSettingsIntegrateAppender: BuildSettingsIntegrateAppender {
     private let repoRoot: URL
     private let fakeSrcRoot: URL
     private let sdksExclude: [String]
+    private let options: BuildSettingsIntegrateAppenderOption
 
-    init(mode: Mode, repoRoot: URL, fakeSrcRoot: URL, sdksExclude: [String]) {
+    init(
+        mode: Mode,
+        repoRoot: URL,
+        fakeSrcRoot: URL,
+        sdksExclude: [String],
+        options: BuildSettingsIntegrateAppenderOption
+    ) {
         self.mode = mode
         self.repoRoot = repoRoot
         self.fakeSrcRoot = fakeSrcRoot
         self.sdksExclude = sdksExclude
+        self.options = options
     }
 
     func appendToBuildSettings(buildSettings: BuildSettings, wrappers: XCRCBinariesPaths) -> BuildSettings {
         var result = buildSettings
         setBuildSetting(buildSettings: &result, key: "SWIFT_EXEC", value: wrappers.swiftc.path )
-        setBuildSetting(buildSettings: &result, key: "SWIFT_USE_INTEGRATED_DRIVER", value: "NO" )
+        if options.contains(.disableSwiftDriverIntegration) {
+            setBuildSetting(buildSettings: &result, key: "SWIFT_USE_INTEGRATED_DRIVER", value: "NO" )
+        }
         // When generating artifacts, no need to shell-out all compilation commands to our wrappers
         if case .consumer = mode {
             setBuildSetting(buildSettings: &result, key: "CC", value: wrappers.cc.path )

@@ -27,8 +27,10 @@ class SwiftcOrchestrator {
     private let mode: SwiftcContext.SwiftcMode
     // swiftc command that should be called to generate artifacts
     private let swiftcCommand: String
-    private let objcHeaderOutput: URL
-    private let moduleOutput: URL
+    // That is nil if invoking from frontend compilation: `swift-frontend -c`
+    private let objcHeaderOutput: URL?
+    // That is nil if invoking from frontend compilation: `swift-frontend -c`
+    private let moduleOutput: URL?
     private let arch: String
     private let artifactBuilder: ArtifactSwiftProductsBuilder
     private let shellOut: ShellOut
@@ -39,8 +41,8 @@ class SwiftcOrchestrator {
         mode: SwiftcContext.SwiftcMode,
         swiftc: SwiftcProtocol,
         swiftcCommand: String,
-        objcHeaderOutput: URL,
-        moduleOutput: URL,
+        objcHeaderOutput: URL?,
+        moduleOutput: URL?,
         arch: String,
         artifactBuilder: ArtifactSwiftProductsBuilder,
         producerFallbackCommandProcessors: [ShellCommandsProcessor],
@@ -128,10 +130,14 @@ class SwiftcOrchestrator {
                 try processor.applyArgsRewrite(args)
             }
             try fallbackToDefaultAndWait(command: swiftcCommand, args: swiftcArgs)
-            // move generated .h to the location where artifact creator expects it
-            try artifactBuilder.includeObjCHeaderToTheArtifact(arch: arch, headerURL: objcHeaderOutput)
-            // move generated .swiftmodule to the location where artifact creator expects it
-            try artifactBuilder.includeModuleDefinitionsToTheArtifact(arch: arch, moduleURL: moduleOutput)
+            if let objcHeaderOutput = objcHeaderOutput {
+                // move generated .h to the location where artifact creator expects it
+                try artifactBuilder.includeObjCHeaderToTheArtifact(arch: arch, headerURL: objcHeaderOutput)
+            }
+            if let moduleOutput = moduleOutput {
+                // move generated .swiftmodule to the location where artifact creator expects it
+                try artifactBuilder.includeModuleDefinitionsToTheArtifact(arch: arch, moduleURL: moduleOutput)
+            }
 
             try producerFallbackCommandProcessors.forEach {
                 try $0.postCommandProcessing()

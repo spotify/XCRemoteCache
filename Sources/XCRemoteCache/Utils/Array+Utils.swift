@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Spotify AB.
+// Copyright (c) 2023 Spotify AB.
 //
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
@@ -19,28 +19,11 @@
 
 import Foundation
 
-enum URLError: Error {
-    case invalidURLFormat(String)
-}
-
-public extension URL {
-    /// Builds URL from a string or throws an error
-    /// - Parameter string: URL building string
-    /// - Throws: `URLError` if the string is invalid
-    /// - Returns: URL instance
-    static func build(for string: String) throws -> URL {
-        if let url = URL(string: string) {
-            return url
-        }
-        throw URLError.invalidURLFormat(string)
-    }
-}
-
-extension URL {
-    init?(_ string: String?) throws {
-        guard let string = string else {
+public extension Array {
+    func get(_ i: Index) -> Element? {
+        guard count > i else {
             return nil
         }
-        self = URL(fileURLWithPath: string)
+        return self[i]
     }
 }

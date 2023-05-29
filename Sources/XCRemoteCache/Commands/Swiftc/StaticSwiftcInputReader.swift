@@ -19,28 +19,28 @@
 
 import Foundation
 
-enum URLError: Error {
-    case invalidURLFormat(String)
-}
+class StaticSwiftcInputReader: SwiftcInputReader {
+    private let moduleDependencies: URL?
+    private let swiftDependencies: URL?
+    private let compilationFiles: [SwiftFileCompilationInfo]
 
-public extension URL {
-    /// Builds URL from a string or throws an error
-    /// - Parameter string: URL building string
-    /// - Throws: `URLError` if the string is invalid
-    /// - Returns: URL instance
-    static func build(for string: String) throws -> URL {
-        if let url = URL(string: string) {
-            return url
-        }
-        throw URLError.invalidURLFormat(string)
+    init(
+        moduleDependencies: URL?,
+        swiftDependencies: URL?,
+        compilationFiles: [SwiftFileCompilationInfo]
+    ) {
+        self.moduleDependencies = moduleDependencies
+        self.swiftDependencies = swiftDependencies
+        self.compilationFiles = compilationFiles
     }
-}
 
-extension URL {
-    init?(_ string: String?) throws {
-        guard let string = string else {
-            return nil
-        }
-        self = URL(fileURLWithPath: string)
+    func read() throws -> SwiftCompilationInfo {
+        return .init(
+            info: .init(
+                dependencies: moduleDependencies,
+                swiftDependencies: swiftDependencies
+            ),
+            files: compilationFiles
+        )
     }
 }

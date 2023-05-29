@@ -60,6 +60,7 @@ public class XCPostbuild {
             dependenciesWriter: FileDependenciesWriter.init,
             dependenciesReader: FileDependenciesReader.init,
             markerWriter: NoopMarkerWriter.init,
+            llbuildLockFile: context.llbuildIdLockFile,
             fileManager: fileManager
         )
 

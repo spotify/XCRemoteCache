@@ -10,7 +10,7 @@ DERIVED_DATA_DIR = File.join('.build').freeze
 RELEASES_ROOT_DIR = File.join('releases').freeze
 
 EXECUTABLE_NAME = 'XCRemoteCache'
-EXECUTABLE_NAMES = ['xclibtool', 'xcpostbuild', 'xcprebuild', 'xcprepare', 'xcswiftc', 'xcld', 'xcldplusplus', 'xclipo']
+EXECUTABLE_NAMES = ['xclibtool', 'xcpostbuild', 'xcprebuild', 'xcprepare', 'xcswiftc', 'swiftc', 'xcswift-frontend', 'swift-frontend', 'xcld', 'xcldplusplus', 'xclipo']
 PROJECT_NAME = 'XCRemoteCache'
 
 SWIFTLINT_ENABLED = true
@@ -59,6 +59,10 @@ task :build, [:configuration, :arch, :sdks, :is_archive] do |task, args|
 
     # Path of the executable looks like: `.build/(debug|release)/XCRemoteCache`
     build_path_base = File.join(DERIVED_DATA_DIR, args.configuration)
+    # swift-frontent integration requires that the SWIFT_EXEC is `swiftc` so create
+    # a symbolic link between swiftc->xcswiftc and swift-frontend->xcswift-frontend
+    system("cd #{build_path_base} && ln -s xcswiftc swiftc")
+    system("cd #{build_path_base} && ln -s xcswift-frontend swift-frontend")
     sdk_build_paths = EXECUTABLE_NAMES.map {|e| File.join(build_path_base, e)}
 
     build_paths.push(sdk_build_paths)
@@ -130,7 +134,9 @@ def create_release_zip(build_paths)
   # Create and move files into the release directory
   mkdir_p release_dir
   build_paths.each {|p|
-    cp_r p, release_dir
+    # -r for recursive
+    # -P for copying symbolic link as is
+    system("cp -rP #{p} #{release_dir}")
   }
   
   output_artifact_basename = "#{PROJECT_NAME}.zip"
@@ -139,7 +145,8 @@ def create_release_zip(build_paths)
     # -X: no extras (uid, gid, file times, ...)
     # -x: exclude .DS_Store
     # -r: recursive
-    system("zip -X -x '*.DS_Store' -r #{output_artifact_basename} .") or abort "zip failure"
+    # -y: to store symbolic links (used for swiftc -> xcswiftc)
+    system("zip -X -x '*.DS_Store' -r -y #{output_artifact_basename} .") or abort "zip failure"
     # List contents of zip file
     system("unzip -l #{output_artifact_basename}") or abort "unzip failure"
   end
