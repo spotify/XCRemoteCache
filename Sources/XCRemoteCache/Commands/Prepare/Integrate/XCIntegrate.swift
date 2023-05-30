@@ -99,7 +99,7 @@ public class XCIntegrate {
                 includes: targetsInclude.integrateArrayArguments
             )
             let buildSettingsAppenderOptions: BuildSettingsIntegrateAppenderOption = [
-                .disableSwiftDriverIntegration
+                .disableSwiftDriverIntegration,
             ]
             let buildSettingsAppender = XcodeProjBuildSettingsIntegrateAppender(
                 mode: context.mode,
