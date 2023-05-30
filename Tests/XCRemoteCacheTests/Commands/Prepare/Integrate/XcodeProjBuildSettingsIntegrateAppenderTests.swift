@@ -49,7 +49,8 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
             mode: mode,
             repoRoot: rootURL,
             fakeSrcRoot: fakeRootURL,
-            sdksExclude: []
+            sdksExclude: [],
+            options: []
         )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
         let resultURL = try XCTUnwrap(result["XCRC_FAKE_SRCROOT"] as? String)
@@ -64,7 +65,8 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
             mode: mode,
             repoRoot: rootURL,
             fakeSrcRoot: fakeRootURL,
-            sdksExclude: []
+            sdksExclude: [],
+            options: []
         )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
         let resultURL: String = try XCTUnwrap(result["XCRC_FAKE_SRCROOT"] as? String)
@@ -79,7 +81,8 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
             mode: mode,
             repoRoot: rootURL,
             fakeSrcRoot: fakeRootURL,
-            sdksExclude: []
+            sdksExclude: [],
+            options: []
         )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
         let ldPlusPlus: String = try XCTUnwrap(result["LDPLUSPLUS"] as? String)
@@ -93,7 +96,8 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
             mode: mode,
             repoRoot: rootURL,
             fakeSrcRoot: "/",
-            sdksExclude: ["watchOS*"]
+            sdksExclude: ["watchOS*"],
+            options: []
         )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
         let ldPlusPlusWatchOS: String = try XCTUnwrap(result["LDPLUSPLUS[sdk=watchOS*]"] as? String)
@@ -107,7 +111,8 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
             mode: mode,
             repoRoot: rootURL,
             fakeSrcRoot: "/",
-            sdksExclude: ["watchOS*"]
+            sdksExclude: ["watchOS*"],
+            options: []
         )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
         let libtoolWatchOS: String = try XCTUnwrap(result["LIBTOOL[sdk=watchOS*]"] as? String)
@@ -121,7 +126,8 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
             mode: mode,
             repoRoot: rootURL,
             fakeSrcRoot: "/",
-            sdksExclude: ["watchOS*", "watchsimulator*"]
+            sdksExclude: ["watchOS*", "watchsimulator*"],
+            options: []
         )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
         let ldPlusPlusWatchOS: String = try XCTUnwrap(result["LDPLUSPLUS[sdk=watchOS*]"] as? String)
@@ -137,7 +143,8 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
             mode: mode,
             repoRoot: rootURL,
             fakeSrcRoot: "/",
-            sdksExclude: ["watchOS*", "watchsimulator*"]
+            sdksExclude: ["watchOS*", "watchsimulator*"],
+            options: []
         )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
         let disabledWatchOS: String = try XCTUnwrap(result["XCRC_DISABLED[sdk=watchOS*]"] as? String)
@@ -145,5 +152,35 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
 
         XCTAssertEqual(disabledWatchOS, "YES")
         XCTAssertEqual(disabledWatchSimulator, "YES")
+    }
+
+    func testExcludesSwiftFrontendIntegrationForSpecificOption() throws {
+        let mode: Mode = .consumer
+        let appender = XcodeProjBuildSettingsIntegrateAppender(
+            mode: mode,
+            repoRoot: rootURL,
+            fakeSrcRoot: "/",
+            sdksExclude: [],
+            options: [.disableSwiftDriverIntegration]
+        )
+        let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
+        let useSwiftIntegrationDriver: String = try XCTUnwrap(result["SWIFT_USE_INTEGRATED_DRIVER"] as? String)
+
+        XCTAssertEqual(useSwiftIntegrationDriver, "NO")
+    }
+
+    func testDoesntExcludesSwiftFrontendIntegrationForEmptyOptions() throws {
+        let mode: Mode = .consumer
+        let appender = XcodeProjBuildSettingsIntegrateAppender(
+            mode: mode,
+            repoRoot: rootURL,
+            fakeSrcRoot: "/",
+            sdksExclude: [],
+            options: []
+        )
+        let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
+        let useSwiftIntegrationDriver: String? = result["SWIFT_USE_INTEGRATED_DRIVER"] as? String
+
+        XCTAssertNil(useSwiftIntegrationDriver)
     }
 }

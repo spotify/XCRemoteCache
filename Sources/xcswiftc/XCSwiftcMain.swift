@@ -60,30 +60,37 @@ public class XCSwiftcMain {
             let targetInputInput = target,
             let swiftFileListInput = swiftFileList
             else {
-            let swiftcCommand = "swiftc"
-            print("Fallbacking to compilation using \(swiftcCommand).")
-
-            let args = ProcessInfo().arguments
-            let paramList = [swiftcCommand] + args.dropFirst()
-            let cargs = paramList.map { strdup($0) } + [nil]
-            execvp(swiftcCommand, cargs)
-
-            /// C-function `execv` returns only when the command fails
-            exit(1)
+            executeFallback()
         }
-        let swiftcArgsInput = SwiftcArgInput(
-            objcHeaderOutput: objcHeaderOutputInput,
-            moduleName: moduleNameInput,
-            modulePathOutput: modulePathOutputInput,
-            filemap: filemapInput,
-            target: targetInputInput,
-            fileList: swiftFileListInput
-        )
-        XCSwiftc(
-            command: command,
-            inputArgs: swiftcArgsInput,
-            dependenciesWriter: FileDependenciesWriter.init,
-            touchFactory: FileTouch.init
-        ).run()
+        do {
+            let swiftcArgsInput = SwiftcArgInput(
+                objcHeaderOutput: objcHeaderOutputInput,
+                moduleName: moduleNameInput,
+                modulePathOutput: modulePathOutputInput,
+                filemap: filemapInput,
+                target: targetInputInput,
+                fileList: swiftFileListInput
+            )
+            try XCSwiftc(
+                command: command,
+                inputArgs: swiftcArgsInput,
+                dependenciesWriter: FileDependenciesWriter.init,
+                touchFactory: FileTouch.init
+            ).run()
+        } catch {
+            executeFallback()
+        }
+    }
+    private func executeFallback() -> Never {
+        let swiftcCommand = "swiftc"
+        print("Fallbacking to compilation using \(swiftcCommand).")
+
+        let args = ProcessInfo().arguments
+        let paramList = [swiftcCommand] + args.dropFirst()
+        let cargs = paramList.map { strdup($0) } + [nil]
+        execvp(swiftcCommand, cargs)
+
+        /// C-function `execv` returns only when the command fails
+        exit(1)
     }
 }

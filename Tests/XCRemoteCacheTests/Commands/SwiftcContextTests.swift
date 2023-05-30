@@ -25,20 +25,25 @@ class SwiftcContextTests: FileXCTestCase {
     private var config: XCRemoteCacheConfig!
     private var input: SwiftcArgInput!
     private var remoteCommitFile: URL!
+    private var modulePathOutput: URL!
+    private var fileMapUrl: URL!
+    private var fileListUrl: URL!
 
     override func setUpWithError() throws {
         try super.setUpWithError()
         let workingDir = try prepareTempDir()
         remoteCommitFile = workingDir.appendingPathComponent("arc.rc")
-        let modulePathOutput = workingDir.appendingPathComponent("mpo")
+        modulePathOutput = workingDir.appendingPathComponent("mpo")
+        fileMapUrl = workingDir.appendingPathComponent("filemap")
+        fileListUrl = workingDir.appendingPathComponent("filelist")
         config = XCRemoteCacheConfig(remoteCommitFile: remoteCommitFile.path, sourceRoot: workingDir.path)
         input = SwiftcArgInput(
             objcHeaderOutput: "Target-Swift.h",
-            moduleName: "",
+            moduleName: "Module",
             modulePathOutput: modulePathOutput.path,
-            filemap: "",
+            filemap: fileMapUrl.path,
             target: "",
-            fileList: ""
+            fileList: fileListUrl.path
         )
         try fileManager.write(toPath: remoteCommitFile.path, contents: "123".data(using: .utf8))
     }
@@ -76,5 +81,30 @@ class SwiftcContextTests: FileXCTestCase {
         let context = try SwiftcContext(config: config, input: input)
 
         XCTAssertEqual(context.mode, .producer)
+    }
+
+    func testStepsContainEmitingModuleAndAllCompilationScope() throws {
+        let context = try SwiftcContext(config: config, input: input)
+
+        XCTAssertEqual(context.steps, .init(
+            compileFilesScope: .all,
+            emitModule: .init(
+                objcHeaderOutput: "Target-Swift.h",
+                modulePathOutput: modulePathOutput,
+                dependencies: nil)
+            )
+        )
+    }
+
+    func testReadsInputsFromFileMap() throws {
+        let context = try SwiftcContext(config: config, input: input)
+
+        XCTAssertEqual(context.inputs, .fileMap(fileMapUrl.path))
+    }
+
+    func testReadsCompilationFilesFromFileList() throws {
+        let context = try SwiftcContext(config: config, input: input)
+
+        XCTAssertEqual(context.compilationFiles, .fileList(fileListUrl.path))
     }
 }

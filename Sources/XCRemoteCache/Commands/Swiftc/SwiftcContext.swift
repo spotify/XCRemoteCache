@@ -20,6 +20,53 @@
 import Foundation
 
 public struct SwiftcContext {
+    /// Describes the action if the module emit should happen
+    /// that generates .swiftmodule and/or -Swift.h
+    public struct SwiftcStepEmitModule: Equatable {
+        // where the -Swift.h should be placed
+        let objcHeaderOutput: URL
+        // where should the .swiftmodule be placed
+        let modulePathOutput: URL
+        // might be passed as an explicit argument in the swiftc
+        // -emit-dependencies-path
+        let dependencies: URL?
+    }
+
+    /// Which files (from the list of all files in the module)
+    /// should be compiled in this process
+    public enum SwiftcStepCompileFilesScope: Equatable {
+        /// used if only emit module should be done
+        case none
+        case all
+        case subset([URL])
+    }
+
+    /// Describes which steps should be done as a part of this process
+    public struct SwiftcSteps: Equatable {
+        /// which files should be compiled
+        let compileFilesScope: SwiftcStepCompileFilesScope
+        /// if a module should be generated
+        let emitModule: SwiftcStepEmitModule?
+    }
+
+    /// Defines how a list of input files (*.swift) is passed to the invocation
+    public enum CompilationFilesSource: Equatable {
+        /// defined in a separate file (via @/.../*.SwiftFileList)
+        case fileList(String)
+        /// explicitly passed a list of files
+        case list([String])
+    }
+
+    /// Defines how a list of output files (*.d, *.o etc.) is passed to the invocation
+    public enum CompilationFilesInputs: Equatable {
+        /// defined in a separate file (via -output-file-map)
+        case fileMap(String)
+        /// defined in a separate file (via -supplementary-output-file-map)
+        case supplementaryFileMap(String)
+        /// explicitly passed in the invocation
+        case map([String: SwiftFileCompilationInfo])
+    }
+
     enum SwiftcMode: Equatable {
         case producer
         /// Commit sha of the commit to use during remote cache
@@ -28,14 +75,13 @@ public struct SwiftcContext {
         case producerFast
     }
 
-    let objcHeaderOutput: URL
+    let steps: SwiftcSteps
     let moduleName: String
-    let modulePathOutput: URL
-    /// File that defines output files locations (.d, .swiftmodule etc.)
-    let filemap: URL
+    /// A source that defines output files locations (.d, .swiftmodule etc.)
+    let inputs: CompilationFilesInputs
     let target: String
-    /// File that contains input files for the swift module compilation
-    let fileList: URL
+    /// A source that contains all input files for the swift module compilation
+    let compilationFiles: CompilationFilesSource
     let tempDir: URL
     let arch: String
     let prebuildDependenciesPath: String
@@ -43,29 +89,29 @@ public struct SwiftcContext {
     /// File that stores all compilation invocation arguments
     let invocationHistoryFile: URL
 
-
     public init(
         config: XCRemoteCacheConfig,
-        objcHeaderOutput: String,
         moduleName: String,
-        modulePathOutput: String,
-        filemap: String,
+        steps: SwiftcSteps,
+        inputs: CompilationFilesInputs,
         target: String,
-        fileList: String
+        compilationFiles: CompilationFilesSource,
+        /// any workspace file path - all other intermediate files for this compilation
+        /// are placed next to it. This path is used to infer the arch and TARGET_TEMP_DIR
+        exampleWorkspaceFilePath: String
     ) throws {
-        self.objcHeaderOutput = URL(fileURLWithPath: objcHeaderOutput)
         self.moduleName = moduleName
-        self.modulePathOutput = URL(fileURLWithPath: modulePathOutput)
-        self.filemap = URL(fileURLWithPath: filemap)
+        self.steps = steps
+        self.inputs = inputs
         self.target = target
-        self.fileList = URL(fileURLWithPath: fileList)
-        // modulePathOutput is place in $TARGET_TEMP_DIR/Objects-normal/$ARCH/$TARGET_NAME.swiftmodule
+        self.compilationFiles = compilationFiles
+        // exampleWorkspaceFilePath has a format $TARGET_TEMP_DIR/Objects-normal/$ARCH/some.file
         // That may be subject to change for other Xcode versions
-        tempDir = URL(fileURLWithPath: modulePathOutput)
+        tempDir = URL(fileURLWithPath: exampleWorkspaceFilePath)
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
-        arch = URL(fileURLWithPath: modulePathOutput).deletingLastPathComponent().lastPathComponent
+        arch = URL(fileURLWithPath: exampleWorkspaceFilePath).deletingLastPathComponent().lastPathComponent
 
         let srcRoot: URL = URL(fileURLWithPath: config.sourceRoot)
         let remoteCommitLocation = URL(fileURLWithPath: config.remoteCommitFile, relativeTo: srcRoot)
@@ -92,14 +138,25 @@ public struct SwiftcContext {
         config: XCRemoteCacheConfig,
         input: SwiftcArgInput
     ) throws {
+        let steps = SwiftcSteps(
+            compileFilesScope: .all,
+            emitModule: SwiftcStepEmitModule(
+                objcHeaderOutput: URL(fileURLWithPath: (input.objcHeaderOutput)),
+                modulePathOutput: URL(fileURLWithPath: input.modulePathOutput),
+                // in `swiftc`, .d dependencies are pass in the output filemap
+                dependencies: nil
+            )
+        )
+        let inputs = CompilationFilesInputs.fileMap(input.filemap)
+        let compilationFiles = CompilationFilesSource.fileList(input.fileList)
         try self.init(
             config: config,
-            objcHeaderOutput: input.objcHeaderOutput,
             moduleName: input.moduleName,
-            modulePathOutput: input.modulePathOutput,
-            filemap: input.filemap,
+            steps: steps,
+            inputs: inputs,
             target: input.target,
-            fileList: input.fileList
+            compilationFiles: compilationFiles,
+            exampleWorkspaceFilePath: input.modulePathOutput
         )
     }
 }

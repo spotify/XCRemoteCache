@@ -18,11 +18,16 @@
 // under the License.
 
 import Foundation
+import Yams
 
 /// Errors with reading swiftc inputs
 enum SwiftcInputReaderError: Error {
     case readingFailed
     case invalidFormat
+    /// The file is not in the yaml format
+    case invalidYamlFormat
+    /// The yaml string contains illegal characters
+    case invalidYamlString
     case missingField(String)
 }
 
@@ -45,10 +50,11 @@ struct SwiftCompilationInfo: Encodable, Equatable {
 struct SwiftModuleCompilationInfo: Encodable, Equatable {
     // not present for incremental builds
     let dependencies: URL?
-    let swiftDependencies: URL
+    // might be nil for the swift-frontend '-c' invocation
+    let swiftDependencies: URL?
 }
 
-struct SwiftFileCompilationInfo: Encodable, Equatable {
+public struct SwiftFileCompilationInfo: Encodable, Hashable {
     let file: URL
     // not present for WMO builds
     let dependencies: URL?
@@ -60,11 +66,18 @@ struct SwiftFileCompilationInfo: Encodable, Equatable {
 
 class SwiftcFilemapInputEditor: SwiftcInputReader, SwiftcInputWriter {
 
+    enum Format {
+        case json
+        case yaml
+    }
+
     private let file: URL
+    private let fileFormat: Format
     private let fileManager: FileManager
 
-    init(_ file: URL, fileManager: FileManager) {
+    init(_ file: URL, fileFormat: Format, fileManager: FileManager) {
         self.file = file
+        self.fileFormat = fileFormat
         self.fileManager = fileManager
     }
 
@@ -72,7 +85,7 @@ class SwiftcFilemapInputEditor: SwiftcInputReader, SwiftcInputWriter {
         guard let content = fileManager.contents(atPath: file.path) else {
             throw SwiftcInputReaderError.readingFailed
         }
-        guard let representation = try JSONSerialization.jsonObject(with: content, options: []) as? [String: Any] else {
+        guard let representation = try decodeFile(content: content) else {
             throw SwiftcInputReaderError.invalidFormat
         }
         return try SwiftCompilationInfo(from: representation)
@@ -82,11 +95,23 @@ class SwiftcFilemapInputEditor: SwiftcInputReader, SwiftcInputWriter {
         let data = try JSONSerialization.data(withJSONObject: info.dump(), options: [.prettyPrinted])
         fileManager.createFile(atPath: file.path, contents: data, attributes: nil)
     }
+
+    private func decodeFile(content: Data) throws -> [String: Any]? {
+        switch fileFormat {
+        case .json:
+            return try JSONSerialization.jsonObject(with: content, options: []) as? [String: Any]
+        case .yaml:
+            guard let stringContent = String(data: content, encoding: .utf8) else {
+                throw SwiftcInputReaderError.invalidYamlString
+            }
+            return try Yams.load(yaml: stringContent) as? [String: Any]
+        }
+    }
 }
 
 extension SwiftCompilationInfo {
     init(from object: [String: Any]) throws {
-        info = try SwiftModuleCompilationInfo(from: object[""])
+        info = try SwiftModuleCompilationInfo(from: object["", default: [:]])
         files = try object.reduce([]) { prev, new in
             let (key, value) = new
             if key.isEmpty {
@@ -111,14 +136,14 @@ extension SwiftModuleCompilationInfo {
         guard let dict = object as? [String: String] else {
             throw SwiftcInputReaderError.invalidFormat
         }
-        swiftDependencies = try dict.readURL(key: "swift-dependencies")
+        swiftDependencies = dict.readURL(key: "swift-dependencies")
         dependencies = dict.readURL(key: "dependencies")
     }
 
     func dump() -> [String: String] {
         return [
             "dependencies": dependencies?.path,
-            "swift-dependencies": swiftDependencies.path,
+            "swift-dependencies": swiftDependencies?.path,
         ].compactMapValues { $0 }
     }
 }

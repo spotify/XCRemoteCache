@@ -45,15 +45,15 @@ public struct SwiftcArgInput {
     }
 }
 
-public class XCSwiftc {
-    private let command: String
-    private let inputArgs: SwiftcArgInput
+public class XCSwiftAbstract<InputArgs> {
+    let command: String
+    let inputArgs: InputArgs
     private let dependenciesWriterFactory: (URL, FileManager) -> DependenciesWriter
     private let touchFactory: (URL, FileManager) -> Touch
 
     public init(
         command: String,
-        inputArgs: SwiftcArgInput,
+        inputArgs: InputArgs,
         dependenciesWriter: @escaping (URL, FileManager) -> DependenciesWriter,
         touchFactory: @escaping (URL, FileManager) -> Touch
     ) {
@@ -63,26 +63,52 @@ public class XCSwiftc {
         self.touchFactory = touchFactory
     }
 
+    func buildContext() throws -> (XCRemoteCacheConfig, SwiftcContext) {
+        fatalError("Need to override in \(Self.self)")
+    }
+
     // swiftlint:disable:next function_body_length
-    public func run() {
+    public func run() throws {
         let fileManager = FileManager.default
-        let config: XCRemoteCacheConfig
-        let context: SwiftcContext
-        do {
-            let srcRoot: URL = URL(fileURLWithPath: fileManager.currentDirectoryPath)
-            config = try XCRemoteCacheConfigReader(srcRootPath: srcRoot.path, fileReader: fileManager)
-                .readConfiguration()
-            context = try SwiftcContext(config: config, input: inputArgs)
-        } catch {
-            exit(1, "FATAL: Swiftc initialization failed with error: \(error)")
-        }
+        let (config, context) = try buildContext()
+
         let swiftcCommand = config.swiftcCommand
         let markerURL = context.tempDir.appendingPathComponent(config.modeMarkerPath)
         let markerReader = FileMarkerReader(markerURL, fileManager: fileManager)
         let markerWriter = FileMarkerWriter(markerURL, fileAccessor: fileManager)
 
-        let inputReader = SwiftcFilemapInputEditor(context.filemap, fileManager: fileManager)
-        let fileListEditor = FileListEditor(context.fileList, fileManager: fileManager)
+        let inputReader: SwiftcInputReader
+        switch context.inputs {
+        case .fileMap(let path):
+            inputReader = SwiftcFilemapInputEditor(
+                URL(fileURLWithPath: path),
+                fileFormat: .json,
+                fileManager: fileManager
+            )
+        case .supplementaryFileMap(let path):
+            // Supplementary file map is endoded in the yaml file (contraty to
+            // the standard filemap, which is in json)
+            inputReader = SwiftcFilemapInputEditor(
+                URL(fileURLWithPath: path),
+                fileFormat: .yaml,
+                fileManager: fileManager
+            )
+        case .map(let map):
+            // static - passed via the arguments list
+            inputReader = StaticSwiftcInputReader(
+                moduleDependencies: context.steps.emitModule?.dependencies,
+                // with Xcode 14, inputs via cmd are only used for compilations
+                swiftDependencies: nil,
+                compilationFiles: Array(map.values)
+            )
+        }
+        let fileListReader: ListReader
+        switch context.compilationFiles {
+        case .fileList(let path):
+            fileListReader = FileListEditor(URL(fileURLWithPath: path), fileManager: fileManager)
+        case .list(let paths):
+            fileListReader = StaticFileListReader(list: paths.map(URL.init(fileURLWithPath:)))
+        }
         let artifactOrganizer = ZipArtifactOrganizer(
             targetTempDir: context.tempDir,
             // xcswiftc  doesn't call artifact preprocessing
@@ -101,11 +127,20 @@ public class XCSwiftc {
             moduleName: context.moduleName,
             fileManager: fileManager
         )
-        let productsGenerator = DiskSwiftcProductsGenerator(
-            modulePathOutput: context.modulePathOutput,
-            objcHeaderOutput: context.objcHeaderOutput,
-            diskCopier: HardLinkDiskCopier(fileManager: fileManager)
-        )
+        let productsGenerator: SwiftcProductsGenerator
+        if let emitModule = context.steps.emitModule {
+            productsGenerator = DiskSwiftcProductsGenerator(
+                modulePathOutput: emitModule.modulePathOutput,
+                objcHeaderOutput: emitModule.objcHeaderOutput,
+                diskCopier: HardLinkDiskCopier(fileManager: fileManager)
+            )
+        } else {
+            // If the module was not requested for this proces (compiling files only)
+            // do nothing, when someone (e.g. a plugin) asks for the products generation
+            // This generation will happend in a separate process, where the module
+            // generation is requested
+            productsGenerator = NoopSwiftcProductsGenerator()
+        }
         let allInvocationsStorage = ExistingFileStorage(
             storageFile: context.invocationHistoryFile,
             command: swiftcCommand
@@ -119,7 +154,7 @@ public class XCSwiftc {
         let shellOut = ProcessShellOut()
 
         let swiftc = Swiftc(
-            inputFileListReader: fileListEditor,
+            inputFileListReader: fileListReader,
             markerReader: markerReader,
             allowedFilesListScanner: allowedFilesListScanner,
             artifactOrganizer: artifactOrganizer,
@@ -136,18 +171,28 @@ public class XCSwiftc {
             mode: context.mode,
             swiftc: swiftc,
             swiftcCommand: swiftcCommand,
-            objcHeaderOutput: context.objcHeaderOutput,
-            moduleOutput: context.modulePathOutput,
+            objcHeaderOutput: context.steps.emitModule?.objcHeaderOutput,
+            moduleOutput: context.steps.emitModule?.modulePathOutput,
             arch: context.arch,
             artifactBuilder: artifactBuilder,
             producerFallbackCommandProcessors: [],
             invocationStorage: invocationStorage,
             shellOut: shellOut
         )
-        do {
-            try orchestrator.run()
-        } catch {
-            exit(1, "Swiftc failed with error: \(error)")
-        }
+        try orchestrator.run()
+    }
+}
+
+public class XCSwiftc: XCSwiftAbstract<SwiftcArgInput> {
+    override func buildContext() throws -> (XCRemoteCacheConfig, SwiftcContext) {
+        let fileReader = FileManager.default
+        let config: XCRemoteCacheConfig
+        let context: SwiftcContext
+        let srcRoot: URL = URL(fileURLWithPath: fileReader.currentDirectoryPath)
+        config = try XCRemoteCacheConfigReader(srcRootPath: srcRoot.path, fileReader: fileReader)
+            .readConfiguration()
+        context = try SwiftcContext(config: config, input: inputArgs)
+
+        return (config, context)
     }
 }
