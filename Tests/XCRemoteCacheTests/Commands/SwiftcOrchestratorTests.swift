@@ -231,4 +231,45 @@ class SwiftcOrchestratorTests: XCTestCase {
         XCTAssertEqual(artifactBuilder.addedObjCHeaders, [:])
     }
 
+
+    func testNotSetObjCHeaderIsNotCreated() throws {
+        let swiftc = SwiftcMock(mockingResult: .success)
+        let orchestrator = SwiftcOrchestrator(
+            mode: .producer,
+            swiftc: swiftc,
+            swiftcCommand: "",
+            objcHeaderOutput: nil,
+            moduleOutput: moduleOutputURL,
+            arch: "arch",
+            artifactBuilder: artifactBuilder,
+            producerFallbackCommandProcessors: [],
+            invocationStorage: invocationStorage,
+            shellOut: shellOutSpy
+        )
+
+        try orchestrator.run()
+
+        XCTAssertEqual(artifactBuilder.addedObjCHeaders, [:])
+    }
+
+    func testNotSetModuleOutputIsNotCreated() throws {
+        let swiftc = SwiftcMock(mockingResult: .success)
+        let orchestrator = SwiftcOrchestrator(
+            mode: .producer,
+            swiftc: swiftc,
+            swiftcCommand: "",
+            objcHeaderOutput: objcHeaderURL,
+            moduleOutput: nil,
+            arch: "arch",
+            artifactBuilder: artifactBuilder,
+            producerFallbackCommandProcessors: [],
+            invocationStorage: invocationStorage,
+            shellOut: shellOutSpy
+        )
+
+        try orchestrator.run()
+
+        XCTAssertEqual(artifactBuilder.addedModuleDefinitions, [:])
+    }
+
 }

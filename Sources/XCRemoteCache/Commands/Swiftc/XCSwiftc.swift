@@ -86,6 +86,8 @@ public class XCSwiftAbstract<InputArgs> {
                 fileManager: fileManager
             )
         case .supplementaryFileMap(let path):
+            // Supplementary file map is endoded in the yaml file (contraty to
+            // the standard filemap, which is in json)
             inputReader = SwiftcFilemapInputEditor(
                 URL(fileURLWithPath: path),
                 fileFormat: .yaml,
@@ -93,10 +95,9 @@ public class XCSwiftAbstract<InputArgs> {
             )
         case .map(let map):
             // static - passed via the arguments list
-            // TODO: check if first 2 ars can always be `nil`
-            // with Xcode 14, inputs via cmd are only used for compilations
             inputReader = StaticSwiftcInputReader(
                 moduleDependencies: context.steps.emitModule?.dependencies,
+                // with Xcode 14, inputs via cmd are only used for compilations
                 swiftDependencies: nil,
                 compilationFiles: Array(map.values)
             )
@@ -134,6 +135,10 @@ public class XCSwiftAbstract<InputArgs> {
                 diskCopier: HardLinkDiskCopier(fileManager: fileManager)
             )
         } else {
+            // If the module was not requested for this proces (compiling files only)
+            // do nothing, when someone (e.g. a plugin) asks for the products generation
+            // This generation will happend in a separate process, where the module
+            // generation is requested
             productsGenerator = NoopSwiftcProductsGenerator()
         }
         let allInvocationsStorage = ExistingFileStorage(

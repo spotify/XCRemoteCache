@@ -24,7 +24,10 @@ import Yams
 enum SwiftcInputReaderError: Error {
     case readingFailed
     case invalidFormat
+    /// The file is not in the yaml format
     case invalidYamlFormat
+    /// The yaml string contains illegal characters
+    case invalidYamlString
     case missingField(String)
 }
 
@@ -98,7 +101,10 @@ class SwiftcFilemapInputEditor: SwiftcInputReader, SwiftcInputWriter {
         case .json:
             return try JSONSerialization.jsonObject(with: content, options: []) as? [String: Any]
         case .yaml:
-            return try Yams.load(yaml: String(data: content, encoding: .utf8)!) as? [String: Any]
+            guard let stringContent = String(data: content, encoding: .utf8) else {
+                throw SwiftcInputReaderError.invalidYamlString
+            }
+            return try Yams.load(yaml: stringContent) as? [String: Any]
         }
     }
 }

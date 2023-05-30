@@ -22,7 +22,7 @@ import Foundation
 public struct SwiftcContext {
     /// Describes the action if the module emit should happen
     /// that generates .swiftmodule and/or -Swift.h
-    public struct SwiftcStepEmitModule {
+    public struct SwiftcStepEmitModule: Equatable {
         // where the -Swift.h should be placed
         let objcHeaderOutput: URL
         // where should the .swiftmodule be placed
@@ -34,7 +34,7 @@ public struct SwiftcContext {
 
     /// Which files (from the list of all files in the module)
     /// should be compiled in this process
-    public enum SwiftcStepCompileFilesScope {
+    public enum SwiftcStepCompileFilesScope: Equatable {
         /// used if only emit module should be done
         case none
         case all
@@ -42,7 +42,7 @@ public struct SwiftcContext {
     }
 
     /// Describes which steps should be done as a part of this process
-    public struct SwiftcSteps {
+    public struct SwiftcSteps: Equatable {
         /// which files should be compiled
         let compileFilesScope: SwiftcStepCompileFilesScope
         /// if a module should be generated
@@ -50,7 +50,7 @@ public struct SwiftcContext {
     }
 
     /// Defines how a list of input files (*.swift) is passed to the invocation
-    public enum CompilationFilesSource {
+    public enum CompilationFilesSource: Equatable {
         /// defined in a separate file (via @/.../*.SwiftFileList)
         case fileList(String)
         /// explicitly passed a list of files
@@ -58,7 +58,7 @@ public struct SwiftcContext {
     }
 
     /// Defines how a list of output files (*.d, *.o etc.) is passed to the invocation
-    public enum CompilationFilesInputs {
+    public enum CompilationFilesInputs: Equatable {
         /// defined in a separate file (via -output-file-map)
         case fileMap(String)
         /// defined in a separate file (via -supplementary-output-file-map)
