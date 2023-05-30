@@ -34,19 +34,21 @@ class SwiftcFilemapInputEditorTests: FileXCTestCase {
     )
     private let sampleInfoContentData = #"{"":{"swift-dependencies":"/"}}"#.data(using: .utf8)!
     private var inputFile: URL!
-    private var editor: SwiftcFilemapInputEditor!
+    private var editorJson: SwiftcFilemapInputEditor!
+    private var editorYaml: SwiftcFilemapInputEditor!
 
     override func setUpWithError() throws {
         try super.setUpWithError()
         try prepareTempDir()
         inputFile = workingDirectory!.appendingPathComponent("swift.json")
-        editor = SwiftcFilemapInputEditor(inputFile, fileManager: fileManager)
+        editorJson = SwiftcFilemapInputEditor(inputFile, fileFormat: .json, fileManager: fileManager)
+        editorYaml = SwiftcFilemapInputEditor(inputFile, fileFormat: .yaml, fileManager: fileManager)
     }
 
     func testReading() throws {
         try fileManager.spt_writeToFile(atPath: inputFile.path, contents: sampleInfoContentData)
 
-        let readInfo = try editor.read()
+        let readInfo = try editorJson.read()
 
         XCTAssertEqual(readInfo, sampleInfo)
     }
@@ -80,13 +82,13 @@ class SwiftcFilemapInputEditorTests: FileXCTestCase {
             ])
         try fileManager.spt_writeToFile(atPath: inputFile.path, contents: infoContentData)
 
-        let readInfo = try editor.read()
+        let readInfo = try editorJson.read()
 
         XCTAssertEqual(readInfo, expectedInfo)
     }
 
     func testWritingSavesContent() throws {
-        try editor.write(sampleInfo)
+        try editorJson.write(sampleInfo)
 
         let savedContent = try Data(contentsOf: inputFile)
         let content = try JSONSerialization.jsonObject(with: savedContent, options: []) as? [String: Any]
@@ -108,7 +110,7 @@ class SwiftcFilemapInputEditorTests: FileXCTestCase {
                 ),
             ])
 
-        try editor.write(extendedInfo)
+        try editorJson.write(extendedInfo)
 
         let savedContent = try Data(contentsOf: inputFile)
         let content = try JSONSerialization.jsonObject(with: savedContent, options: []) as? [String: Any]
@@ -119,12 +121,50 @@ class SwiftcFilemapInputEditorTests: FileXCTestCase {
     func testModifyingFileCompilationInfo() throws {
         try fileManager.spt_writeToFile(atPath: inputFile.path, contents: sampleInfoContentData)
 
-        let originalInfo = try editor.read()
+        let originalInfo = try editorJson.read()
         var modifiedInfo = originalInfo
         modifiedInfo.files = [file]
-        try editor.write(modifiedInfo)
-        let finalInfo = try editor.read()
+        try editorJson.write(modifiedInfo)
+        let finalInfo = try editorJson.read()
 
         XCTAssertEqual(finalInfo, modifiedInfo)
+    }
+
+    func testReadingSupplementaryInfoWithOptionalProperties() throws {
+        let infoContentData = #"""
+        "/file1.swift":
+          swift-dependencies: "/file1.swiftdeps"
+          dependencies: "/file1.d"
+        "/file2.swift":
+          dependencies: "/file2.d"
+          object: "/file2.o"
+          swift-dependencies: "/file2.swiftdeps"
+        """#.data(using: .utf8)!
+        let expectedInfo = SwiftCompilationInfo(
+            info: SwiftModuleCompilationInfo(
+                dependencies: nil,
+                swiftDependencies: nil
+            ),
+            files: [
+                SwiftFileCompilationInfo(
+                    file: "/file1.swift",
+                    dependencies: "/file1.d",
+                    object: nil,
+                    swiftDependencies: "/file1.swiftdeps"
+                ),
+                SwiftFileCompilationInfo(
+                    file: "/file2.swift",
+                    dependencies: "/file2.d",
+                    object: "/file2.o",
+                    swiftDependencies: "/file2.swiftdeps"
+                ),
+            ])
+        try fileManager.spt_writeToFile(atPath: inputFile.path, contents: infoContentData)
+
+        let readInfo = try editorYaml.read()
+
+        // `files` order doesn't match
+        XCTAssertEqual(readInfo.info, expectedInfo.info)
+        XCTAssertEqual(Set(readInfo.files), Set(expectedInfo.files))
     }
 }

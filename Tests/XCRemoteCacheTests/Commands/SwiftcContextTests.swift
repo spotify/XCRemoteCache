@@ -34,7 +34,7 @@ class SwiftcContextTests: FileXCTestCase {
         config = XCRemoteCacheConfig(remoteCommitFile: remoteCommitFile.path, sourceRoot: workingDir.path)
         input = SwiftcArgInput(
             objcHeaderOutput: "Target-Swift.h",
-            moduleName: "",
+            moduleName: "Target",
             modulePathOutput: modulePathOutput.path,
             filemap: "",
             target: "",
