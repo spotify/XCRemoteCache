@@ -21,9 +21,10 @@ import Foundation
 import XCRemoteCache
 
 /// Wrapper for a `swift-frontend` that skips compilation and
-/// produces empty output files (.o). As a compilation dependencies
-/// (.d) file, it copies all dependency files from the prebuild marker file
-/// Fallbacks to a standard `swift-frontend` when the ramote cache is not applicable (e.g. modified sources)
+/// produces empty output files (.o). Just like in xcswiftc, compilation dependencies
+/// (.d) files are copied from the prebuild marker file which includes all relevant files
+/// Fallbacks to a standard `swift-frontend` when the
+/// ramote cache is not applicable (e.g. modified sources)
 public class XCSwiftcFrontendMain {
     // swiftlint:disable:next function_body_length cyclomatic_complexity
     public func main() {
@@ -69,7 +70,7 @@ public class XCSwiftcFrontendMain {
                 // .swiftsourceinfo
                 sourceInfoPath = args[i + 1]
             case "-emit-module-doc-path":
-                // .swiftsourceinfo
+                // .swiftdoc
                 docPath = args[i + 1]
             case "-primary-file":
                 // .swift
@@ -120,8 +121,13 @@ public class XCSwiftcFrontendMain {
     }
 
     private func runFallback(envs env: [String: String]) -> Never {
+        // DEVELOPER_DIR is always set by Xcode
         let developerDir = env["DEVELOPER_DIR"]!
-        // limitation: always using the Xcode's toolchain
+        // limitation: always using the Xcode's toolchain, otherwise
+        // there will be a loop for invoking swift-frontend wrapper from XCRemoteCache
+        // Cause: for injecting into the swift driver pipeline, Xcode looks for
+        // an executable with the name `swift-frontend` that is placed in the same
+        // dir as `SWIFT_EXEC`'s `swiftc` wrapper
         let swiftFrontendCommand = "\(developerDir)/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend"
 
         let args = ProcessInfo().arguments

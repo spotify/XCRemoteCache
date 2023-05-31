@@ -63,6 +63,7 @@ public struct SwiftFrontendArgInput {
     // .swiftsourceinfo and .swiftdoc will be placed next to the .swiftmodule
     let sourceInfoPath: String?
     let docPath: String?
+    // Passed as -supplementary-output-file-map
     let supplementaryOutputFileMap: String?
 
     /// Manual initializer implementation required to be public
