@@ -32,16 +32,9 @@ protocol SwiftFrontendOrchestrator {
 /// For the compilation action, tries to ackquire a lock and waits until the "emit-module" makes a decision
 /// if the compilation should be skipped and a "mocking" should used instead
 class CommonSwiftFrontendOrchestrator {
-
-    enum Action {
-        case emitModule
-        case compile
-    }
     private let mode: SwiftcContext.SwiftcMode
 
-    init(
-        mode: SwiftcContext.SwiftcMode,
-    ) {
+    init(mode: SwiftcContext.SwiftcMode) {
         self.mode = mode
     }
 

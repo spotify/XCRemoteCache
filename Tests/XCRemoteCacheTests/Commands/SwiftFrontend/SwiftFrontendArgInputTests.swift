@@ -20,6 +20,7 @@
 @testable import XCRemoteCache
 import XCTest
 
+// swiftlint:disable type_body_length
 class SwiftFrontendArgInputTests: FileXCTestCase {
     private var compile: Bool = true
     private var emitModule: Bool = false
@@ -114,10 +115,10 @@ class SwiftFrontendArgInputTests: FileXCTestCase {
     }
 
     func testFailsIfDependenciesAreMissing() throws {
-        inputPaths = ["/file1","/file2","/file3"]
+        inputPaths = ["/file1", "/file2", "/file3"]
         target = "Target"
         moduleName = "Module"
-        primaryInputPaths = ["/file1","/file2"]
+        primaryInputPaths = ["/file1", "/file2"]
         dependenciesPaths = ["/file1.d"]
         buildInput()
 
@@ -125,10 +126,10 @@ class SwiftFrontendArgInputTests: FileXCTestCase {
     }
 
     func testDoesntFailForMissingDependenciesIfNoDependencies() throws {
-        inputPaths = ["/file1","/file2","/file3"]
+        inputPaths = ["/file1", "/file2", "/file3"]
         target = "Target"
         moduleName = "Module"
-        primaryInputPaths = ["/file1","/file2"]
+        primaryInputPaths = ["/file1", "/file2"]
         dependenciesPaths = []
         buildInput()
 
@@ -136,10 +137,10 @@ class SwiftFrontendArgInputTests: FileXCTestCase {
     }
 
     func testFailsIfDiagnosticsAreMissing() throws {
-        inputPaths = ["/file1","/file2","/file3"]
+        inputPaths = ["/file1", "/file2", "/file3"]
         target = "Target"
         moduleName = "Module"
-        primaryInputPaths = ["/file1","/file2"]
+        primaryInputPaths = ["/file1", "/file2"]
         diagnosticsPaths = ["/file1.d"]
         buildInput()
 
@@ -147,10 +148,10 @@ class SwiftFrontendArgInputTests: FileXCTestCase {
     }
 
     func testDoesntFailForMissingDdiagnosticsIfNoDiagnostics() throws {
-        inputPaths = ["/file1","/file2","/file3"]
+        inputPaths = ["/file1", "/file2", "/file3"]
         target = "Target"
         moduleName = "Module"
-        primaryInputPaths = ["/file1","/file2"]
+        primaryInputPaths = ["/file1", "/file2"]
         diagnosticsPaths = []
         buildInput()
 
@@ -158,10 +159,10 @@ class SwiftFrontendArgInputTests: FileXCTestCase {
     }
 
     func testFailsIfOutputsAreMissing() throws {
-        inputPaths = ["/file1","/file2","/file3"]
+        inputPaths = ["/file1", "/file2", "/file3"]
         target = "Target"
         moduleName = "Module"
-        primaryInputPaths = ["/file1","/file2"]
+        primaryInputPaths = ["/file1", "/file2"]
         outputPaths = ["/file1.o"]
         buildInput()
 
@@ -169,7 +170,7 @@ class SwiftFrontendArgInputTests: FileXCTestCase {
     }
 
     func testSetsCompilationSubsetForCompilation() throws {
-        inputPaths = ["/file1","/file2","/file3"]
+        inputPaths = ["/file1", "/file2", "/file3"]
         target = "Target"
         moduleName = "Module"
         primaryInputPaths = ["/file1"]
@@ -185,7 +186,7 @@ class SwiftFrontendArgInputTests: FileXCTestCase {
     }
 
     func testBuildCompilationFilesInputs() throws {
-        inputPaths = ["/file1","/file2","/file3"]
+        inputPaths = ["/file1", "/file2", "/file3"]
         target = "Target"
         moduleName = "Module"
         primaryInputPaths = ["/file1"]
@@ -200,14 +201,13 @@ class SwiftFrontendArgInputTests: FileXCTestCase {
                 file: "/file1",
                 dependencies: "/file1.d",
                 object: "/file1.o",
-                swiftDependencies: nil
-            )
+                swiftDependencies: nil),
         ])
         )
     }
 
     func testRecognizesArchFromOuputFirstPaths() throws {
-        inputPaths = ["/file1","/file2","/file3"]
+        inputPaths = ["/file1", "/file2", "/file3"]
         target = "Target"
         moduleName = "Module"
         primaryInputPaths = ["/file1"]
@@ -221,7 +221,7 @@ class SwiftFrontendArgInputTests: FileXCTestCase {
     }
 
     func testPassesExtraParams() throws {
-        inputPaths = ["/file1","/file2","/file3"]
+        inputPaths = ["/file1", "/file2", "/file3"]
         target = "Target"
         moduleName = "Module"
         primaryInputPaths = ["/file1"]
@@ -240,7 +240,7 @@ class SwiftFrontendArgInputTests: FileXCTestCase {
     func testEmitModuleFailsForMissingOutput() throws {
         emitModule = true
         compile = false
-        inputPaths = ["/file1","/file2","/file3"]
+        inputPaths = ["/file1", "/file2", "/file3"]
         target = "Target"
         moduleName = "Module"
         outputPaths = []
@@ -252,7 +252,7 @@ class SwiftFrontendArgInputTests: FileXCTestCase {
     func testEmitModuleFailsForMissingObjcHeader() throws {
         emitModule = true
         compile = false
-        inputPaths = ["/file1","/file2","/file3"]
+        inputPaths = ["/file1", "/file2", "/file3"]
         target = "Target"
         moduleName = "Module"
         outputPaths = ["/Module.swiftmodule"]
@@ -264,7 +264,7 @@ class SwiftFrontendArgInputTests: FileXCTestCase {
     func testEmitModuleFailsForExcessiveDiagnostics() throws {
         emitModule = true
         compile = false
-        inputPaths = ["/file1","/file2","/file3"]
+        inputPaths = ["/file1", "/file2", "/file3"]
         target = "Target"
         moduleName = "Module"
         outputPaths = ["/Module.swiftmodule"]
@@ -278,7 +278,7 @@ class SwiftFrontendArgInputTests: FileXCTestCase {
     func testEmitModuleFailsForExcessiveDependencies() throws {
         emitModule = true
         compile = false
-        inputPaths = ["/file1","/file2","/file3"]
+        inputPaths = ["/file1", "/file2", "/file3"]
         target = "Target"
         moduleName = "Module"
         outputPaths = ["/Module.swiftmodule"]
@@ -292,7 +292,7 @@ class SwiftFrontendArgInputTests: FileXCTestCase {
     func testEmitModuleSetsStep() throws {
         emitModule = true
         compile = false
-        inputPaths = ["/file1","/file2","/file3"]
+        inputPaths = ["/file1", "/file2", "/file3"]
         target = "Target"
         moduleName = "Module"
         outputPaths = ["/Module.swiftmodule"]
@@ -315,7 +315,7 @@ class SwiftFrontendArgInputTests: FileXCTestCase {
     func testEmitModuleSetsAllIntpus() throws {
         emitModule = true
         compile = false
-        inputPaths = ["/file1","/file2","/file3"]
+        inputPaths = ["/file1", "/file2", "/file3"]
         target = "Target"
         moduleName = "Module"
         outputPaths = ["/Module.swiftmodule"]
@@ -330,7 +330,7 @@ class SwiftFrontendArgInputTests: FileXCTestCase {
     func testEmitModuleRecognizesArchFromObjCHeader() throws {
         emitModule = true
         compile = false
-        inputPaths = ["/file1","/file2","/file3"]
+        inputPaths = ["/file1", "/file2", "/file3"]
         target = "Target"
         moduleName = "Module"
         outputPaths = ["file.swiftmodule"]
@@ -345,7 +345,7 @@ class SwiftFrontendArgInputTests: FileXCTestCase {
     func testEmitModulePassesExtraParams() throws {
         emitModule = true
         compile = false
-        inputPaths = ["/file1","/file2","/file3"]
+        inputPaths = ["/file1", "/file2", "/file3"]
         target = "Target"
         moduleName = "Module"
         outputPaths = ["/Module.swiftmodule"]
@@ -360,3 +360,4 @@ class SwiftFrontendArgInputTests: FileXCTestCase {
         XCTAssertEqual(context.mode, .consumer(commit: .unavailable))
     }
 }
+// swiftlint:enable type_body_length
