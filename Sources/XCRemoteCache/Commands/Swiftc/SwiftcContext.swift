@@ -159,4 +159,11 @@ public struct SwiftcContext {
             exampleWorkspaceFilePath: input.modulePathOutput
         )
     }
+
+    init(
+        config: XCRemoteCacheConfig,
+        input: SwiftFrontendArgInput
+    ) throws {
+        self = try input.generateSwiftcContext(config: config)
+    }
 }

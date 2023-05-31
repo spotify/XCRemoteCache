@@ -27,14 +27,14 @@ struct IntegrateContext {
     let configOverride: URL
     let fakeSrcRoot: URL
     let output: URL?
+    let buildSettingsAppenderOptions: BuildSettingsIntegrateAppenderOption
 }
 
 extension IntegrateContext {
     init(
         input: String,
-        repoRootPath: String,
+        config: XCRemoteCacheConfig,
         mode: Mode,
-        configOverridePath: String,
         env: [String: String],
         binariesDir: URL,
         fakeSrcRoot: String,
@@ -42,15 +42,22 @@ extension IntegrateContext {
     ) throws {
         projectPath = URL(fileURLWithPath: input)
         let srcRoot = projectPath.deletingLastPathComponent()
-        repoRoot = URL(fileURLWithPath: repoRootPath, relativeTo: srcRoot)
+        repoRoot = URL(fileURLWithPath: config.repoRoot, relativeTo: srcRoot)
         self.mode = mode
-        configOverride = URL(fileURLWithPath: configOverridePath, relativeTo: srcRoot)
+        configOverride = URL(fileURLWithPath: config.extraConfigurationFile, relativeTo: srcRoot)
         output = outputPath.flatMap(URL.init(fileURLWithPath:))
         self.fakeSrcRoot = URL(fileURLWithPath: fakeSrcRoot)
+        var swiftcBinaryName = "swiftc"
+        var buildSettingsAppenderOptions: BuildSettingsIntegrateAppenderOption = []
+        // Keep the legacy behaviour (supported in Xcode 14 and lower)
+        if !config.enableSwifDriverIntegration {
+            buildSettingsAppenderOptions.insert(.disableSwiftDriverIntegration)
+            swiftcBinaryName = "xcswiftc"
+        }
         binaries = XCRCBinariesPaths(
             prepare: binariesDir.appendingPathComponent("xcprepare"),
             cc: binariesDir.appendingPathComponent("xccc"),
-            swiftc: binariesDir.appendingPathComponent("xcswiftc"),
+            swiftc: binariesDir.appendingPathComponent(swiftcBinaryName),
             libtool: binariesDir.appendingPathComponent("xclibtool"),
             lipo: binariesDir.appendingPathComponent("xclipo"),
             ld: binariesDir.appendingPathComponent("xcld"),
@@ -58,5 +65,6 @@ extension IntegrateContext {
             prebuild: binariesDir.appendingPathComponent("xcprebuild"),
             postbuild: binariesDir.appendingPathComponent("xcpostbuild")
         )
+        self.buildSettingsAppenderOptions = buildSettingsAppenderOptions
     }
 }

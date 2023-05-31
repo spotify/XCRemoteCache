@@ -33,6 +33,10 @@ let package = Package(
             dependencies: ["XCRemoteCache"]
         ),
         .target(
+            name: "xcswift-frontend",
+            dependencies: ["XCRemoteCache"]
+        ),
+        .target(
             name: "xclibtoolSupport",
             dependencies: ["XCRemoteCache"]
         ),
@@ -69,6 +73,7 @@ let package = Package(
             dependencies: [
                 "xcprebuild",
                 "xcswiftc",
+                "xcswift-frontend",
                 "xclibtool",
                 "xcpostbuild",
                 "xcprepare",
