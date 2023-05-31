@@ -50,7 +50,7 @@ class IntegrateTests: FileXCTestCase {
     }
 
     func testEnablesDriverOnRequest() throws {
-        config.enableSwifDriverIntegration = true
+        config.enableSwiftDriverIntegration = true
         let context = try IntegrateContext(
             input: "project.xcodeproj",
             config: config,

@@ -102,7 +102,7 @@ class SwiftFrontendArgInputTests: FileXCTestCase {
         target = "Target"
         buildInput()
 
-        assertGenerationError(SwiftFrontendArgInputError.emiMissingModuleName)
+        assertGenerationError(SwiftFrontendArgInputError.emitMissingModuleName)
     }
 
     func testFailsIfNoCompileHasNoPrimaryInputs() throws {

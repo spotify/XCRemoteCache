@@ -50,7 +50,7 @@ extension IntegrateContext {
         var swiftcBinaryName = "swiftc"
         var buildSettingsAppenderOptions: BuildSettingsIntegrateAppenderOption = []
         // Keep the legacy behaviour (supported in Xcode 14 and lower)
-        if !config.enableSwifDriverIntegration {
+        if !config.enableSwiftDriverIntegration {
             buildSettingsAppenderOptions.insert(.disableSwiftDriverIntegration)
             swiftcBinaryName = "xcswiftc"
         }

@@ -43,7 +43,7 @@ enum SwiftFrontendArgInputError: Error, Equatable {
     // -target is required
     case emitMissingTarget
     // -moduleName is required
-    case emiMissingModuleName
+    case emitMissingModuleName
 }
 
 public struct SwiftFrontendArgInput {
@@ -224,7 +224,7 @@ public struct SwiftFrontendArgInput {
             throw SwiftFrontendArgInputError.emitMissingTarget
         }
         guard let moduleName = moduleName else {
-            throw SwiftFrontendArgInputError.emiMissingModuleName
+            throw SwiftFrontendArgInputError.emitMissingModuleName
         }
 
         if compile {
