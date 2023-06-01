@@ -55,6 +55,38 @@ public class XCSwiftFrontend: XCSwiftAbstract<SwiftFrontendArgInput> {
     }
 
     override public func run() throws {
-        // TODO: implement in a follow-up PR
+        do {
+            /// The LLBUILD_BUILD_ID ENV that describes the swiftc (parent) invocation
+            let llbuildId: String = try env.readEnv(key: "LLBUILD_BUILD_ID")
+            let (_, context) = try buildContext()
+
+            let sharedLockFileURL = XCSwiftFrontend.generateLlbuildIdSharedLockUrl(
+                llbuildId: llbuildId,
+                tmpDir: context.tempDir
+            )
+            let sharedLock = ExclusiveFile(sharedLockFileURL, mode: .override)
+
+            let action: CommonSwiftFrontendOrchestrator.Action = inputArgs.emitModule ? .emitModule : .compile
+            let swiftFrontendOrchestrator = CommonSwiftFrontendOrchestrator(
+                mode: context.mode,
+                action: action,
+                lockAccessor: sharedLock,
+                maxLockTimeout: Self.self.MaxLockingTimeout
+            )
+
+            try swiftFrontendOrchestrator.run(criticalSection: super.run)
+        } catch {
+            // Splitting into 2 invocations as os_log truncates a massage
+            defaultLog("Cannot correctly orchestrate the \(command) with params \(inputArgs)")
+            defaultLog("Cannot correctly orchestrate error: \(error)")
+            throw error
+        }
+    }
+}
+
+extension XCSwiftFrontend {
+    /// The file is used to sycnhronize mutliple swift-frontend invocations
+    static func generateLlbuildIdSharedLockUrl(llbuildId: String, tmpDir: URL) -> URL {
+        return tmpDir.appendingPathComponent(llbuildId).appendingPathExtension("lock")
     }
 }

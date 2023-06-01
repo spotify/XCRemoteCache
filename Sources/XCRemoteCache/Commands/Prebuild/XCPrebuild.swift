@@ -55,6 +55,7 @@ public class XCPrebuild {
             dependenciesWriter: FileDependenciesWriter.init,
             dependenciesReader: FileDependenciesReader.init,
             markerWriter: lazyMarkerWriterFactory,
+            llbuildLockFile: context.llbuildIdLockFile,
             fileManager: fileManager
         )
 

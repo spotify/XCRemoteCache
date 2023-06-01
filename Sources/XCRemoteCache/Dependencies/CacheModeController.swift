@@ -48,6 +48,7 @@ class PhaseCacheModeController: CacheModeController {
     private let dependenciesWriter: DependenciesWriter
     private let dependenciesReader: DependenciesReader
     private let markerWriter: MarkerWriter
+    private let llbuildLockFile: URL
     private let fileManager: FileManager
 
     init(
@@ -59,6 +60,7 @@ class PhaseCacheModeController: CacheModeController {
         dependenciesWriter: (URL, FileManager) -> DependenciesWriter,
         dependenciesReader: (URL, FileManager) -> DependenciesReader,
         markerWriter: (URL, FileManager) -> MarkerWriter,
+        llbuildLockFile: URL,
         fileManager: FileManager
     ) {
 
@@ -69,10 +71,12 @@ class PhaseCacheModeController: CacheModeController {
         let discoveryURL = tempDir.appendingPathComponent(phaseDependencyPath)
         self.dependenciesWriter = dependenciesWriter(discoveryURL, fileManager)
         self.dependenciesReader = dependenciesReader(discoveryURL, fileManager)
+        self.llbuildLockFile = llbuildLockFile
         self.markerWriter = markerWriter(modeMarker, fileManager)
     }
 
     func enable(allowedInputFiles: [URL], dependencies: [URL]) throws {
+        try cleanupLlBuildLock()
         // marker file contains filepaths that contribute to the build products
         // and should invalidate all other target steps (swiftc,libtool etc.)
         let targetSensitiveFiles = dependencies + [modeMarker, Self.xcodeSelectLink]
@@ -84,6 +88,7 @@ class PhaseCacheModeController: CacheModeController {
     }
 
     func disable() throws {
+        try cleanupLlBuildLock()
         guard !forceCached else {
             throw PhaseCacheModeControllerError.cannotUseRemoteCacheForForcedCacheMode
         }
@@ -113,5 +118,15 @@ class PhaseCacheModeController: CacheModeController {
             debugLog("Couldn't verify if should disable RC for \(commitValue).")
         }
         return false
+    }
+
+    private func cleanupLlBuildLock() throws {
+        if fileManager.fileExists(atPath: llbuildLockFile.path) {
+            do {
+                try fileManager.removeItem(at: llbuildLockFile)
+            } catch {
+                printWarning("Removing llbuild lock at \(llbuildLockFile.path) failed. Error: \(error)")
+            }
+        }
     }
 }
