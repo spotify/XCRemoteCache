@@ -85,7 +85,8 @@ public class XCSwiftFrontend: XCSwiftAbstract<SwiftFrontendArgInput> {
 }
 
 extension XCSwiftFrontend {
-    /// The file is used to sycnhronize mutliple swift-frontend invocations
+    /// Generate the filename to be used to sycnhronize mutliple swift-frontend invocations
+    /// The same file is used in prebuild, xcswift-frontend and postbuild (to clean it up)
     static func generateLlbuildIdSharedLockUrl(llbuildId: String, tmpDir: URL) -> URL {
         return tmpDir.appendingPathComponent(llbuildId).appendingPathExtension("lock")
     }

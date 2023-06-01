@@ -45,6 +45,7 @@ _XCRemoteCache is a remote cache tool for Xcode projects. It reuses target artif
 - [Limitations](#limitations)
 - [FAQ](#faq)
 - [Development](#development)
+- [Architectural Designs](#architectural-designs)
 - [Release](#release)
   * [Releasing CocoaPods plugin](#releasing-cocoapods-plugin)
   * [Building release package](#building-release-package)
@@ -468,6 +469,10 @@ Follow the [FAQ](docs/FAQ.md) page.
 ## Development
 
 Follow the [Development](docs/Development.md) guide. It has all the information on how to get started.
+
+## Architectural designs
+
+Follow the [Architectural designs](docs/design/ArchitecturalDesigns.md) document that describes and documents XCRemoteCache designs and implementation details.
 
 ## Release 
 

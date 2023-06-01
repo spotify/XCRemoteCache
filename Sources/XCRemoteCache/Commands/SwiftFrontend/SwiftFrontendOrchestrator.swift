@@ -60,7 +60,7 @@ class CommonSwiftFrontendOrchestrator {
     func run(criticalSection: () throws -> Void) throws {
         guard case .consumer(commit: .available) = mode else {
             // no need to lock anything - just allow fallbacking to the `swiftc or swift-frontend`
-            // if we face producer or a consumer where RC is disabled (we have already caught the
+            // for a producer or a consumer where RC is disabled (we have already caught the
             // cache miss)
             try criticalSection()
             return
@@ -78,8 +78,8 @@ class CommonSwiftFrontendOrchestrator {
     }
 
 
-    /// Fro emit-module, wraps the critical section with the shared lock so other processes (compilation)
-    /// have to wait until it finishes
+    /// Foor emit-module, wrap the critical section with the shared lock so other processes (compilation)
+    /// have to wait until emit-module finishes
     /// Once the emit-module is done, the "magical" string is saved to the file and the lock is released
     ///
     /// Note: The design of wrapping the entire "emit-module" has a small performance downside if inside
@@ -101,9 +101,10 @@ class CommonSwiftFrontendOrchestrator {
         }
     }
 
-    /// Locks a shared file in a loop until its content non-empty, which means the "parent" emit-module has finished
+    /// Locks a shared file in a loop until its content is non-empty - meaning the "parent" emit-module
+    /// has already finished
     private func waitForEmitModuleLock(criticalSection: () throws -> Void) throws {
-        // emit-module process should really quickly retain a lock (it is always invoked
+        // emit-module process should really quickly obtain a lock (it is always invoked
         // by Xcode as a first process)
         var executed = false
         let startingDate = Date()
