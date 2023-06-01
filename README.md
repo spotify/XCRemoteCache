@@ -359,6 +359,7 @@ Note: This step is not required if at least one of these is true:
 | `custom_rewrite_envs` | A list of extra ENVs that should be used as placeholders in the dependency list. ENV rewrite process is optimistic - does nothing if an ENV is not defined in the pre/postbuild process. | `[]` | ⬜️ |
 | `irrelevant_dependencies_paths` | Regexes of files that should not be included in a list of dependencies. Warning! Add entries here with caution - excluding dependencies that are relevant might lead to a target overcaching. The regex can match either partially or fully the filepath, e.g. `\\.modulemap$` will exclude all `.modulemap` files. | `[]` | ⬜️ |
 | `gracefully_handle_missing_common_sha` | If true, do not fail `prepare` if cannot find the most recent common commits with the primary branch. That might be useful on CI, where a shallow clone is used and cloning depth is not big enough to fetch a commit from a primary branch | `false` | ⬜️ |
+| `enable_swift_driver_integration` | Enable experimental integration with swift driver, added in Xcode 14 | `false` | ⬜️ |
 
 ## Backend cache server
 

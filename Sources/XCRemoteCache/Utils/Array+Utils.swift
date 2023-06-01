@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Spotify AB.
+// Copyright (c) 2023 Spotify AB.
 //
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
@@ -17,20 +17,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-enum RemoteCommitInfo: Equatable {
-    /// No commit to use for the remote cache - remote cache is disabled
-    case unavailable
-    /// Valid remote commit sha to reuse artifacts is available
-    case available(commit: String)
-}
+import Foundation
 
-extension RemoteCommitInfo {
-    init(_ commit: String?) {
-        switch commit {
-        case .some(let value) where !value.isEmpty:
-            self = .available(commit: value)
-        default:
-            self = .unavailable
+public extension Array {
+    func get(_ i: Index) -> Element? {
+        guard count > i else {
+            return nil
         }
+        return self[i]
     }
 }
