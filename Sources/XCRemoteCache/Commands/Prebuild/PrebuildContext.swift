@@ -76,6 +76,6 @@ extension PrebuildContext {
         overlayHeadersPath = targetTempDir.appendingPathComponent("all-product-headers.yaml")
         disabled = try env.readEnv(key: "XCRC_DISABLED") ?? false
         let llbuildId: String = try env.readEnv(key: "LLBUILD_BUILD_ID")
-        llbuildIdLockFile = XCSwiftFrontend.generateLlbuildIdSharedLockUrl(llbuildId: llbuildId, tmpDir: targetTempDir)
+        llbuildIdLockFile = XCSwiftFrontend.buildLlbuildIdSharedLockUrl(llbuildId: llbuildId, tmpDir: targetTempDir)
     }
 }

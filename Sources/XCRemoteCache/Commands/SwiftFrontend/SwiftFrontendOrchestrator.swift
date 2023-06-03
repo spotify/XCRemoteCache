@@ -91,13 +91,15 @@ class CommonSwiftFrontendOrchestrator {
     /// as we know, the remote cache cannot be used. Then all other compilation process (-c) can run
     /// in parallel with emit-module
     private func validateEmitModuleStep(criticalSection: () throws -> Void) throws {
+        debugLog("starting the emit-module step: locking")
         try lockAccessor.exclusiveAccess { handle in
-            defer {
-                handle.write(Self.self.emitModuleContent)
-            }
-            do {
-                try criticalSection()
-            }
+            debugLog("starting the emit-module step: locked")
+            // writing to the file content proactively - incase the critical section never returns
+            // (in case of a fallback to the local compilation), all awaiting swift-frontent processes
+            // will be immediatelly unblocked
+            handle.write(Self.self.emitModuleContent)
+            try criticalSection()
+            debugLog("lock file emit-module criticial end")
         }
     }
 
@@ -109,11 +111,15 @@ class CommonSwiftFrontendOrchestrator {
         var executed = false
         let startingDate = Date()
         while !executed {
+            debugLog("lock file compilation trying to acquire a lock ....")
             try lockAccessor.exclusiveAccess { handle in
                 if !handle.availableData.isEmpty {
                     // the file is not empty so the emit-module process is done with the "check"
+                    debugLog("swift-frontend lock file is unlocked for compilation")
                     try criticalSection()
                     executed = true
+                } else {
+                    debugLog("swift-frontend lock file is not ready for compilation")
                 }
             }
             // When a max locking time is achieved, execute anyway

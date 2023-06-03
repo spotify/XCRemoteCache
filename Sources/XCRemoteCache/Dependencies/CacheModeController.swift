@@ -120,6 +120,12 @@ class PhaseCacheModeController: CacheModeController {
         return false
     }
 
+    // cleanup the build lock file (if exists) as the very last step of this controller
+    // this is just a non-critical cleanup step to not leave {{LLBUILD_BUILD_ID}}.lock
+    // files in $TARGET_TEMP_DIR. It is expected that both prebuild and postbuild will
+    // invoke it, to ensure:
+    // - swift-frontent synchronization is done per-target build
+    // - no .lock leftover files
     private func cleanupLlBuildLock() throws {
         if fileManager.fileExists(atPath: llbuildLockFile.path) {
             do {

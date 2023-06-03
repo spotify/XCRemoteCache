@@ -67,12 +67,18 @@ public class XCSwiftAbstract<InputArgs> {
         fatalError("Need to override in \(Self.self)")
     }
 
+    // Return the fallback command that should be invoked in case of a cache miss
+    // Expected that swift-frontend invokcations will override it
+    func fallbackCommand(config: XCRemoteCacheConfig) throws -> String {
+        config.swiftcCommand
+    }
+
     // swiftlint:disable:next function_body_length
     public func run() throws {
         let fileManager = FileManager.default
         let (config, context) = try buildContext()
 
-        let swiftcCommand = config.swiftcCommand
+        let swiftcCommand = try fallbackCommand(config: config)
         let markerURL = context.tempDir.appendingPathComponent(config.modeMarkerPath)
         let markerReader = FileMarkerReader(markerURL, fileManager: fileManager)
         let markerWriter = FileMarkerWriter(markerURL, fileAccessor: fileManager)
