@@ -21,15 +21,15 @@ import Foundation
 
 /// Manages  the `swift-frontend` logic
 protocol SwiftFrontendOrchestrator {
-    /// Executes the criticial secion according to the required order
+    /// Executes the critical section according to the required order
     /// - Parameter criticalSection: the block that should be synchronized
     func run(criticalSection: () -> Void ) throws
 }
 
 /// The default orchestrator that manages the order or swift-frontend invocations
-/// For emit-module (the "first" process) action, it locks a shared file between all swift-frontend invcations,
-/// verifies that the mocking can be done and continues the mocking/fallbacking along the lock release
-/// For the compilation action, tries to ackquire a lock and waits until the "emit-module" makes a decision
+/// For emit-module (the "first" process) action, it locks a shared file between all swift-frontend invocations,
+/// verifies that the mocking can be done and continues the mocking/fall-backing along the lock release
+/// For the compilation action, tries to acquire a lock and waits until the "emit-module" makes a decision
 /// if the compilation should be skipped and a "mocking" should used instead
 class CommonSwiftFrontendOrchestrator {
     /// Content saved to the shared file
@@ -78,7 +78,7 @@ class CommonSwiftFrontendOrchestrator {
     }
 
 
-    /// Foor emit-module, wrap the critical section with the shared lock so other processes (compilation)
+    /// For emit-module, wrap the critical section with the shared lock so other processes (compilation)
     /// have to wait until emit-module finishes
     /// Once the emit-module is done, the "magical" string is saved to the file and the lock is released
     ///
@@ -95,8 +95,8 @@ class CommonSwiftFrontendOrchestrator {
         try lockAccessor.exclusiveAccess { handle in
             debugLog("starting the emit-module step: locked")
             // writing to the file content proactively - incase the critical section never returns
-            // (in case of a fallback to the local compilation), all awaiting swift-frontent processes
-            // will be immediatelly unblocked
+            // (in case of a fallback to the local compilation), all awaiting swift-frontend processes
+            // will be immediately unblocked
             handle.write(Self.self.emitModuleContent)
             try criticalSection()
             debugLog("lock file emit-module criticial end")
@@ -126,7 +126,7 @@ class CommonSwiftFrontendOrchestrator {
             if !executed && Date().timeIntervalSince(startingDate) > self.maxLockTimeout {
                 errorLog("""
                 Executing command \(action) without lock synchronization. That may be cause by the\
-                crashed or extremly long emit-module. Contact XCRemoteCache authors about this error.
+                crashed or extremely long emit-module. Contact XCRemoteCache authors about this error.
                 """)
                 try criticalSection()
                 executed = true

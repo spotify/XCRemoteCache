@@ -26,7 +26,7 @@ struct SwiftFrontendContext {
 
 extension SwiftFrontendContext {
     init(_ swiftcContext: SwiftcContext, env: [String: String]) throws {
-        /// The LLBUILD_BUILD_ID ENV that describes the swiftc (parent) invocation
+        /// The LLBUILD_BUILD_ID ENV that describes the entire (incl. parent's swiftc) bui;d
         let llbuildId: String = try env.readEnv(key: "LLBUILD_BUILD_ID")
         invocationLockFile = Self.self.buildLlbuildIdSharedLockUrl(
             llbuildId: llbuildId,
@@ -34,7 +34,7 @@ extension SwiftFrontendContext {
         )
     }
 
-    /// Generate the filename to be used to sycnhronize mutliple swift-frontend invocations
+    /// Generate the filename to be used to synchronize multiple swift-frontend invocations
     /// The same file is used in prebuild, xcswift-frontend and postbuild (to clean it up)
     static func buildLlbuildIdSharedLockUrl(llbuildId: String, tmpDir: URL) -> URL {
         return tmpDir.appendingPathComponent(llbuildId).appendingPathExtension("lock")

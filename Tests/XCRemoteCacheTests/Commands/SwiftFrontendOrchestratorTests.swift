@@ -34,7 +34,7 @@ final class SwiftFrontendOrchestratorTests: FileXCTestCase {
         try fileManager.write(toPath: emptyFile.path, contents: .init())
     }
 
-    func testRunsCriticalSectionImmediatellyForProducer() throws {
+    func testRunsCriticalSectionImmediatelyForProducer() throws {
         let orchestrator = CommonSwiftFrontendOrchestrator(
             mode: .producer,
             action: .compile,
@@ -49,7 +49,7 @@ final class SwiftFrontendOrchestratorTests: FileXCTestCase {
         XCTAssertTrue(invoked)
     }
 
-    func testRunsCriticalSectionImmediatellyForDisabledConsumer() throws {
+    func testRunsCriticalSectionImmediatelyForDisabledConsumer() throws {
         let orchestrator = CommonSwiftFrontendOrchestrator(
             mode: .consumer(commit: .unavailable),
             action: .compile,
