@@ -1,5 +1,6 @@
 require 'json'
 require "ostruct"
+require 'yaml'
 
 desc 'Support for E2E tests: building XCRemoteCache-enabled xcodeproj using xcodebuild'
 namespace :e2e do
@@ -25,12 +26,21 @@ namespace :e2e do
         'primary_branch' => GIT_BRANCH,
         'mode' => 'consumer',
         'final_target' => 'XCRemoteCacheSample',
-        'artifact_maximum_age' => 0
+        'artifact_maximum_age' => 0,
+
+    }.freeze
+    # A list of configurations to merge with SHARED_COCOAPODS_CONFIG to run tests with
+    CONFIGS = {
+        'no_swift_driver' => {},
+        'swift_driver' => {
+            'enable_swift_driver_integration' => true
+        }
     }.freeze
     DEFAULT_EXPECTATIONS = {
         'misses' => 0,
         'hit_rate' => 100
     }.freeze
+    EXCLUDED_ARCHS = 'x86_64'
 
     Stats = Struct.new(:hits, :misses, :hit_rate)
 
@@ -43,9 +53,14 @@ namespace :e2e do
         start_nginx
         configure_git
 
-        # Run scenarios for all Podfile scenarios
-        for podfile_path in Dir.glob('e2eTests/**/*.Podfile')
-            run_cocoapods_scenario(podfile_path)
+        for config_name, custom_config in CONFIGS
+            config = SHARED_COCOAPODS_CONFIG.merge(custom_config)
+            puts "Running E2E tests for config: #{config_name}"
+
+            # Run scenarios for all Podfile scenarios
+            for podfile_path in Dir.glob('e2eTests/**/*.Podfile')
+                run_cocoapods_scenario(config, podfile_path)
+            end
         end
         # Revert all side effects
         clean
@@ -56,13 +71,27 @@ namespace :e2e do
         clean_server
         start_nginx
         configure_git
+        CONFIGS.each do |config_name, config|
+            puts "Running Standalone tests for config: #{config_name}"
+            run_standalone_scenario(config, config_name)
+        end
+    end
+
+    def self.run_standalone_scenario(config, config_name)
         # Prepare binaries for the standalone mode
         prepare_for_standalone(E2E_STANDALONE_SAMPLE_DIR)
 
         puts 'Building standalone producer...'
         ####### Producer #########
+        clean_git
+
         Dir.chdir(E2E_STANDALONE_SAMPLE_DIR) do
-            clean_git
+            system 'git checkout -f .'
+            # Include the config in the "shared" configuration that is commited-in to '.rcinfo'
+            rcinfo_path = '.rcinfo'
+            rcinfo = YAML.load(File.read(rcinfo_path)).merge(config)
+            File.open(rcinfo_path, 'w') {|f| f.write rcinfo.to_yaml }
+
             # Run integrate the project
             system("pwd")
             system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode producer --final-producer-target StandaloneApp --configurations-exclude #{CONFIGURATIONS_EXCLUDE}")
@@ -76,22 +105,25 @@ namespace :e2e do
 
         ####### Consumer #########
         # new dir to emulate different srcroot
-        consumer_srcroot = "#{E2E_STANDALONE_SAMPLE_DIR}_consumer"
+        consumer_srcroot = "#{E2E_STANDALONE_SAMPLE_DIR}_consumer_#{config_name}"
         system("mv #{E2E_STANDALONE_SAMPLE_DIR} #{consumer_srcroot}")
-        at_exit { puts("reverting #{E2E_STANDALONE_SAMPLE_DIR}"); system("mv #{consumer_srcroot} #{E2E_STANDALONE_SAMPLE_DIR}") }
+        begin
+            prepare_for_standalone(consumer_srcroot)
+            Dir.chdir(consumer_srcroot) do
+                system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode consumer --final-producer-target StandaloneApp --consumer-eligible-configurations #{CONFIGURATION} --configurations-exclude #{CONFIGURATIONS_EXCLUDE}")
+                build_project(nil, "StandaloneApp.xcodeproj", 'WatchExtension', 'watch', 'watchOS', CONFIGURATION, {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer_#{config_name}"})
+                build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', 'iphone', 'iOS', CONFIGURATION, {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer_#{config_name}"})
+                valide_hit_rate(OpenStruct.new(DEFAULT_EXPECTATIONS))
 
-        prepare_for_standalone(consumer_srcroot)
-        Dir.chdir(consumer_srcroot) do
-            system("#{XCRC_BINARIES}/xcprepare integrate --input StandaloneApp.xcodeproj --mode consumer --final-producer-target StandaloneApp --consumer-eligible-configurations #{CONFIGURATION} --configurations-exclude #{CONFIGURATIONS_EXCLUDE}")
-            build_project(nil, "StandaloneApp.xcodeproj", 'WatchExtension', 'watch', 'watchOS', CONFIGURATION, {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
-            build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', 'iphone', 'iOS', CONFIGURATION, {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer"})
-            valide_hit_rate(OpenStruct.new(DEFAULT_EXPECTATIONS))
-
-            puts 'Building standalone consumer with local change...'
-            # Extra: validate local compilation of the Standalone ObjC code
-            system("echo '' >> StandaloneApp/StandaloneObjc.m")
-            build_project(nil, "StandaloneApp.xcodeproj", 'WatchExtension', 'watch', 'watchOS', CONFIGURATION, {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer_local"})
-            build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', 'iphone', 'iOS', CONFIGURATION, {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer_local"})
+                puts 'Building standalone consumer with local change...'
+                # Extra: validate local compilation of the Standalone ObjC code
+                system("echo '' >> StandaloneApp/StandaloneObjc.m")
+                build_project(nil, "StandaloneApp.xcodeproj", 'WatchExtension', 'watch', 'watchOS', CONFIGURATION, {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer_local_#{config_name}"})
+                build_project(nil, "StandaloneApp.xcodeproj", 'StandaloneApp', 'iphone', 'iOS', CONFIGURATION, {'derivedDataPath' => "#{DERIVED_DATA_PATH}_consumer_local_#{config_name}"})
+            end
+        ensure
+            puts("reverting #{E2E_STANDALONE_SAMPLE_DIR}")
+            system("mv #{consumer_srcroot} #{E2E_STANDALONE_SAMPLE_DIR}")
         end
 
         # Revert all side effects
@@ -153,9 +185,9 @@ namespace :e2e do
     end
 
     # xcremotecache configuration to add to Podfile
-    def self.cocoapods_configuration_string(extra_configs = {})
+    def self.cocoapods_configuration_string(config, extra_configs = {})
         configuration_lines = ['xcremotecache({']
-        all_properties = SHARED_COCOAPODS_CONFIG.merge(extra_configs)
+        all_properties = config.merge(extra_configs)
         config_lines = all_properties.map {|key, value| "    \"#{key}\" => #{value.inspect},"}
         configuration_lines.push(*config_lines)
         configuration_lines << '})'
@@ -182,7 +214,7 @@ namespace :e2e do
             'derivedDataPath' => DERIVED_DATA_PATH,
         }.merge(extra_args).compact
         xcodebuild_vars = {
-            'EXCLUDED_ARCHS' => 'arm64'
+            'EXCLUDED_ARCHS' => EXCLUDED_ARCHS
         }
         args = ['set -o pipefail;', 'xcodebuild']
         args.push(*xcodebuild_args.map {|k,v| "-#{k} '#{v}'"})
@@ -227,12 +259,12 @@ namespace :e2e do
         puts("Hit rate: #{status.hit_rate}% (#{status.hits}/#{all_targets})")
     end
 
-    def self.run_cocoapods_scenario(template_path)
+    def self.run_cocoapods_scenario(config, template_path)
         # Optional file, which adds extra cocoapods configs to a template
         template_config_path = "#{template_path}.config"
         extra_config = File.exist?(template_config_path) ? JSON.load(File.read(template_config_path)) : {}
-        producer_configuration = cocoapods_configuration_string({'mode' => 'producer'}.merge(extra_config))
-        consumer_configuration = cocoapods_configuration_string(extra_config)
+        producer_configuration = cocoapods_configuration_string(config, {'mode' => 'producer'}.merge(extra_config))
+        consumer_configuration = cocoapods_configuration_string(config, extra_config)
         expectations = build_expectations(template_path)
 
         puts("****** Scenario: #{template_path}")
