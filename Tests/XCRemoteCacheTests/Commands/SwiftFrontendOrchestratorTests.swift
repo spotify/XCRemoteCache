@@ -24,12 +24,16 @@ import XCTest
 final class SwiftFrontendOrchestratorTests: FileXCTestCase {
     private let prohibitedAccessor = DisallowedExclusiveFileAccessor()
     private var nonEmptyFile: URL!
+    private var emptyFile: URL!
     private let maxLocking: TimeInterval = 10
 
     override func setUp() async throws {
         nonEmptyFile = try prepareTempDir().appendingPathComponent("lock.lock")
-        try fileManager.write(toPath: nonEmptyFile.path, contents: "Done".data(using: .utf8))
+        try fileManager.write(toPath: nonEmptyFile.path, contents: "done".data(using: .utf8))
+        emptyFile = try prepareTempDir().appendingPathComponent("lock_empty.lock")
+        try fileManager.write(toPath: emptyFile.path, contents: .init())
     }
+
     func testRunsCriticalSectionImmediatellyForProducer() throws {
         let orchestrator = CommonSwiftFrontendOrchestrator(
             mode: .producer,
@@ -60,7 +64,7 @@ final class SwiftFrontendOrchestratorTests: FileXCTestCase {
         XCTAssertTrue(invoked)
     }
 
-    func testRunsEmitModuleLogicInAnExclusiveLock() throws {
+    func testRunsEmitModuleLogicInExclusiveLock() throws {
         let lock = FakeExclusiveFileAccessor()
         let orchestrator = CommonSwiftFrontendOrchestrator(
             mode: .consumer(commit: .available(commit: "")),
@@ -78,7 +82,7 @@ final class SwiftFrontendOrchestratorTests: FileXCTestCase {
     }
 
     func testCompilationInvokesCriticalSectionOnlyForNonEmptyLockFile() throws {
-        let lock = FakeExclusiveFileAccessor(pattern: [.empty, .nonEmpty(nonEmptyFile)])
+        let lock = FakeExclusiveFileAccessor(pattern: [.empty, .nonEmptyForRead(nonEmptyFile)])
         let orchestrator = CommonSwiftFrontendOrchestrator(
             mode: .consumer(commit: .available(commit: "")),
             action: .compile,
@@ -110,46 +114,21 @@ final class SwiftFrontendOrchestratorTests: FileXCTestCase {
         }
         XCTAssertTrue(invoked)
     }
-}
 
-private class DisallowedExclusiveFileAccessor: ExclusiveFileAccessor {
-    func exclusiveAccess<T>(block: (FileHandle) throws -> (T)) throws -> T {
-        throw "Invoked ProhibitedExclusiveFileAccessor"
-    }
-}
+    func testExecutesCriticalSectionAfterWriting() throws {
+        let lock = FakeExclusiveFileAccessor(pattern: [.nonEmptyForWrite(emptyFile)])
+        let orchestrator = CommonSwiftFrontendOrchestrator(
+            mode: .consumer(commit: .available(commit: "")),
+            action: .emitModule,
+            lockAccessor: lock,
+            maxLockTimeout: 0
+        )
 
-// Thread-unsafe, in-memory lock
-private class FakeExclusiveFileAccessor: ExclusiveFileAccessor {
-    private(set) var isLocked = false
-    private var pattern: [LockFileContent]
-
-    enum LockFileContent {
-        case empty
-        case nonEmpty(URL)
-
-        func fileHandle() throws -> FileHandle {
-            switch self {
-            case .empty: return FileHandle.nullDevice
-            case .nonEmpty(let url): return try FileHandle(forReadingFrom: url)
-            }
+        var invoked = false
+        try orchestrator.run {
+            XCTAssertEqual(fileManager.contents(atPath: emptyFile.path), "done".data(using: .utf8))
+            invoked = true
         }
+        XCTAssertTrue(invoked)
     }
-
-    init(pattern: [LockFileContent] = []) {
-        // keep in the reversed order to always pop
-        self.pattern = pattern.reversed()
-    }
-
-    func exclusiveAccess<T>(block: (FileHandle) throws -> (T)) throws -> T {
-        if isLocked {
-            throw "FakeExclusiveFileAccessor lock is already locked"
-        }
-        defer {
-            isLocked = false
-        }
-        isLocked = true
-        let fileHandle = try (pattern.popLast() ?? .empty).fileHandle()
-        return try block(fileHandle)
-    }
-
 }

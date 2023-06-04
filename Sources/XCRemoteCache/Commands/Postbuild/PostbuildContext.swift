@@ -153,6 +153,9 @@ extension PostbuildContext {
         }
         disabled = try env.readEnv(key: "XCRC_DISABLED") ?? false
         let llbuildId: String = try env.readEnv(key: "LLBUILD_BUILD_ID")
-        llbuildIdLockFile = XCSwiftFrontend.buildLlbuildIdSharedLockUrl(llbuildId: llbuildId, tmpDir: targetTempDir)
+        llbuildIdLockFile = SwiftFrontendContext.buildLlbuildIdSharedLockUrl(
+            llbuildId: llbuildId,
+            tmpDir: targetTempDir
+        )
     }
 }

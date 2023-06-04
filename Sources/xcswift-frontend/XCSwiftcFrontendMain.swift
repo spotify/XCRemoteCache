@@ -29,7 +29,16 @@ public class XCSwiftcFrontendMain {
     // swiftlint:disable:next function_body_length cyclomatic_complexity
     public func main() {
         let env = ProcessInfo.processInfo.environment
-        let command = ProcessInfo().processName
+        // Do not invoke raw swift-frontend because that would lead to the invifnite loop
+        // swift-frontent -> xcswift-frontent -> swift-frontent
+        //
+        // Note: Returning the `swiftc` executaion here because it is possible to pass all arguments
+        // from swift-frontent to `swiftc` and swiftc will be able to redirect to swift-frontend
+        // (because the first argument is `-frontend`). If that is not a case (might change in
+        // future swift compiler versions), invoke swift-frontent from the Xcode, but that introduces
+        // a limitation that disallows custom toolchains in Xcode:
+        // $DEVELOPER_DIR/Toolchains/XcodeDefault.xctoolchain/usr/bin/{ ProcessInfo().processName}
+        let command = "swiftc"
         let args = ProcessInfo().arguments
         var compile = false
         var emitModule = false

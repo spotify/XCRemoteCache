@@ -54,30 +54,12 @@ public class XCSwiftFrontend: XCSwiftAbstract<SwiftFrontendArgInput> {
         return (config, context)
     }
 
-    override func fallbackCommand(config: XCRemoteCacheConfig) throws -> String {
-        // Do not invoke raw swift-frontend because that would lead to the invifnite loop
-        // swift-frontent -> xcswift-frontent -> swift-frontent
-        //
-        // Note: Returning the `swiftc` executaion here because it is possible to pass all arguments
-        // from swift-frontent to `swiftc` and swiftc will be able to redirect to swift-frontend
-        // (because the first argument is `-frontend`). If that is not a case (might change in
-        // future swift compiler versions), invoke swift-frontent from the Xcode, but that introduces
-        // a limitation that disallows custom toolchains in Xcode:
-        // $DEVELOPER_DIR/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend
-        return config.swiftcCommand
-    }
-
     override public func run() throws {
         do {
-            /// The LLBUILD_BUILD_ID ENV that describes the swiftc (parent) invocation
-            let llbuildId: String = try env.readEnv(key: "LLBUILD_BUILD_ID")
             let (_, context) = try buildContext()
 
-            let sharedLockFileURL = XCSwiftFrontend.buildLlbuildIdSharedLockUrl(
-                llbuildId: llbuildId,
-                tmpDir: context.tempDir
-            )
-            let sharedLock = ExclusiveFile(sharedLockFileURL, mode: .override)
+            let frontendContext = try SwiftFrontendContext(context, env: env)
+            let sharedLock = ExclusiveFile(frontendContext.invocationLockFile, mode: .override)
 
             let action: CommonSwiftFrontendOrchestrator.Action = inputArgs.emitModule ? .emitModule : .compile
             let swiftFrontendOrchestrator = CommonSwiftFrontendOrchestrator(
@@ -94,13 +76,5 @@ public class XCSwiftFrontend: XCSwiftAbstract<SwiftFrontendArgInput> {
             defaultLog("Cannot correctly orchestrate error: \(error)")
             throw error
         }
-    }
-}
-
-extension XCSwiftFrontend {
-    /// Generate the filename to be used to sycnhronize mutliple swift-frontend invocations
-    /// The same file is used in prebuild, xcswift-frontend and postbuild (to clean it up)
-    static func buildLlbuildIdSharedLockUrl(llbuildId: String, tmpDir: URL) -> URL {
-        return tmpDir.appendingPathComponent(llbuildId).appendingPathExtension("lock")
     }
 }
