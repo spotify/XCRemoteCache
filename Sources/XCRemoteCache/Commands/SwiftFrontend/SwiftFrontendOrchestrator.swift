@@ -86,7 +86,7 @@ class CommonSwiftFrontendOrchestrator {
     /// the critical section, the code realizes that remote cache cannot be used
     /// (in practice - a new file has been added)
     /// None of compilation process (so with '-c' args) can continue until the entire emit-module logic finishes
-    /// Because it is expected to happen no that often and emit-module is usually quite fast, this makes the
+    /// Because it is expected to happen not that often and emit-module is usually quite fast, this makes the
     /// implementation way simpler. If we ever want to optimize it, we should release the lock as early
     /// as we know, the remote cache cannot be used. Then all other compilation process (-c) can run
     /// in parallel with emit-module
