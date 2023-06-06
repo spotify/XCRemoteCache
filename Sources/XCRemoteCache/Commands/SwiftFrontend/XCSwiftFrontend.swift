@@ -55,6 +55,26 @@ public class XCSwiftFrontend: XCSwiftAbstract<SwiftFrontendArgInput> {
     }
 
     override public func run() throws {
-        // TODO: implement in a follow-up PR
+        do {
+            let (_, context) = try buildContext()
+
+            let frontendContext = try SwiftFrontendContext(context, env: env)
+            let sharedLock = ExclusiveFile(frontendContext.invocationLockFile, mode: .override)
+
+            let action: CommonSwiftFrontendOrchestrator.Action = inputArgs.emitModule ? .emitModule : .compile
+            let swiftFrontendOrchestrator = CommonSwiftFrontendOrchestrator(
+                mode: context.mode,
+                action: action,
+                lockAccessor: sharedLock,
+                maxLockTimeout: Self.self.MaxLockingTimeout
+            )
+
+            try swiftFrontendOrchestrator.run(criticalSection: super.run)
+        } catch {
+            // Splitting into 2 invocations as os_log truncates a massage
+            defaultLog("Cannot correctly orchestrate the \(command) with params \(inputArgs)")
+            defaultLog("Cannot correctly orchestrate error: \(error)")
+            throw error
+        }
     }
 }

@@ -28,7 +28,7 @@ class PostbuildContextTests: FileXCTestCase {
         "TARGET_TEMP_DIR": "TARGET_TEMP_DIR",
         "DERIVED_FILE_DIR": "DERIVED_FILE_DIR",
         "ARCHS": "x86_64",
-        "OBJECT_FILE_DIR_normal": "/OBJECT_FILE_DIR_normal" ,
+        "OBJECT_FILE_DIR_normal": "/OBJECT_FILE_DIR_normal",
         "CONFIGURATION": "CONFIGURATION",
         "PLATFORM_NAME": "PLATFORM_NAME",
         "XCODE_PRODUCT_BUILD_VERSION": "XCODE_PRODUCT_BUILD_VERSION",
@@ -45,6 +45,7 @@ class PostbuildContextTests: FileXCTestCase {
         "DERIVED_SOURCES_DIR": "DERIVED_SOURCES_DIR",
         "CURRENT_VARIANT": "normal",
         "PUBLIC_HEADERS_FOLDER_PATH": "/usr/local/include",
+        "LLBUILD_BUILD_ID": "1",
     ]
 
     override func setUpWithError() throws {
@@ -185,5 +186,18 @@ class PostbuildContextTests: FileXCTestCase {
         let context = try PostbuildContext(config, env: envs)
 
         XCTAssertFalse(context.disabled)
+    }
+
+    func testFailsIfLlBuildIdEnvIsMissing() throws {
+        var envs = Self.SampleEnvs
+        envs.removeValue(forKey: "LLBUILD_BUILD_ID")
+
+        XCTAssertThrowsError(try PostbuildContext(config, env: envs))
+    }
+
+    func testBuildsLockValidFileUrl() throws {
+        let context = try PostbuildContext(config, env: Self.SampleEnvs)
+
+        XCTAssertEqual(context.llbuildIdLockFile, "TARGET_TEMP_DIR/1.lock")
     }
 }

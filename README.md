@@ -45,6 +45,7 @@ _XCRemoteCache is a remote cache tool for Xcode projects. It reuses target artif
 - [Limitations](#limitations)
 - [FAQ](#faq)
 - [Development](#development)
+- [Architectural Designs](#architectural-designs)
 - [Release](#release)
   * [Releasing CocoaPods plugin](#releasing-cocoapods-plugin)
   * [Building release package](#building-release-package)
@@ -291,7 +292,7 @@ where
 
 ```shell
 ditto "${SCRIPT_INPUT_FILE_0}" "${SCRIPT_OUTPUT_FILE_0}"
-[ -f "${SCRIPT_INPUT_FILE_1}" ] && ditto "${SCRIPT_INPUT_FILE_1}" "${SCRIPT_OUTPUT_FILE_1}" || rm "${SCRIPT_OUTPUT_FILE_1}"
+[ -f "${SCRIPT_INPUT_FILE_1}" ] && ditto "${SCRIPT_INPUT_FILE_1}" "${SCRIPT_OUTPUT_FILE_1}" || rm -f "${SCRIPT_OUTPUT_FILE_1}"
 ```
 
 where
@@ -468,6 +469,10 @@ Follow the [FAQ](docs/FAQ.md) page.
 ## Development
 
 Follow the [Development](docs/Development.md) guide. It has all the information on how to get started.
+
+## Architectural designs
+
+Follow the [Architectural designs](docs/design/ArchitecturalDesigns.md) document that describes and documents XCRemoteCache designs and implementation details.
 
 ## Release 
 
