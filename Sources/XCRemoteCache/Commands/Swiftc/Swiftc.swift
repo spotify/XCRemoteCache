@@ -86,6 +86,13 @@ class Swiftc: SwiftcProtocol {
         self.plugins = plugins
     }
 
+    // TODO: consider refactoring to a separate entity
+    private func assetsGeneratedSources(inputFiles: [URL]) -> [URL] {
+        return inputFiles.filter { url in
+            url.lastPathComponent == "\(DependencyProcessorImpl.GENERATED_ASSETS_FILENAME).swift"
+        }
+    }
+
     // swiftlint:disable:next function_body_length
     func mockCompilation() throws -> SwiftCResult {
         let rcModeEnabled = markerReader.canRead()
@@ -96,13 +103,14 @@ class Swiftc: SwiftcProtocol {
 
         let inputFilesInputs = try inputFileListReader.listFilesURLs()
         let markerAllowedFiles = try markerReader.listFilesURLs()
+        let generatedAssetsFiles = assetsGeneratedSources(inputFiles: inputFilesInputs)
         let cachedDependenciesWriterFactory = CachedFileDependenciesWriterFactory(
-            dependencies: markerAllowedFiles,
+            dependencies: markerAllowedFiles + generatedAssetsFiles,
             fileManager: fileManager,
             writerFactory: dependenciesWriterFactory
         )
         // Verify all input files to be present in a marker fileList
-        let disallowedInputs = try inputFilesInputs.filter { try !allowedFilesListScanner.contains($0) }
+        let disallowedInputs = try inputFilesInputs.filter { try !allowedFilesListScanner.contains($0) && !generatedAssetsFiles.contains($0) }
 
         if !disallowedInputs.isEmpty {
             // New file (disallowedFile) added without modifying the rest of the feature. Fallback to swiftc and
