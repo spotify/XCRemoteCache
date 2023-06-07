@@ -123,7 +123,8 @@ module CocoapodsXCRemoteCacheModifier
         exclude_build_configurations,
         final_target,
         fake_src_root,
-        exclude_sdks_configurations
+        exclude_sdks_configurations,
+        enable_swift_driver_integration
       )
         srcroot_relative_xc_location = parent_dir(xc_location, repo_distance)
         # location of the entrite CocoaPods project, relative to SRCROOT
@@ -137,14 +138,15 @@ module CocoapodsXCRemoteCacheModifier
           elsif mode == 'producer' || mode == 'producer-fast'
             config.build_settings.delete('CC') if config.build_settings.key?('CC')
           end
-          reset_build_setting(config.build_settings, 'SWIFT_EXEC', "$SRCROOT/#{srcroot_relative_xc_location}/xcswiftc", exclude_sdks_configurations)
+          swiftc_name = enable_swift_driver_integration ? 'swiftc' : 'xcswiftc'
+          reset_build_setting(config.build_settings, 'SWIFT_EXEC', "$SRCROOT/#{srcroot_relative_xc_location}/#{swiftc_name}", exclude_sdks_configurations)
           reset_build_setting(config.build_settings, 'LIBTOOL', "$SRCROOT/#{srcroot_relative_xc_location}/xclibtool", exclude_sdks_configurations)
           # Setting LIBTOOL to '' breaks SwiftDriver intengration so resetting it to the original value 'libtool' for all excluded configurations
           add_build_setting_for_sdks(config.build_settings, 'LIBTOOL', 'libtool', exclude_sdks_configurations)
           reset_build_setting(config.build_settings, 'LD', "$SRCROOT/#{srcroot_relative_xc_location}/xcld", exclude_sdks_configurations)
           reset_build_setting(config.build_settings, 'LDPLUSPLUS', "$SRCROOT/#{srcroot_relative_xc_location}/xcldplusplus", exclude_sdks_configurations)
           reset_build_setting(config.build_settings, 'LIPO', "$SRCROOT/#{srcroot_relative_xc_location}/xclipo", exclude_sdks_configurations)
-          reset_build_setting(config.build_settings, 'SWIFT_USE_INTEGRATED_DRIVER', 'NO', exclude_sdks_configurations)
+          reset_build_setting(config.build_settings, 'SWIFT_USE_INTEGRATED_DRIVER', 'NO', exclude_sdks_configurations) unless enable_swift_driver_integration
 
           reset_build_setting(config.build_settings, 'XCREMOTE_CACHE_FAKE_SRCROOT', fake_src_root, exclude_sdks_configurations)
           reset_build_setting(config.build_settings, 'XCRC_PLATFORM_PREFERRED_ARCH', "$(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(PLATFORM_PREFERRED_ARCH):dir:standardizepath:file:default=arm64)", exclude_sdks_configurations)
@@ -498,6 +500,7 @@ module CocoapodsXCRemoteCacheModifier
           check_platform = @@configuration['check_platform']
           fake_src_root = @@configuration['fake_src_root']
           exclude_sdks_configurations = @@configuration['exclude_sdks_configurations'] || []
+          enable_swift_driver_integration = @@configuration['enable_swift_driver_integration'] || false
 
           xccc_location_absolute = "#{user_proj_directory}/#{xccc_location}"
           xcrc_location_absolute = "#{user_proj_directory}/#{xcrc_location}"
@@ -521,7 +524,7 @@ module CocoapodsXCRemoteCacheModifier
                 next if target.name.start_with?("Pods-")
                 next if target.name.end_with?("Tests")
                 next if exclude_targets.include?(target.name)
-                enable_xcremotecache(target, 1, xcrc_location, xccc_location, mode, exclude_build_configurations, final_target,fake_src_root, exclude_sdks_configurations)
+                enable_xcremotecache(target, 1, xcrc_location, xccc_location, mode, exclude_build_configurations, final_target,fake_src_root, exclude_sdks_configurations, enable_swift_driver_integration)
             end
 
             # Create .rcinfo into `Pods` directory as that .xcodeproj reads configuration from .xcodeproj location
@@ -534,7 +537,7 @@ module CocoapodsXCRemoteCacheModifier
                     next if target.source_build_phase.files_references.empty?
                     next if target.name.end_with?("Tests")
                     next if exclude_targets.include?(target.name)
-                    enable_xcremotecache(target, 1, xcrc_location, xccc_location, mode, exclude_build_configurations, final_target,fake_src_root, exclude_sdks_configurations)
+                    enable_xcremotecache(target, 1, xcrc_location, xccc_location, mode, exclude_build_configurations, final_target,fake_src_root, exclude_sdks_configurations, enable_swift_driver_integration)
                 end
                 generated_project.save()
             end
@@ -575,7 +578,7 @@ module CocoapodsXCRemoteCacheModifier
           # Attach XCRC to the app targets
           user_project.targets.each do |target|
               next if exclude_targets.include?(target.name)
-              enable_xcremotecache(target, 0, xcrc_location, xccc_location, mode, exclude_build_configurations, final_target,fake_src_root, exclude_sdks_configurations)
+              enable_xcremotecache(target, 0, xcrc_location, xccc_location, mode, exclude_build_configurations, final_target,fake_src_root, exclude_sdks_configurations, enable_swift_driver_integration)
           end
 
           # Set Target sourcemap
