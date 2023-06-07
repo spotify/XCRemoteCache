@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Spotify AB.
+// Copyright (c) 2023 Spotify AB.
 //
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
@@ -19,16 +19,20 @@
 
 import Foundation
 
-/// Representing locations of all XCRemoteCache binaries (including wrappers and phase scripts)
-struct XCRCBinariesPaths {
-    let prepare: URL
-    let cc: URL
-    let swiftc: URL
-    let libtool: URL
-    let lipo: URL
-    let ld: URL
-    let ldplusplus: URL
-    let prebuild: URL
-    let postbuild: URL
-    let actool: URL
+public class XCACTool {
+
+    private let objcOutput: String?
+    private let swiftOutput: String?
+
+    public init(
+        objcOutput: String?,
+        swiftOutput: String?
+    ) {
+        self.objcOutput = objcOutput
+        self.swiftOutput = swiftOutput
+    }
+    
+    public func run() {
+        // TODO: implement
+    }
 }

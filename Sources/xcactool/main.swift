@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Spotify AB.
+// Copyright (c) 2023 Spotify AB.
 //
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
@@ -17,18 +17,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import Foundation
+import XCRemoteCache
 
-/// Representing locations of all XCRemoteCache binaries (including wrappers and phase scripts)
-struct XCRCBinariesPaths {
-    let prepare: URL
-    let cc: URL
-    let swiftc: URL
-    let libtool: URL
-    let lipo: URL
-    let ld: URL
-    let ldplusplus: URL
-    let prebuild: URL
-    let postbuild: URL
-    let actool: URL
-}
+XCACToolMain().main()

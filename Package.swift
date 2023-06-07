@@ -68,6 +68,10 @@ let package = Package(
             dependencies: ["XCRemoteCache"]
         ),
         .target(
+            name: "xcactool",
+            dependencies: ["XCRemoteCache"]
+        ),
+        .target(
             // Wrapper target that builds all binaries but does nothing in runtime
             name: "Aggregator",
             dependencies: [
@@ -80,6 +84,7 @@ let package = Package(
                 "xcld",
                 "xcldplusplus",
                 "xclipo",
+                "xcactool"
             ]
         ),
         .testTarget(

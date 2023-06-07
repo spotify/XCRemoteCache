@@ -10,7 +10,7 @@ DERIVED_DATA_DIR = File.join('.build').freeze
 RELEASES_ROOT_DIR = File.join('releases').freeze
 
 EXECUTABLE_NAME = 'XCRemoteCache'
-EXECUTABLE_NAMES = ['xclibtool', 'xcpostbuild', 'xcprebuild', 'xcprepare', 'xcswiftc', 'swiftc', 'xcswift-frontend', 'swift-frontend', 'xcld', 'xcldplusplus', 'xclipo']
+EXECUTABLE_NAMES = ['xclibtool', 'xcpostbuild', 'xcprebuild', 'xcprepare', 'xcswiftc', 'swiftc', 'xcswift-frontend', 'swift-frontend', 'xcld', 'xcldplusplus', 'xclipo', 'xcactool']
 PROJECT_NAME = 'XCRemoteCache'
 
 SWIFTLINT_ENABLED = true

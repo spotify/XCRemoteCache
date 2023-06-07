@@ -38,7 +38,8 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
             ld: binariesDir.appendingPathComponent("xcld"),
             ldplusplus: binariesDir.appendingPathComponent("xcldplusplus"),
             prebuild: binariesDir.appendingPathComponent("xcprebuild"),
-            postbuild: binariesDir.appendingPathComponent("xcpostbuild")
+            postbuild: binariesDir.appendingPathComponent("xcpostbuild"),
+            actool: binariesDir.appendingPathComponent("actool")
         )
     }
 

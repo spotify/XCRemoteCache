@@ -76,6 +76,7 @@ class XcodeProjBuildSettingsIntegrateAppender: BuildSettingsIntegrateAppender {
             )
             setBuildSetting(buildSettings: &result, key: "LIPO", value: wrappers.lipo.path )
             setBuildSetting(buildSettings: &result, key: "LDPLUSPLUS", value: wrappers.ldplusplus.path )
+            setBuildSetting(buildSettings: &result, key: "ASSETCATALOG_EXEC", value: wrappers.actool.path )
         }
 
         let existingSwiftFlags = result["OTHER_SWIFT_FLAGS"] as? String
