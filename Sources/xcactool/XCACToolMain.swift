@@ -60,9 +60,14 @@ public class XCACToolMain {
             exit(1)
         }
 
-        XCACTool(
-            objcOutput: objcOutput,
-            swiftOutput: swiftOutput
-        ).run()
+        do {
+            try XCACTool(
+                args: args,
+                objcOutput: objcOutput,
+                swiftOutput: swiftOutput
+            ).run()
+        } catch {
+            exit(1, "Failed with: \(error). Args: \(args)")
+        }
     }
 }
