@@ -31,6 +31,8 @@ enum MainArtifactSampleMeta {
         platform: "",
         xcode: "",
         inputs: [],
-        pluginsKeys: [:]
+        pluginsKeys: [:],
+        assetsSources: [],
+        assetsSourcesFingerprint: ""
     )
 }

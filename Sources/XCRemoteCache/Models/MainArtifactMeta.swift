@@ -42,4 +42,55 @@ struct MainArtifactMeta: Meta, Equatable {
     var inputs: [String]
     /// Extra keys added by meta plugins
     var pluginsKeys: [String: String]
+    /// A list of internal assets compiler sources that should be verified on a consumer side
+    /// after those derived sources have been generated
+    var assetsSources: [String]
+    /// The cumulative fingerprint of all `assetsSources`
+    var assetsSourcesFingerprint: String
+
+    init(
+        dependencies: [String],
+        fileKey: String,
+        rawFingerprint: String,
+        generationCommit: String,
+        targetName: String,
+        configuration: String,
+        platform: String,
+        xcode: String,
+        inputs: [String],
+        pluginsKeys: [String : String],
+        assetsSources: [String],
+        assetsSourcesFingerprint: String
+    ) {
+        self.dependencies = dependencies
+        self.fileKey = fileKey
+        self.rawFingerprint = rawFingerprint
+        self.generationCommit = generationCommit
+        self.targetName = targetName
+        self.configuration = configuration
+        self.platform = platform
+        self.xcode = xcode
+        self.inputs = inputs
+        self.pluginsKeys = pluginsKeys
+        self.assetsSources = assetsSources
+        self.assetsSourcesFingerprint = assetsSourcesFingerprint
+    }
+
+
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.dependencies = try container.decode([String].self, forKey: .dependencies)
+        self.fileKey = try container.decode(String.self, forKey: .fileKey)
+        self.rawFingerprint = try container.decode(String.self, forKey: .rawFingerprint)
+        self.generationCommit = try container.decode(String.self, forKey: .generationCommit)
+        self.targetName = try container.decode(String.self, forKey: .targetName)
+        self.configuration = try container.decode(String.self, forKey: .configuration)
+        self.platform = try container.decode(String.self, forKey: .platform)
+        self.xcode = try container.decode(String.self, forKey: .xcode)
+        self.inputs = try container.decode([String].self, forKey: .inputs)
+        self.pluginsKeys = try container.decode([String : String].self, forKey: .pluginsKeys)
+        self.assetsSources = (try? container.decode([String].self, forKey: .assetsSources)) ?? []
+        self.assetsSourcesFingerprint = (try? container.decode(String.self, forKey: .assetsSourcesFingerprint)) ?? ""
+    }
 }

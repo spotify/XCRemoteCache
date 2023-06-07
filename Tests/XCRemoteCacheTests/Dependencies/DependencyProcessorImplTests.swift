@@ -45,7 +45,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
         )
 
         XCTAssertEqual(
-            processor.process([intermediateFile]),
+            processor.process([intermediateFile]).fingerprintScoped,
             []
         )
     }
@@ -63,7 +63,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
         )
 
         XCTAssertEqual(
-            processor.process([bundleFile]),
+            processor.process([bundleFile]).fingerprintScoped,
             []
         )
     }
@@ -73,7 +73,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
             "/DerivedFiles/ModuleName-Swift.h",
         ])
 
-        XCTAssertEqual(dependencies, [])
+        XCTAssertEqual(dependencies.fingerprintScoped, [])
     }
 
     func testFiltersOutDerivedFile() throws {
@@ -81,7 +81,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
             "/DerivedFiles/output.h",
         ])
 
-        XCTAssertEqual(dependencies, [])
+        XCTAssertEqual(dependencies.fingerprintScoped, [])
     }
 
     func testFiltersOutProductModulemap() throws {
@@ -89,7 +89,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
             "/Product/some.modulemap",
         ])
 
-        XCTAssertEqual(dependencies, [])
+        XCTAssertEqual(dependencies.fingerprintScoped, [])
     }
 
     func testDoesNotFilterOutOtherProductModulemap() throws {
@@ -97,7 +97,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
             "/ProductOther/some.modulemap",
         ])
 
-        XCTAssertEqual(dependencies, [.init(url: "/ProductOther/some.modulemap", type: .unknown)])
+        XCTAssertEqual(dependencies.fingerprintScoped, [.init(url: "/ProductOther/some.modulemap", type: .unknown)])
     }
 
     func testDoesNotFilterOutNonProductModulemap() throws {
@@ -105,7 +105,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
             "/Source/some.modulemap",
         ])
 
-        XCTAssertEqual(dependencies, [.init(url: "/Source/some.modulemap", type: .source)])
+        XCTAssertEqual(dependencies.fingerprintScoped, [.init(url: "/Source/some.modulemap", type: .source)])
     }
 
     func testFiltersOutXcodeFiles() throws {
@@ -113,7 +113,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
             "/Xcode/some",
         ])
 
-        XCTAssertEqual(dependencies, [])
+        XCTAssertEqual(dependencies.fingerprintScoped, [])
     }
 
     func testFiltersOutIntermediateFiles() throws {
@@ -121,7 +121,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
             "/Intermediate/some",
         ])
 
-        XCTAssertEqual(dependencies, [])
+        XCTAssertEqual(dependencies.fingerprintScoped, [])
     }
 
     func testFiltersOutBundleFiles() throws {
@@ -129,7 +129,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
             "/Bundle/some",
         ])
 
-        XCTAssertEqual(dependencies, [])
+        XCTAssertEqual(dependencies.fingerprintScoped, [])
     }
 
     func testDoesNotFilterOutUnknownFiles() throws {
@@ -137,7 +137,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
             "/xxx/some",
         ])
 
-        XCTAssertEqual(dependencies, [.init(url: "/xxx/some", type: .unknown)])
+        XCTAssertEqual(dependencies.fingerprintScoped, [.init(url: "/xxx/some", type: .unknown)])
     }
 
     func testFiltersOutIntermediateBySymlink() throws {
@@ -167,7 +167,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
             intermediateFileSymlink,
         ])
 
-        XCTAssertEqual(dependencies, [])
+        XCTAssertEqual(dependencies.fingerprintScoped, [])
     }
 
     func testDoesNotFilterOutSourceBySymlink() throws {
@@ -197,7 +197,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
             sourceFileSymlink,
         ])
 
-        XCTAssertEqual(dependencies, [.init(url: sourceFileSymlink, type: .source)])
+        XCTAssertEqual(dependencies.fingerprintScoped, [.init(url: sourceFileSymlink, type: .source)])
     }
 
     /**
@@ -229,7 +229,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
         )
 
         XCTAssertEqual(
-            processor.process([derivedFile]),
+            processor.process([derivedFile]).fingerprintScoped,
             []
         )
     }
@@ -247,7 +247,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
         )
 
         XCTAssertEqual(
-            processor.process([source]),
+            processor.process([source]).fingerprintScoped,
             []
         )
     }
@@ -265,7 +265,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
         )
 
         XCTAssertEqual(
-            processor.process([derivedModulemap]),
+            processor.process([derivedModulemap]).fingerprintScoped,
             []
         )
     }
@@ -283,7 +283,7 @@ class DependencyProcessorImplTests: FileXCTestCase {
         )
 
         XCTAssertEqual(
-            processor.process([source]),
+            processor.process([source]).fingerprintScoped,
             [.init(url: source, type: .source)]
         )
     }

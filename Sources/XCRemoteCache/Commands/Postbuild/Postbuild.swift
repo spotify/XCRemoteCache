@@ -124,7 +124,7 @@ class Postbuild {
     public func generateFingerprintOverrides() throws {
         // Compute a local fingerprint and decorate the .swiftmodule files
         let dependencies = try generateDependencies()
-        let fingerprint = try generateFingerprint(dependencies)
+        let fingerprint = try generateFingerprint(dependencies.fingerprintScoped)
         try generateFingerprintOverrides(contextSpecificFingerprint: fingerprint.contextSpecific)
     }
 
@@ -147,13 +147,15 @@ class Postbuild {
     /// Builds an artifact package and uploads it to the remote server
     public func performBuildUpload(for commit: String) throws {
         let dependencies = try generateDependencies()
-        let localFingerprint = try generateFingerprint(dependencies)
+        let localFingerprint = try generateFingerprint(dependencies.fingerprintScoped)
+        let assetsSourcesFingerprint = try generateFingerprint(dependencies.assetSources)
         // Filekey has to be unique for the context to not mix builds Debug/Release, iphonesimulator/iphoneos etc
         let fileKey = localFingerprint.contextSpecific
         // Replace all local paths to the generic ones (e.g. $SRCROOT)
         let remappers = [remapper] + creatorPlugins.compactMap(\.customPathsRemapper)
         let remapper = DependenciesRemapperComposite(remappers)
-        let abstractFingerprintFiles = try remapper.replace(localPaths: dependencies.map(\.path))
+        let abstractFingerprintFiles = try remapper.replace(localPaths: dependencies.fingerprintScoped.map(\.path))
+        let abstractAssetsSourcesFiles = try remapper.replace(localPaths: dependencies.assetSources.map(\.path))
         // TODO: use `inputs` read by dependenciesReader
         var meta = MainArtifactMeta(
             dependencies: abstractFingerprintFiles,
@@ -165,7 +167,9 @@ class Postbuild {
             platform: context.platform,
             xcode: context.xcodeBuildNumber,
             inputs: [],
-            pluginsKeys: [:]
+            pluginsKeys: [:],
+            assetsSources: abstractAssetsSourcesFiles,
+            assetsSourcesFingerprint: assetsSourcesFingerprint.raw
         )
         meta = try creatorPlugins.reduce(meta) { prevMeta, plugin in
             var meta = prevMeta
@@ -204,12 +208,14 @@ class Postbuild {
         try modeController.enable(allowedInputFiles: [], dependencies: [executableURL])
     }
 
+    typealias GenerateDependenciesResult = (fingerprintScoped: [URL], assetSources: [URL])
     /// Reads all relevant dependencies (e.g. Xcode-embedded dependencies are skipped)
-    private func generateDependencies() throws -> [URL] {
+    private func generateDependencies() throws -> GenerateDependenciesResult {
         let dependencies = try dependenciesReader.findDependencies().map(URL.init(fileURLWithPath:))
         let processedDependencies = dependencyProcessor.process(dependencies)
-        let fingerprintFiles = processedDependencies.map(fingerprintOverrideManager.getFingerprintFile)
-        return fingerprintFiles.map { $0.url }
+        let fingerprintFiles = processedDependencies.fingerprintScoped.map(fingerprintOverrideManager.getFingerprintFile)
+        let assetsSourceFiles = processedDependencies.assetsSource.map(fingerprintOverrideManager.getFingerprintFile)
+        return (fingerprintScoped: fingerprintFiles.map { $0.url }, assetSources: assetsSourceFiles.map { $0.url })
     }
 
     private func generateFingerprint(_ files: [URL]) throws -> Fingerprint {
