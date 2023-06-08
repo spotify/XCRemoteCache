@@ -61,6 +61,8 @@ public struct XCRemoteCacheConfig: Encodable {
     var swiftcCommand: String = "swiftc"
     /// Command for a standard Swift frontend compilation (swift-frontend)
     var swiftFrontendCommand: String = "swift-frontend"
+    /// Command for the assets catalog tool. By default takes from a symlink that points to the default Xcode location
+    var actoolCommand: String = "/var/db/xcode_select_link/usr/bin/actool"
     /// Path of the primary repository that produces cache artifacts
     var primaryRepo: String = ""
     /// Main (primary) branch that produces cache artifacts (default to 'master')
@@ -177,6 +179,7 @@ extension XCRemoteCacheConfig {
         merge.modeMarkerPath = scheme.modeMarkerPath ?? modeMarkerPath
         merge.clangCommand = scheme.clangCommand ?? clangCommand
         merge.swiftcCommand = scheme.swiftcCommand ?? swiftcCommand
+        merge.actoolCommand = scheme.actoolCommand ?? actoolCommand
         merge.primaryRepo = scheme.primaryRepo ?? primaryRepo
         merge.primaryBranch = scheme.primaryBranch ?? primaryBranch
         merge.repoRoot = scheme.repoRoot ?? repoRoot
@@ -250,6 +253,7 @@ struct ConfigFileScheme: Decodable {
     let modeMarkerPath: String?
     let clangCommand: String?
     let swiftcCommand: String?
+    let actoolCommand: String?
     let primaryRepo: String?
     let primaryBranch: String?
     let repoRoot: String?
@@ -302,6 +306,7 @@ struct ConfigFileScheme: Decodable {
         case modeMarkerPath = "mode_marker_path"
         case clangCommand = "clang_command"
         case swiftcCommand = "swiftc_command"
+        case actoolCommand = "actool_command"
         case primaryRepo = "primary_repo"
         case primaryBranch = "primary_branch"
         case repoRoot = "repo_root"

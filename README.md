@@ -323,6 +323,7 @@ Note: This step is not required if at least one of these is true:
 | `mode_marker_path` | Path, relative to `$TARGET_TEMP_DIR`, of a maker file to enable or disable the remote cache for a given target. Includes a list of all allowed input files to use remote cache | `rc.enabled` | ⬜️ |
 | `clang_command` | Command for a standard C compilation fallback | `clang` | ⬜️ |
 | `swiftc_command` | Command for a standard Swift compilation fallback | `swiftc` | ⬜️ |
+| `actool_command` | Command for the assets catalog tool. _By default uses a symlink that points to the default Xcode location's actool_ | `/var/db/xcode_select_link/usr/bin/actool` | ⬜️ |
 | `primary_repo` | Address of the primary git repository that produces cache artifacts (case-sensitive) | N/A | ✅ |
 | `primary_branch` | The main (primary) branch on the `primary_repo` that produces cache artifacts | `master` | ⬜️ |
 | `repo_root` | The path to the git repo root | `"."` | ⬜️ |

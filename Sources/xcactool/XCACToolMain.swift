@@ -47,14 +47,12 @@ public class XCACToolMain {
             // - compiling asset(s)
             // etc.
 
-            // TODO: take the actool from DERIVED_DATA (not global one)
-            let ldCommand = "actool"
-            print("Fallbacking to compilation using \(ldCommand).")
+            let acCommand = "/var/db/xcode_select_link/usr/bin/actool"
 
             let args = ProcessInfo().arguments
-            let paramList = [ldCommand] + args.dropFirst()
+            let paramList = [acCommand] + args.dropFirst()
             let cargs = paramList.map { strdup($0) } + [nil]
-            execvp(ldCommand, cargs)
+            execvp(acCommand, cargs)
 
             /// C-function `execv` returns only when the command fails
             exit(1)

@@ -19,41 +19,6 @@
 
 import Foundation
 
-enum XCACToolError: Error {
-    /// none of ObjC or Swift source output is defined
-    case noOutputFile
-}
-
-struct ACToolContext {
-    let tempDir: URL
-    let objcOutput: URL?
-    let swiftOutput: URL?
-    let markerURL: URL
-
-    init(
-        config: XCRemoteCacheConfig,
-        objcOutput: String?,
-        swiftOutput: String?
-    ) throws {
-        self.objcOutput = objcOutput.map(URL.init(fileURLWithPath:))
-        self.swiftOutput = swiftOutput.map(URL.init(fileURLWithPath:))
-
-        // infer the target from either objc or swift
-        guard let sourceOutputFile = self.objcOutput ?? self.swiftOutput else {
-            throw XCACToolError.noOutputFile
-        }
-
-        // sourceOutputFile has a format $TARGET_TEMP_DIR/DerivedSources/GeneratedAssetSymbols.{swift|h}
-        // That may be subject to change for other Xcode versions
-        self.tempDir = sourceOutputFile
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-
-        self.markerURL = tempDir.appendingPathComponent(config.modeMarkerPath)
-    }
-}
-
 public class XCACTool {
 
     private let args: [String]
@@ -75,7 +40,8 @@ public class XCACTool {
     public func run() throws {
         // Alternatively, read $PWD
         let currentDir = FileManager.default.currentDirectoryPath
-        let fileAccessor: FileAccessor = FileManager.default
+        let fileManager = FileManager.default
+        let fileAccessor: FileAccessor = fileManager
         let config: XCRemoteCacheConfig
         let context: ACToolContext
         let srcRoot: URL = URL(fileURLWithPath: currentDir)
@@ -89,18 +55,41 @@ public class XCACTool {
 
         let markerReader = FileMarkerReader(context.markerURL, fileManager: fileAccessor)
         let markerWriter = FileMarkerWriter(context.markerURL, fileAccessor: fileAccessor)
+        let fingerprintAccumulator = FingerprintAccumulatorImpl(algorithm: MD5Algorithm(), fileManager: fileManager)
+        let metaPathProvider = ArtifactMetaPathProvider(artifactLocation: context.activeArtifactLocation, dirScanner: fileManager)
+        let metaReader = JsonMetaReader(fileAccessor: fileManager)
 
         // 0. Let the command run
-        try fallbackToDefaultAndWait(command: "actool", args: args)
+        try fallbackToDefaultAndWait(command: config.actoolCommand, args: args)
 
-        // 1. do nothing if the RC is disabled
-        guard markerReader.canRead() else {
-            return
+        let acTool = ACTool(
+            markerReader: markerReader,
+            markerWriter: markerWriter,
+            metaReader: metaReader,
+            fingerprintAccumulator: fingerprintAccumulator,
+            metaPathProvider: metaPathProvider
+        )
+
+        let acResult: ACToolResult
+        do {
+            acResult = try acTool.run()
+        } catch {
+            infoLog("\(config.actoolCommand) wrapper cannot recognize compare fingerprints with an error \(error)")
+            acResult = .cacheMiss
         }
 
-        // 2. Read meta's sources files & fingerprint
-        // 3. Compare local vs meta's fingerprint
-        // 4. Disable RC if the is fingerprint doesn't match
+        do {
+            switch acResult {
+            case .cacheHit(let dependencies):
+                try markerWriter.enable(dependencies: dependencies)
+            default:
+                try markerWriter.disable()
+            }
+        } catch {
+            // separate invocations as os_log truncates long messages
+            errorLog("Failure in \(config.actoolCommand) marker setup with cache \(acResult)")
+            errorLog("\(error)")
+        }
     }
 
     private func fallbackToDefaultAndWait(command: String = "actool", args: [String]) throws {
@@ -116,3 +105,4 @@ public class XCACTool {
         }
     }
 }
+

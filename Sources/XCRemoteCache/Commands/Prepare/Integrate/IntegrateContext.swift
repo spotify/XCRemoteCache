@@ -64,7 +64,7 @@ extension IntegrateContext {
             ldplusplus: binariesDir.appendingPathComponent("xcldplusplus"),
             prebuild: binariesDir.appendingPathComponent("xcprebuild"),
             postbuild: binariesDir.appendingPathComponent("xcpostbuild"),
-            actool: binariesDir.appendingPathComponent("xcactool")
+            actool: binariesDir.appendingPathComponent("actool")
         )
         self.buildSettingsAppenderOptions = buildSettingsAppenderOptions
     }

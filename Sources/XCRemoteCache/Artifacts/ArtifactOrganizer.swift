@@ -47,6 +47,8 @@ protocol ArtifactOrganizer {
 }
 
 class ZipArtifactOrganizer: ArtifactOrganizer {
+    static let activeArtifactLocation = "active"
+
     private let cacheDir: URL
     // all processors that should "prepare" the unzipped raw artifact
     private let artifactProcessors: [ArtifactProcessor]
@@ -63,7 +65,7 @@ class ZipArtifactOrganizer: ArtifactOrganizer {
     }
 
     func getActiveArtifactLocation() -> URL {
-        return cacheDir.appendingPathComponent("active")
+        return cacheDir.appendingPathComponent(Self.self.activeArtifactLocation)
     }
 
     func getActiveArtifactFilekey() throws -> String {
@@ -90,18 +92,25 @@ class ZipArtifactOrganizer: ArtifactOrganizer {
         let destinationURL = artifact.deletingPathExtension()
         guard fileManager.fileExists(atPath: destinationURL.path) == false else {
             infoLog("Skipping artifact, already existing at \(destinationURL)")
+            try runArtifactProcessors(artifactLocation: destinationURL)
             return destinationURL
         }
-        // Uzipping to a temp file first to never leave the uncompleted zip in the final location
+        // Unzipping to a temp file first to never leave the uncompleted zip in the final location
         // when the command was interrupted (internal crash or `kill -9` signal)
         let tempDestination = destinationURL.appendingPathExtension("tmp")
         try Zip.unzipFile(artifact, destination: tempDestination, overwrite: true, password: nil)
 
-        try artifactProcessors.forEach { processor in
-            try processor.process(rawArtifact: tempDestination)
-        }
         try fileManager.moveItem(at: tempDestination, to: destinationURL)
+        try runArtifactProcessors(artifactLocation: destinationURL)
         return destinationURL
+    }
+
+    /// Iterates all processor when an artifact has been just downloaded or reused from already downloaded
+    /// and previously processed location
+    private func runArtifactProcessors(artifactLocation: URL) throws {
+        try artifactProcessors.forEach { processor in
+            try processor.process(rawArtifact: artifactLocation)
+        }
     }
 
     func activate(extractedArtifact: URL) throws {
