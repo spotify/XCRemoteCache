@@ -50,9 +50,10 @@ struct ACToolContext {
         self.tempDir = sourceOutputFile
             .deletingLastPathComponent()
             .deletingLastPathComponent()
-            .deletingLastPathComponent()
 
         self.markerURL = tempDir.appendingPathComponent(config.modeMarkerPath)
-        activeArtifactLocation = tempDir.appendingPathComponent(ZipArtifactOrganizer.activeArtifactLocation)
+        activeArtifactLocation = tempDir
+            .appendingPathComponent("xccache")
+            .appendingPathComponent(ZipArtifactOrganizer.activeArtifactLocation)
     }
 }

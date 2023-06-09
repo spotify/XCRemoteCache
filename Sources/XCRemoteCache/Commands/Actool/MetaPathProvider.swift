@@ -47,7 +47,9 @@ class ArtifactMetaPathProvider: MetaPathProvider {
     func getMetaPath() throws -> URL {
         let items = try dirScanner.items(at: artifactLocation)
         guard let meta = items.first(where: { $0.pathExtension == "json" }) else {
-            throw MetaPathProviderError.failed(message: "artifact \(artifactLocation) doesn't contain expected .json with a meta")
+            throw MetaPathProviderError.failed(
+                message: "artifact \(artifactLocation) doesn't contain expected .json with a meta"
+            )
         }
         return meta
     }
