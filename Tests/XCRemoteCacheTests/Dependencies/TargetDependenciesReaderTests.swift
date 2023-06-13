@@ -23,6 +23,7 @@ import XCTest
 class TargetDependenciesReaderTests: XCTestCase {
 
     private let workingURL: URL = "/test"
+    private let assetsWorkingURL: URL = "/assetsTest"
     private var dirAccessor: DirAccessorFake!
     private var reader: TargetDependenciesReader!
 
@@ -35,9 +36,15 @@ class TargetDependenciesReaderTests: XCTestCase {
             let fakeDependency = url.deletingPathExtension().appendingPathExtension("swift")
             return DependenciesReaderFake(dependencies: ["": [fakeDependency.path]])
         }
+        let assetsFakeDependencyReaderFactory: (URL) -> DependenciesReader = { url in
+            let fakeDependency = url.deletingLastPathComponent().appendingPathComponent("Contents.json")
+            return DependenciesReaderFake(dependencies: ["": [fakeDependency.path]])
+        }
         reader = TargetDependenciesReader(
-            workingURL,
+            compilationOutputDir: workingURL,
+            assetsCatalogOutputDir: assetsWorkingURL,
             fileDependeciesReaderFactory: swiftFakeDependencyReaderFactory,
+            assetsDependeciesReaderFactory: assetsFakeDependencyReaderFactory,
             dirScanner: dirAccessor
         )
     }

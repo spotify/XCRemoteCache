@@ -21,26 +21,33 @@ import Foundation
 
 /// Reads and aggregates all compilation dependencies from a single directory
 class TargetDependenciesReader: DependenciesReader {
-    private let directory: URL
+    private let compilationDirectory: URL
+    private let assetsCatalogOutputDir: URL
     private let dirScanner: DirScanner
     private let fileDependeciesReaderFactory: (URL) -> DependenciesReader
+    private let assetsDependeciesReaderFactory: (URL) -> DependenciesReader
 
     public init(
-        _ directory: URL,
+        compilationOutputDir: URL,
+        assetsCatalogOutputDir: URL,
         fileDependeciesReaderFactory: @escaping (URL) -> DependenciesReader,
+        assetsDependeciesReaderFactory: @escaping (URL) -> DependenciesReader,
         dirScanner: DirScanner
     ) {
-        self.directory = directory
+        self.compilationDirectory = compilationOutputDir
+        self.assetsCatalogOutputDir = assetsCatalogOutputDir
         self.dirScanner = dirScanner
         self.fileDependeciesReaderFactory = fileDependeciesReaderFactory
+        self.assetsDependeciesReaderFactory = assetsDependeciesReaderFactory
     }
 
     // Optimized way of finding dependencies only for files that have corresponding .o file on a disk
+    // includes also inputs to the `actool` assets generator
     public func findDependencies() throws -> [String] {
         // Not calling `readFilesAndDependencies` as it may unnecessary call expensive `findDependencies()` for
         // files that eventually will not be considered
-        let allURLs = try dirScanner.items(at: directory)
-        let mergedDependencies = try allURLs.reduce(Set<String>()) { (prev: Set<String>, file) in
+        let allCompilationOutputURLs = try dirScanner.items(at: compilationDirectory)
+        var mergedDependencies = try allCompilationOutputURLs.reduce(Set<String>()) { (prev: Set<String>, file) in
             // include only these .d files that either have corresponding .o file (incremental) or end
             // with '-master' (whole-module)
             // Otherwise .d is probably just a leftover from previous builds
@@ -55,7 +62,21 @@ class TargetDependenciesReader: DependenciesReader {
 
             return try prev.union(fileDependeciesReaderFactory(file).findDependencies())
         }
+        try mergedDependencies.formUnion(findAssetsCatalogDependencies())
         return Array(mergedDependencies).sorted()
+    }
+
+    // find all
+    private func findAssetsCatalogDependencies() throws -> Set<String>{
+        let allAssetsOutputDirURLs = try dirScanner.items(at: assetsCatalogOutputDir)
+        let mergedDependencies = try allAssetsOutputDirURLs.reduce(Set<String>()) { (prev: Set<String>, file) in
+            if file.lastPathComponent == "assetcatalog_dependencies" {
+                // as of Xcode 15, the dependencies in assets are always created in the same path
+                return try prev.union(assetsDependeciesReaderFactory(file).findDependencies())
+            }
+            return prev
+        }
+        return mergedDependencies
     }
 
     public func findInputs() throws -> [String] {
@@ -63,7 +84,7 @@ class TargetDependenciesReader: DependenciesReader {
     }
 
     public func readFilesAndDependencies() throws -> [String: [String]] {
-        let allURLs = try dirScanner.items(at: directory)
+        let allURLs = try dirScanner.items(at: compilationDirectory)
         return try allURLs.reduce([String: [String]]()) { prev, file in
             var new = prev
             new[file.path] = try fileDependeciesReaderFactory(file).findDependencies()
