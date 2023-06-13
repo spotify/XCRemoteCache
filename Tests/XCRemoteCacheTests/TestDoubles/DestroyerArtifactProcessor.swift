@@ -35,4 +35,3 @@ class DestroyerArtifactProcessor: ArtifactProcessor {
         try dirAccesor.removeItem(atPath: url.path)
     }
 }
-
