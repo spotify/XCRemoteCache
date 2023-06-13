@@ -72,7 +72,7 @@ class TargetDependenciesReader: DependenciesReader {
     // find all assets dependencies, which are always
     private func findAssetsCatalogDependencies() throws -> Set<String>{
         let expectedAssetsDepsFile = assetsCatalogOutputDir.appendingPathComponent(Self.assetsDependenciesFilename)
-        guard try dirScanner.itemType(atPath: assetsCatalogOutputDir.path) == .file else {
+        guard try dirScanner.itemType(atPath: expectedAssetsDepsFile.path) == .file else {
             return []
         }
         return try Set(assetsDependeciesReaderFactory(expectedAssetsDepsFile).findDependencies())
