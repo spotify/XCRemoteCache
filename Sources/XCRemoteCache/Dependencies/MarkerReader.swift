@@ -22,12 +22,12 @@ import Foundation
 /// Reads a list of files from a marker file
 class FileMarkerReader: ListReader {
     private let file: URL
-    private let fileManager: FileManager
+    private let fileReader: FileReader
     private var cachedFiles: [URL]?
 
-    init(_ file: URL, fileManager: FileManager) {
+    init(_ file: URL, fileManager: FileReader) {
         self.file = file
-        self.fileManager = fileManager
+        self.fileReader = fileManager
     }
 
     func listFilesURLs() throws -> [URL] {
@@ -45,6 +45,6 @@ class FileMarkerReader: ListReader {
     }
 
     func canRead() -> Bool {
-        return fileManager.fileExists(atPath: file.path)
+        return fileReader.fileExists(atPath: file.path)
     }
 }
