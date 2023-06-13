@@ -156,4 +156,39 @@ class ZipArtifactOrganizerTests: XCTestCase {
 
         XCTAssertEqual(fileKey, expectedFileKey)
     }
+
+    func testPrepareRunsProcessorsForAlreadyExistingArtifacts() throws {
+        let zipURL = try prepareZipFile(content: "Magic", fileName: "content.txt")
+        let artifactURL = zipURL.deletingPathExtension()
+        let processor = DestroyerArtifactProcessor(fileManager)
+        let organizer: ZipArtifactOrganizer = ZipArtifactOrganizer(
+            targetTempDir: workingDirectory,
+            artifactProcessors: [processor],
+            fileManager: fileManager
+        )
+        try fileManager.createDirectory(
+            at: artifactURL,
+            withIntermediateDirectories: true
+        )
+
+        let preparedArtifact = try organizer.prepare(artifact: zipURL)
+
+        XCTAssertFalse(fileManager.fileExists(atPath: preparedArtifact.path))
+
+    }
+
+    func testPrepareRunsProcessorsForNewlyUnzippedArtifacts() throws {
+        let zipURL = try prepareZipFile(content: "Magic", fileName: "content.txt")
+        let processor = DestroyerArtifactProcessor(fileManager)
+        let organizer: ZipArtifactOrganizer = ZipArtifactOrganizer(
+            targetTempDir: workingDirectory,
+            artifactProcessors: [processor],
+            fileManager: fileManager
+        )
+
+        let preparedArtifact = try organizer.prepare(artifact: zipURL)
+
+        XCTAssertFalse(fileManager.fileExists(atPath: preparedArtifact.path))
+    }
+
 }
