@@ -154,7 +154,7 @@ public class XCPostbuild {
                 FileDependenciesReader($0, accessor: fileManager)
             }
             let assetsFileDependenciesFactory: (URL) -> DependenciesReader = {
-                AssetsFileDependenciesReader($0, accessor: fileManager)
+                AssetsFileDependenciesReader($0, dirAccessor: fileManager)
             }
             let dependenciesReader = TargetDependenciesReader(
                 compilationOutputDir: context.compilationTempDir,

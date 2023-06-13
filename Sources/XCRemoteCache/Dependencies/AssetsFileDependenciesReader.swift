@@ -20,13 +20,13 @@
 import Foundation
 
 /// Parser for `assetcatalog_dependencies` file
-public class AssetsFileDependenciesReader: DependenciesReader {
+class AssetsFileDependenciesReader: DependenciesReader {
     private let file: URL
-    private let fileManager: FileManager
+    private let dirAccessor: DirAccessor
 
-    public init(_ file: URL, accessor: FileManager) {
+    public init(_ file: URL, dirAccessor: DirAccessor) {
         self.file = file
-        fileManager = accessor
+        self.dirAccessor = dirAccessor
     }
 
     public func findDependencies() throws -> [String] {
@@ -44,9 +44,14 @@ public class AssetsFileDependenciesReader: DependenciesReader {
     private func findAllDependencies() throws -> [String] {
         let fileData = try getFileData()
         // all dependency files are separated by the \0 byte
+        // each path has a file type prefix:
+        // 0x10 - directory
+        // 0x40 - file
+        // We only care about dirs, as *.xcassets is a folder
         let pathDatas = fileData.split(separator: 0x0)
         let paths = pathDatas
-            .map { String(data: $0, encoding: .utf8)! }
+            .filter { !$0.isEmpty && $0.first == 0x10 }
+            .map { String(data: $0.dropFirst(), encoding: .utf8)! }
             .map (URL.init(fileURLWithPath:))
         let xcassetsPaths = paths.filter { path in
             path.pathExtension == "xcassets"
@@ -55,13 +60,13 @@ public class AssetsFileDependenciesReader: DependenciesReader {
     }
 
     private func findAssetsContentJsons(xcasset: URL) throws -> [String] {
-        return try fileManager.recursiveItems(at: xcasset).filter { url in
+        return try dirAccessor.recursiveItems(at: xcasset).filter { url in
             url.lastPathComponent == "Contents.json"
         }.map(\.path)
     }
 
     private func getFileData() throws -> Data {
-        guard let fileData = fileManager.contents(atPath: file.path) else {
+        guard let fileData = try dirAccessor.contents(atPath: file.path) else {
             throw DependenciesReaderError.readingError
         }
         return fileData

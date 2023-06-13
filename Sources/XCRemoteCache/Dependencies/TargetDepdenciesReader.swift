@@ -21,6 +21,8 @@ import Foundation
 
 /// Reads and aggregates all compilation dependencies from a single directory
 class TargetDependenciesReader: DependenciesReader {
+    // As of Xcode15, the filename is static
+    private static let assetsDependenciesFilename = "assetcatalog_dependencies"
     private let compilationDirectory: URL
     private let assetsCatalogOutputDir: URL
     private let dirScanner: DirScanner
@@ -62,21 +64,18 @@ class TargetDependenciesReader: DependenciesReader {
 
             return try prev.union(fileDependeciesReaderFactory(file).findDependencies())
         }
+        // include also dependencies from optional assets compilation (`actool`)
         try mergedDependencies.formUnion(findAssetsCatalogDependencies())
         return Array(mergedDependencies).sorted()
     }
 
-    // find all
+    // find all assets dependencies, which are always
     private func findAssetsCatalogDependencies() throws -> Set<String>{
-        let allAssetsOutputDirURLs = try dirScanner.items(at: assetsCatalogOutputDir)
-        let mergedDependencies = try allAssetsOutputDirURLs.reduce(Set<String>()) { (prev: Set<String>, file) in
-            if file.lastPathComponent == "assetcatalog_dependencies" {
-                // as of Xcode 15, the dependencies in assets are always created in the same path
-                return try prev.union(assetsDependeciesReaderFactory(file).findDependencies())
-            }
-            return prev
+        let expectedAssetsDepsFile = assetsCatalogOutputDir.appendingPathComponent(Self.assetsDependenciesFilename)
+        guard try dirScanner.itemType(atPath: assetsCatalogOutputDir.path) == .file else {
+            return []
         }
-        return mergedDependencies
+        return try Set(assetsDependeciesReaderFactory(expectedAssetsDepsFile).findDependencies())
     }
 
     public func findInputs() throws -> [String] {
