@@ -434,7 +434,7 @@ class SwiftcTests: FileXCTestCase {
         )
     }
 
-    func testGeneratesDFilesPerModuleAndIndividualFilesWithAdditionallyAllowedFiles() throws {
+    func testGeneratesDFilesAndIndividualFilesWithAdditionallyAllowedFiles() throws {
         let outputFilesDir = workingDir.appendingPathComponent("outputFiles")
         try fileManager.spt_createEmptyDir(outputFilesDir)
         let moduleDFile = outputFilesDir.appendingPathComponent("master.d")
@@ -475,14 +475,12 @@ class SwiftcTests: FileXCTestCase {
 
         _ = try swiftc.mockCompilation()
 
-        let moduleDReader = FileDependenciesReader(moduleDFile, accessor: .default)
-        let fileDReader = FileDependenciesReader(fileDFile, accessor: .default)
         XCTAssertEqual(
-            try moduleDReader.readFilesAndDependencies(),
+            try FileDependenciesReader(moduleDFile, accessor: .default).readFilesAndDependencies(),
             ["dependencies": ["/magicalFile.swift"]]
         )
         XCTAssertEqual(
-            try fileDReader.readFilesAndDependencies(),
+            try FileDependenciesReader(fileDFile, accessor: .default).readFilesAndDependencies(),
             ["dependencies": ["/magicalFile.swift"]]
         )
     }

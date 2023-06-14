@@ -39,7 +39,7 @@ class AssetsFileDependenciesReader: DependenciesReader {
         exit(1, "TODO: implement")
     }
 
-    public func readFilesAndDependencies() throws -> [String : [String]] {
+    public func readFilesAndDependencies() throws -> [String: [String]] {
         return try ["": findAllDependencies()]
     }
 
@@ -54,7 +54,7 @@ class AssetsFileDependenciesReader: DependenciesReader {
         let paths = pathDatas
             .filter { !$0.isEmpty && $0.first == 0x10 }
             .map { String(data: $0.dropFirst(), encoding: .utf8)! }
-            .map (URL.init(fileURLWithPath:))
+            .map(URL.init(fileURLWithPath:))
         let xcassetsPaths = paths.filter { path in
             path.pathExtension == "xcassets"
         }

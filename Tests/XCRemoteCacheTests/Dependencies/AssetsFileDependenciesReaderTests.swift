@@ -54,7 +54,7 @@ class AssetsFileDependenciesReaderTests: FileXCTestCase {
 
         let reader = AssetsFileDependenciesReader(file, dirAccessor: dirAccessorFake)
 
-        XCTAssertThrowsError(try reader.findDependencies())  { error in
+        XCTAssertThrowsError(try reader.findDependencies()) { error in
             guard case DependenciesReaderError.readingError = error else {
                 XCTFail("Invalid error \(error)")
                 return
