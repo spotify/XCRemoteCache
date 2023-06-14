@@ -23,6 +23,7 @@ import XCTest
 
 class AssetsFileDependenciesReaderTests: FileXCTestCase {
     private static let resourcesSubdirectory = "TestData/Dependencies/AssetsFileDependenciesReaderTests"
+    private let dirAccessorFake = DirAccessorFake()
 
     private func pathForTestData(name: String) throws -> URL {
         return try XCTUnwrap(Bundle.module.url(
@@ -35,14 +36,9 @@ class AssetsFileDependenciesReaderTests: FileXCTestCase {
     func testParsingSampleFile() throws {
         let file = try pathForTestData(name: "assetcatalog_dependencies_sample")
         let fileData = try Data(contentsOf: file)
-        let xcassetsPath: URL =
-        """
-        /Users/bartosz/Development/XCRemoteCache/e2eTests/\
-        StandaloneSampleApp/StandaloneApp/Assets.xcassets
-        """
+        let xcassetsPath: URL = "/StandaloneApp/Assets.xcassets"
         let contentsJson = xcassetsPath.appendingPathComponent("Contents.json")
 
-        let dirAccessorFake = DirAccessorFake()
         try dirAccessorFake.write(toPath: file.path, contents: fileData)
         try dirAccessorFake.write(toPath: contentsJson.path, contents: Data())
 
@@ -51,5 +47,28 @@ class AssetsFileDependenciesReaderTests: FileXCTestCase {
         let dependencies = try reader.findDependencies()
 
         XCTAssertEqual(dependencies, [contentsJson.path])
+    }
+
+    func testThrowsWhenFileIsMissing() throws {
+        let file: URL = "/nonExistingFile"
+
+        let reader = AssetsFileDependenciesReader(file, dirAccessor: dirAccessorFake)
+
+        XCTAssertThrowsError(try reader.findDependencies())  { error in
+            guard case DependenciesReaderError.readingError = error else {
+                XCTFail("Invalid error \(error)")
+                return
+            }
+        }
+    }
+
+    func testReturnsEmptyArrayIsFileIsMalformed() throws {
+        let file: URL = "/nonExistingFile"
+        try dirAccessorFake.write(toPath: file.path, contents: Data())
+        let reader = AssetsFileDependenciesReader(file, dirAccessor: dirAccessorFake)
+
+        let dependencies = try reader.findDependencies()
+
+        XCTAssertEqual(dependencies, [])
     }
 }

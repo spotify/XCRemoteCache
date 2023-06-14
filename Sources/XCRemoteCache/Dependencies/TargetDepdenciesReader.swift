@@ -69,9 +69,11 @@ class TargetDependenciesReader: DependenciesReader {
         return Array(mergedDependencies).sorted()
     }
 
-    // find all assets dependencies, which are always
+    // finds all assets compilation's dependencies, which are always appended to the list of
+    // files to compare on the consumer side (in the fingerprint comparison)
     private func findAssetsCatalogDependencies() throws -> Set<String>{
-        let expectedAssetsDepsFile = assetsCatalogOutputDir.appendingPathComponent(Self.assetsDependenciesFilename)
+        let expectedAssetsDepsFile = assetsCatalogOutputDir
+            .appendingPathComponent(Self.assetsDependenciesFilename)
         guard try dirScanner.itemType(atPath: expectedAssetsDepsFile.path) == .file else {
             return []
         }

@@ -19,7 +19,8 @@
 
 import Foundation
 
-/// Parser for `assetcatalog_dependencies` file
+/// Parser for `assetcatalog_dependencies` file: an output of the `actool`
+/// that lists all dependencies of this command
 class AssetsFileDependenciesReader: DependenciesReader {
     private let file: URL
     private let dirAccessor: DirAccessor
@@ -34,6 +35,7 @@ class AssetsFileDependenciesReader: DependenciesReader {
     }
 
     public func findInputs() throws -> [String] {
+        // XCRemoteCache doesn't use it yet
         exit(1, "TODO: implement")
     }
 

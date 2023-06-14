@@ -57,7 +57,7 @@ class Swiftc: SwiftcProtocol {
     private let dependenciesWriterFactory: (URL, FileManager) -> DependenciesWriter
     private let touchFactory: (URL, FileManager) -> Touch
     private let plugins: [SwiftcProductGenerationPlugin]
-    private let allowedInputDeterminer: AllowedInputDeterminer
+    private let allowedInputDeterminer: AllowedInputDeterminer
 
     init(
         inputFileListReader: ListReader,
@@ -88,7 +88,7 @@ class Swiftc: SwiftcProtocol {
         self.plugins = plugins
         self.allowedInputDeterminer = allowedInputDeterminer
     }
-    
+
     // swiftlint:disable:next function_body_length
     func mockCompilation() throws -> SwiftCResult {
         let rcModeEnabled = markerReader.canRead()

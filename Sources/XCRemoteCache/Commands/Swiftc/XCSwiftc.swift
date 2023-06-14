@@ -153,6 +153,7 @@ public class XCSwiftAbstract<InputArgs> {
         )
         let shellOut = ProcessShellOut()
         // Always allow an input file from the actool generation step
+        // As of Xcode15, the filename is confirmed to be static
         let allowedInputDeterminer = FilenameBasedAllowedInputDeterminer(["GeneratedAssetSymbols.swift"])
 
         let swiftc = Swiftc(
