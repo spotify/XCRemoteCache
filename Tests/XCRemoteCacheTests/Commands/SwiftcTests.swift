@@ -40,6 +40,7 @@ class SwiftcTests: FileXCTestCase {
     private var workingDir: URL!
     private var remoteCommitLocation: URL!
     private let sampleRemoteCommit = "bdb321"
+    private var allowedInputDeterminer = FilenameBasedAllowedInputDeterminer([])
 
 
     override func setUpWithError() throws {
@@ -93,7 +94,8 @@ class SwiftcTests: FileXCTestCase {
             fileManager: FileManager.default,
             dependenciesWriterFactory: dependenciesWriterFactory,
             touchFactory: touchFactory,
-            plugins: []
+            plugins: [],
+            allowedInputDeterminer: allowedInputDeterminer
         )
 
         let compilation = try swiftc.mockCompilation()
@@ -115,7 +117,8 @@ class SwiftcTests: FileXCTestCase {
             fileManager: FileManager.default,
             dependenciesWriterFactory: dependenciesWriterFactory,
             touchFactory: touchFactory,
-            plugins: []
+            plugins: [],
+            allowedInputDeterminer: allowedInputDeterminer
         )
 
         let compilation = try swiftc.mockCompilation()
@@ -137,7 +140,8 @@ class SwiftcTests: FileXCTestCase {
             fileManager: FileManager.default,
             dependenciesWriterFactory: dependenciesWriterFactory,
             touchFactory: touchFactory,
-            plugins: []
+            plugins: [],
+            allowedInputDeterminer: allowedInputDeterminer
         )
 
         _ = try swiftc.mockCompilation()
@@ -161,7 +165,8 @@ class SwiftcTests: FileXCTestCase {
             fileManager: FileManager.default,
             dependenciesWriterFactory: dependenciesWriterFactory,
             touchFactory: touchFactory,
-            plugins: []
+            plugins: [],
+            allowedInputDeterminer: allowedInputDeterminer
         )
 
         _ = try swiftc.mockCompilation()
@@ -187,7 +192,8 @@ class SwiftcTests: FileXCTestCase {
             fileManager: FileManager.default,
             dependenciesWriterFactory: dependenciesWriterFactory,
             touchFactory: touchFactory,
-            plugins: []
+            plugins: [],
+            allowedInputDeterminer: allowedInputDeterminer
         )
 
         _ = try swiftc.mockCompilation()
@@ -216,7 +222,8 @@ class SwiftcTests: FileXCTestCase {
             fileManager: FileManager.default,
             dependenciesWriterFactory: dependenciesWriterFactory,
             touchFactory: touchFactory,
-            plugins: []
+            plugins: [],
+            allowedInputDeterminer: allowedInputDeterminer
         )
 
         _ = try swiftc.mockCompilation()
@@ -224,6 +231,30 @@ class SwiftcTests: FileXCTestCase {
         XCTAssertEqual(markerWriter.state, .disabled)
         XCTAssertEqual(writerURL, expectedPrebuildWriterURL)
         XCTAssertEqual(writerSpy.wroteSkipForSha, sampleRemoteCommit)
+    }
+
+    func testAllowsNotAllowedInputFileThatAreAllowedByDeterminer() throws {
+        inputFileListReader = ListReaderFake(files: [URL(fileURLWithPath: "specialFile.swift")])
+        allowedInputDeterminer = FilenameBasedAllowedInputDeterminer(["specialFile.swift"])
+        let swiftc = Swiftc(
+            inputFileListReader: inputFileListReader,
+            markerReader: markerReader,
+            allowedFilesListScanner: allowedFilesListScanner,
+            artifactOrganizer: artifactOrganizer,
+            inputReader: swiftcInputReader,
+            context: context,
+            markerWriter: markerWriter,
+            productsGenerator: productsGenerator,
+            fileManager: FileManager.default,
+            dependenciesWriterFactory: dependenciesWriterFactory,
+            touchFactory: touchFactory,
+            plugins: [],
+            allowedInputDeterminer: allowedInputDeterminer
+        )
+
+        let result = try swiftc.mockCompilation()
+
+        XCTAssertEqual(result, .success)
     }
 
     func testRCTouchesOutputFile() throws {
@@ -265,7 +296,8 @@ class SwiftcTests: FileXCTestCase {
             fileManager: FileManager.default,
             dependenciesWriterFactory: dependenciesWriterFactory,
             touchFactory: touchFactory,
-            plugins: []
+            plugins: [],
+            allowedInputDeterminer: allowedInputDeterminer
         )
 
         _ = try swiftc.mockCompilation()
@@ -305,7 +337,8 @@ class SwiftcTests: FileXCTestCase {
             fileManager: FileManager.default,
             dependenciesWriterFactory: dependenciesWriterFactory,
             touchFactory: touchFactory,
-            plugins: []
+            plugins: [],
+            allowedInputDeterminer: allowedInputDeterminer
         )
 
         _ = try swiftc.mockCompilation()
@@ -340,7 +373,8 @@ class SwiftcTests: FileXCTestCase {
             fileManager: FileManager.default,
             dependenciesWriterFactory: dependenciesWriterFactory,
             touchFactory: touchFactory,
-            plugins: [plugin]
+            plugins: [plugin],
+            allowedInputDeterminer: allowedInputDeterminer
         )
 
         _ = try swiftc.mockCompilation()
@@ -382,7 +416,8 @@ class SwiftcTests: FileXCTestCase {
             fileManager: FileManager.default,
             dependenciesWriterFactory: FileDependenciesWriter.init,
             touchFactory: touchFactory,
-            plugins: []
+            plugins: [],
+            allowedInputDeterminer: allowedInputDeterminer
         )
 
         _ = try swiftc.mockCompilation()
@@ -396,6 +431,57 @@ class SwiftcTests: FileXCTestCase {
         XCTAssertEqual(
             try fileDReader.readFilesAndDependencies(),
             ["dependencies": ["/file1.swift"]]
+        )
+    }
+
+    func testGeneratesDFilesAndIndividualFilesWithAdditionallyAllowedFiles() throws {
+        let outputFilesDir = workingDir.appendingPathComponent("outputFiles")
+        try fileManager.spt_createEmptyDir(outputFilesDir)
+        let moduleDFile = outputFilesDir.appendingPathComponent("master.d")
+        let fileDFile = outputFilesDir.appendingPathComponent("magicalFile.d")
+        let input = SwiftCompilationInfo(
+            info: SwiftModuleCompilationInfo(
+                dependencies: moduleDFile,
+                swiftDependencies: outputFilesDir.appendingPathComponent("master.swiftdeps")
+            ),
+            files: [
+                SwiftFileCompilationInfo(
+                    file: "/magicalFile.swift",
+                    dependencies: fileDFile,
+                    object: outputFilesDir.appendingPathComponent("maficalFile.o"),
+                    swiftDependencies: nil
+                ),
+            ]
+        )
+        inputFileListReader = ListReaderFake(files: ["/magicalFile.swift"])
+        swiftcInputReader = SwiftcInputReaderStub(info: input)
+        markerReader = ListReaderFake(files: [])
+        allowedInputDeterminer = FilenameBasedAllowedInputDeterminer(["magicalFile.swift"])
+        let swiftc = Swiftc(
+            inputFileListReader: inputFileListReader,
+            markerReader: markerReader,
+            allowedFilesListScanner: allowedFilesListScanner,
+            artifactOrganizer: artifactOrganizer,
+            inputReader: swiftcInputReader,
+            context: context,
+            markerWriter: markerWriter,
+            productsGenerator: productsGenerator,
+            fileManager: FileManager.default,
+            dependenciesWriterFactory: FileDependenciesWriter.init,
+            touchFactory: touchFactory,
+            plugins: [],
+            allowedInputDeterminer: allowedInputDeterminer
+        )
+
+        _ = try swiftc.mockCompilation()
+
+        XCTAssertEqual(
+            try FileDependenciesReader(moduleDFile, accessor: .default).readFilesAndDependencies(),
+            ["dependencies": ["/magicalFile.swift"]]
+        )
+        XCTAssertEqual(
+            try FileDependenciesReader(fileDFile, accessor: .default).readFilesAndDependencies(),
+            ["dependencies": ["/magicalFile.swift"]]
         )
     }
 
@@ -429,7 +515,8 @@ class SwiftcTests: FileXCTestCase {
             fileManager: FileManager.default,
             dependenciesWriterFactory: FileDependenciesWriter.init,
             touchFactory: touchFactory,
-            plugins: []
+            plugins: [],
+            allowedInputDeterminer: allowedInputDeterminer
         )
 
         XCTAssertNoThrow(try swiftc.mockCompilation())
@@ -465,7 +552,8 @@ class SwiftcTests: FileXCTestCase {
             fileManager: FileManager.default,
             dependenciesWriterFactory: FileDependenciesWriter.init,
             touchFactory: touchFactory,
-            plugins: []
+            plugins: [],
+            allowedInputDeterminer: allowedInputDeterminer
         )
 
         XCTAssertNoThrow(try swiftc.mockCompilation())

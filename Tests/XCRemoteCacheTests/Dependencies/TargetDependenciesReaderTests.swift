@@ -23,6 +23,7 @@ import XCTest
 class TargetDependenciesReaderTests: XCTestCase {
 
     private let workingURL: URL = "/test"
+    private let assetsWorkingURL: URL = "/assetsTest"
     private var dirAccessor: DirAccessorFake!
     private var reader: TargetDependenciesReader!
 
@@ -35,9 +36,15 @@ class TargetDependenciesReaderTests: XCTestCase {
             let fakeDependency = url.deletingPathExtension().appendingPathExtension("swift")
             return DependenciesReaderFake(dependencies: ["": [fakeDependency.path]])
         }
+        let assetsFakeDependencyReaderFactory: (URL) -> DependenciesReader = { url in
+            let fakeDependency = url.deletingLastPathComponent().appendingPathComponent("Contents.json")
+            return DependenciesReaderFake(dependencies: ["": [fakeDependency.path]])
+        }
         reader = TargetDependenciesReader(
-            workingURL,
-            fileDependeciesReaderFactory: swiftFakeDependencyReaderFactory,
+            compilationOutputDir: workingURL,
+            assetsCatalogOutputDir: assetsWorkingURL,
+            fileDependenciesReaderFactory: swiftFakeDependencyReaderFactory,
+            assetsDependenciesReaderFactory: assetsFakeDependencyReaderFactory,
             dirScanner: dirAccessor
         )
     }
@@ -69,5 +76,14 @@ class TargetDependenciesReaderTests: XCTestCase {
         let deps = try reader.findDependencies()
 
         XCTAssertEqual(deps, ["/test/some-master.swift"])
+    }
+
+    func testFindsAssetsCatalogDependencies() throws {
+        let assetsContentFile: URL = "/assetsTest/assetcatalog_dependencies"
+        try dirAccessor.write(toPath: assetsContentFile.path, contents: Data())
+
+        let deps = try reader.findDependencies()
+
+        XCTAssertEqual(deps, ["/assetsTest/Contents.json"])
     }
 }

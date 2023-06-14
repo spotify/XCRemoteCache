@@ -57,6 +57,7 @@ class Swiftc: SwiftcProtocol {
     private let dependenciesWriterFactory: (URL, FileManager) -> DependenciesWriter
     private let touchFactory: (URL, FileManager) -> Touch
     private let plugins: [SwiftcProductGenerationPlugin]
+    private let allowedInputDeterminer: AllowedInputDeterminer
 
     init(
         inputFileListReader: ListReader,
@@ -70,7 +71,8 @@ class Swiftc: SwiftcProtocol {
         fileManager: FileManager,
         dependenciesWriterFactory: @escaping (URL, FileManager) -> DependenciesWriter,
         touchFactory: @escaping (URL, FileManager) -> Touch,
-        plugins: [SwiftcProductGenerationPlugin]
+        plugins: [SwiftcProductGenerationPlugin],
+        allowedInputDeterminer: AllowedInputDeterminer
     ) {
         self.inputFileListReader = inputFileListReader
         self.markerReader = markerReader
@@ -84,6 +86,7 @@ class Swiftc: SwiftcProtocol {
         self.dependenciesWriterFactory = dependenciesWriterFactory
         self.touchFactory = touchFactory
         self.plugins = plugins
+        self.allowedInputDeterminer = allowedInputDeterminer
     }
 
     // swiftlint:disable:next function_body_length
@@ -96,13 +99,17 @@ class Swiftc: SwiftcProtocol {
 
         let inputFilesInputs = try inputFileListReader.listFilesURLs()
         let markerAllowedFiles = try markerReader.listFilesURLs()
+        let allDependencies = Set(markerAllowedFiles + inputFilesInputs)
         let cachedDependenciesWriterFactory = CachedFileDependenciesWriterFactory(
-            dependencies: markerAllowedFiles,
+            dependencies: Array(allDependencies),
             fileManager: fileManager,
             writerFactory: dependenciesWriterFactory
         )
         // Verify all input files to be present in a marker fileList
-        let disallowedInputs = try inputFilesInputs.filter { try !allowedFilesListScanner.contains($0) }
+        let disallowedInputs = try inputFilesInputs.filter { file in
+            try !allowedFilesListScanner.contains(file) &&
+            !allowedInputDeterminer.allowedNonDependencyInput(file: file)
+        }
 
         if !disallowedInputs.isEmpty {
             // New file (disallowedFile) added without modifying the rest of the feature. Fallback to swiftc and
