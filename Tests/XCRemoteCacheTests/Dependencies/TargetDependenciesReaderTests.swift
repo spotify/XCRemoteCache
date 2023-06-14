@@ -43,8 +43,8 @@ class TargetDependenciesReaderTests: XCTestCase {
         reader = TargetDependenciesReader(
             compilationOutputDir: workingURL,
             assetsCatalogOutputDir: assetsWorkingURL,
-            fileDependeciesReaderFactory: swiftFakeDependencyReaderFactory,
-            assetsDependeciesReaderFactory: assetsFakeDependencyReaderFactory,
+            fileDependenciesReaderFactory: swiftFakeDependencyReaderFactory,
+            assetsDependenciesReaderFactory: assetsFakeDependencyReaderFactory,
             dirScanner: dirAccessor
         )
     }
@@ -76,5 +76,14 @@ class TargetDependenciesReaderTests: XCTestCase {
         let deps = try reader.findDependencies()
 
         XCTAssertEqual(deps, ["/test/some-master.swift"])
+    }
+
+    func testFindsAssetsCatalogDependencies() throws {
+        let assetsContentFile: URL = "/assetsTest/assetcatalog_dependencies"
+        try dirAccessor.write(toPath: assetsContentFile.path, contents: Data())
+
+        let deps = try reader.findDependencies()
+
+        XCTAssertEqual(deps, ["/assetsTest/Contents.json"])
     }
 }

@@ -26,21 +26,21 @@ class TargetDependenciesReader: DependenciesReader {
     private let compilationDirectory: URL
     private let assetsCatalogOutputDir: URL
     private let dirScanner: DirScanner
-    private let fileDependeciesReaderFactory: (URL) -> DependenciesReader
-    private let assetsDependeciesReaderFactory: (URL) -> DependenciesReader
+    private let fileDependenciesReaderFactory: (URL) -> DependenciesReader
+    private let assetsDependenciesReaderFactory: (URL) -> DependenciesReader
 
     public init(
         compilationOutputDir: URL,
         assetsCatalogOutputDir: URL,
-        fileDependeciesReaderFactory: @escaping (URL) -> DependenciesReader,
-        assetsDependeciesReaderFactory: @escaping (URL) -> DependenciesReader,
+        fileDependenciesReaderFactory: @escaping (URL) -> DependenciesReader,
+        assetsDependenciesReaderFactory: @escaping (URL) -> DependenciesReader,
         dirScanner: DirScanner
     ) {
         self.compilationDirectory = compilationOutputDir
         self.assetsCatalogOutputDir = assetsCatalogOutputDir
         self.dirScanner = dirScanner
-        self.fileDependeciesReaderFactory = fileDependeciesReaderFactory
-        self.assetsDependeciesReaderFactory = assetsDependeciesReaderFactory
+        self.fileDependenciesReaderFactory = fileDependenciesReaderFactory
+        self.assetsDependenciesReaderFactory = assetsDependenciesReaderFactory
     }
 
     // Optimized way of finding dependencies only for files that have corresponding .o file on a disk
@@ -62,7 +62,7 @@ class TargetDependenciesReader: DependenciesReader {
                 return prev
             }
 
-            return try prev.union(fileDependeciesReaderFactory(file).findDependencies())
+            return try prev.union(fileDependenciesReaderFactory(file).findDependencies())
         }
         // include also dependencies from optional assets compilation (`actool`)
         try mergedDependencies.formUnion(findAssetsCatalogDependencies())
@@ -75,7 +75,7 @@ class TargetDependenciesReader: DependenciesReader {
         guard try dirScanner.itemType(atPath: expectedAssetsDepsFile.path) == .file else {
             return []
         }
-        return try Set(assetsDependeciesReaderFactory(expectedAssetsDepsFile).findDependencies())
+        return try Set(assetsDependenciesReaderFactory(expectedAssetsDepsFile).findDependencies())
     }
 
     public func findInputs() throws -> [String] {
@@ -86,7 +86,7 @@ class TargetDependenciesReader: DependenciesReader {
         let allURLs = try dirScanner.items(at: compilationDirectory)
         return try allURLs.reduce([String: [String]]()) { prev, file in
             var new = prev
-            new[file.path] = try fileDependeciesReaderFactory(file).findDependencies()
+            new[file.path] = try fileDependenciesReaderFactory(file).findDependencies()
             return new
         }
     }

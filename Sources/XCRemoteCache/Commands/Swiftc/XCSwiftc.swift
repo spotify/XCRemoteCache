@@ -152,6 +152,8 @@ public class XCSwiftAbstract<InputArgs> {
             retrieveIgnoredCommands: [swiftcCommand]
         )
         let shellOut = ProcessShellOut()
+        // Always allow an input file from the actool generation step
+        let allowedInputDeterminer = FilenameBasedAllowedInputDeterminer(["GeneratedAssetSymbols.swift"])
 
         let swiftc = Swiftc(
             inputFileListReader: fileListReader,
@@ -165,7 +167,8 @@ public class XCSwiftAbstract<InputArgs> {
             fileManager: fileManager,
             dependenciesWriterFactory: dependenciesWriterFactory,
             touchFactory: touchFactory,
-            plugins: []
+            plugins: [],
+            allowedInputDeterminer: allowedInputDeterminer
         )
         let orchestrator = SwiftcOrchestrator(
             mode: context.mode,

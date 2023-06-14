@@ -159,8 +159,8 @@ public class XCPostbuild {
             let dependenciesReader = TargetDependenciesReader(
                 compilationOutputDir: context.compilationTempDir,
                 assetsCatalogOutputDir: context.targetTempDir,
-                fileDependeciesReaderFactory: fileReaderFactory,
-                assetsDependeciesReaderFactory: assetsFileDependenciesFactory,
+                fileDependenciesReaderFactory: fileReaderFactory,
+                assetsDependenciesReaderFactory: assetsFileDependenciesFactory,
                 dirScanner: fileManager
             )
             var remappers: [DependenciesRemapper] = []
