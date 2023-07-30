@@ -411,7 +411,7 @@ module CocoapodsXCRemoteCacheModifier
 
       # Contrary to AbstractTarget.source_build_phase, it only finds a build phase, without creating one if it doesn't exist
       def self.find_source_build_phase(target)
-        target.build_phases.find { |bp| bp.class == PBXSourcesBuildPhase }
+        target.build_phases.find { |bp| bp.class == Xcodeproj::Project::Object::AbstractBuildPhase::PBXSourcesBuildPhase }
       end
 
       Pod::HooksManager.register('cocoapods-xcremotecache', :pre_install) do |installer_context|
