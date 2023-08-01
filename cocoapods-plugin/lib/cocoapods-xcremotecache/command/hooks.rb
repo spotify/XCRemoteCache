@@ -409,6 +409,11 @@ module CocoapodsXCRemoteCacheModifier
         File.write(LLDB_INIT_PATH, lldbinit_lines.join("\n"), mode: "w")
       end
 
+      # Contrary to AbstractTarget.source_build_phase, it only finds a build phase, without creating one if it doesn't exist
+      def self.find_source_build_phase(target)
+        target.build_phases.find { |bp| bp.class == Xcodeproj::Project::Object::PBXSourcesBuildPhase }
+      end
+
       Pod::HooksManager.register('cocoapods-xcremotecache', :pre_install) do |installer_context|
         # The main responsibility of that hook is forcing Pods regeneration when XCRemoteCache is enabled for the first time
         # In the post_install hook, this plugin adds extra build settings and steps to all Pods targets, but only when XCRemoteCache
@@ -520,6 +525,8 @@ module CocoapodsXCRemoteCacheModifier
             # Attach XCRemoteCache to Pods targets
             # Enable only for native targets which can have compilation steps
             installer_context.pods_project.native_targets.each do |target|
+                # Ensure the PBXSourcesBuildPhase exists as the flow would unnecessary create an empty source build phase otherwise
+                next if find_source_build_phase(target).nil?
                 next if target.source_build_phase.files_references.empty?
                 next if target.name.start_with?("Pods-")
                 next if target.name.end_with?("Tests")
