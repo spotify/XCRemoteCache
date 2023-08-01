@@ -93,7 +93,13 @@ public class XCCreateBinary {
             let cachedArtifactDir = organizer.getActiveArtifactLocation()
             let outputFilename = output.lastPathComponent
             let cachedBinaryURL = cachedArtifactDir.appendingPathComponent(outputFilename)
-            try fileManager.spt_forceLinkItem(at: cachedBinaryURL, to: output)
+            let args = ProcessInfo().arguments
+            if args[0].hasSuffix("libtool") && args[1...2] == ["-static", "-arch_only"] {
+                let arch = args[3]
+                try shellCall("lipo", args: ["-thin", arch, cachedBinaryURL.path, "-output", output.path], inDir: nil, environment: ProcessInfo.processInfo.environment)
+            } else {
+                try fileManager.spt_forceLinkItem(at: cachedBinaryURL, to: output)
+            }
             try dependenciesWriter.enable(dependencies: markerReader.listFilesURLs(), outputs: [output])
         } catch {
             errorLog("\(stepDescription) failed with error: \(error). Fallbacking to \(fallbackCommand)")
