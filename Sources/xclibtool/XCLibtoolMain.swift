@@ -35,7 +35,7 @@ public class XCLibtoolMain {
         let args = ProcessInfo().arguments
 
         do {
-            let mode = try XCLibtoolHelper.buildMode(args: args)
+            let mode = try XCLibtoolHelper.buildMode(args: Array(args.dropFirst()))
             try XCLibtool(mode).run()
         } catch {
             exit(1, "Failed with: \(error). Args: \(args)")
