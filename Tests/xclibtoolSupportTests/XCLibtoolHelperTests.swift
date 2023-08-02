@@ -23,23 +23,23 @@ import XCTest
 class XCLibtoolHelperTests: XCTestCase {
     func testStaticFrameworkUniversalBinary() throws {
         let mode = try XCLibtoolHelper.buildMode(
-            args: ["-o", "/universal/static", "/arch1/static", "arch2/static"]
+            args: ["-o", "/universal/static", "/arch1/static", "/arch2/static"]
         )
 
         XCTAssertEqual(mode, .createUniversalBinary(
             output: "/universal/static",
-            inputs: ["/arch1/static", "arch2/static"]
+            inputs: ["/arch1/static", "/arch2/static"]
         ))
     }
 
     func testStaticLibraryUniversalBinary() throws {
         let mode = try XCLibtoolHelper.buildMode(
-            args: ["-o", "/universal/static.a", "/arch1/static.a", "arch2/static.a"]
+            args: ["-o", "/universal/static.a", "/arch1/static.a", "/arch2/static.a"]
         )
 
         XCTAssertEqual(mode, .createUniversalBinary(
             output: "/universal/static.a",
-            inputs: ["/arch1/static.a", "arch2/static.a"]
+            inputs: ["/arch1/static.a", "/arch2/static.a"]
         ))
     }
 
@@ -62,5 +62,16 @@ class XCLibtoolHelperTests: XCTestCase {
                 XCTFail("Not expected error")
             }
         }
+    }
+
+    func testExplicitStaticFrameworkUniversalBinary() throws {
+        let mode = try XCLibtoolHelper.buildMode(
+            args: ["-static", "-o", "/universal/static", "/arch1/static", "/arch2/static"]
+        )
+
+        XCTAssertEqual(mode, .createUniversalBinary(
+            output: "/universal/static",
+            inputs: ["/arch1/static", "/arch2/static"]
+        ))
     }
 }
