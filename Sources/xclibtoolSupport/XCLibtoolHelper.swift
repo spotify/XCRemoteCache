@@ -47,9 +47,8 @@ public class XCLibtoolHelper {
             case "-dependency_info":
                 dependencyInfo = args[i + 1]
                 i += 1
-            case "-static":
-                () // just ignore it for now
-            case let input where ["", "a"].contains(URL(string: args[i])?.pathExtension):
+            case let input where args[i].starts(with: "/") && ["", "a"].contains(URL(string: args[i])?.pathExtension):
+                // Assume always absolute paths to the library
                 // Support for static frameworks (no extension) and static libraries (.a)
                 inputLibraries.append(input)
             default:
