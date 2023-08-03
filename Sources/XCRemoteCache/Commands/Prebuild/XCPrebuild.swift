@@ -158,13 +158,17 @@ public class XCPrebuild {
                 fileAccessor: fileManager
             )
             let artifactProcessor = UnzippedArtifactProcessor(fileRemapper: fileRemapper, dirScanner: fileManager)
+            let metaUpdater = ArtifactMetaUpdater(
+                fileRemapper: fileRemapper,
+                metaWriter: JsonMetaWriter(fileWriter: fileManager, pretty: true)
+            )
             let organizer = ZipArtifactOrganizer(
                 targetTempDir: context.targetTempDir,
-                artifactProcessors: [artifactProcessor],
+                artifactProcessors: [artifactProcessor, metaUpdater],
                 fileManager: fileManager
             )
             let metaReader = JsonMetaReader(fileAccessor: fileManager)
-            var consumerPlugins: [ArtifactConsumerPrebuildPlugin] = []
+            var consumerPlugins: [ArtifactConsumerPrebuildPlugin] = [metaUpdater]
 
             if config.thinningEnabled {
                 if context.moduleName == config.thinningTargetModuleName, let thinnedTarget = context.thinnedTargets {
