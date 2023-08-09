@@ -276,7 +276,7 @@ module CocoapodsXCRemoteCacheModifier
 
         download_latest_xcrc_release(local_package_location)
 
-        if !system("unzip #{local_package_location} -d #{local_location}")
+        if !system("unzip", local_package_location, "-d", local_location)
           throw "Unzipping XCRemoteCache failed"
         end
       end
