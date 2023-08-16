@@ -74,4 +74,15 @@ class XCLibtoolHelperTests: XCTestCase {
             inputs: ["/arch1/static", "/arch2/static"]
         ))
     }
+
+    func testRecognizesPathsWithSpaces() throws {
+        let mode = try XCLibtoolHelper.buildMode(
+            args: ["-static", "-o", "/universal/static", "/arch/with space/static"]
+        )
+
+        XCTAssertEqual(mode, .createUniversalBinary(
+            output: "/universal/static",
+            inputs: ["/arch/with space/static"]
+        ))
+    }
 }
