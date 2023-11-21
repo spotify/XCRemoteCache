@@ -84,7 +84,7 @@ private func shellInternal(_ cmd: String, args: [String] = [], stdout: PipeLike?
         task.currentDirectoryPath = dir
     }
     task.launch()
-    let errorData = (stderr == nil) ? nil : errorHandle.fileHandleForReading.readDataToEndOfFile()
+    let errorData = (stderr != nil) ? nil : errorHandle.fileHandleForReading.readDataToEndOfFile()
     task.waitUntilExit()
     if task.terminationStatus != 0 {
         guard let errorData = errorData else {
