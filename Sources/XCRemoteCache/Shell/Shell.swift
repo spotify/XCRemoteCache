@@ -84,13 +84,13 @@ private func shellInternal(_ cmd: String, args: [String] = [], stdout: PipeLike?
         task.currentDirectoryPath = dir
     }
     task.launch()
+    let errorData = (stderr != nil) ? nil : errorHandle.fileHandleForReading.readDataToEndOfFile()
     task.waitUntilExit()
     if task.terminationStatus != 0 {
-        if stderr != nil {
+        guard let errorData = errorData else {
             // Error stream was captured so cannot inspect its content
             throw ShellError.statusError("Failed command", task.terminationStatus)
         }
-        let errorData = errorHandle.fileHandleForReading.readDataToEndOfFile()
         let errorString = String(data: errorData, encoding: .utf8)?.trim() ?? "No error returned from the process."
         throw ShellError.statusError(
             "status \(task.terminationStatus): \(errorString)", task.terminationStatus
