@@ -13,14 +13,16 @@ jobs:
           args: --strict
 
   macOS:
-    runs-on: macos-12
+    runs-on: macos-14
     env:
-      XCODE_VERSION: ${{ '14.2' }}
+      XCODE_VERSION: ${{ '14.3.1' }}
     steps:
       - name: Select Xcode
         run: "sudo xcode-select -s /Applications/Xcode_$XCODE_VERSION.app"
       - name: Checkout
         uses: actions/checkout@v1
+      - name: Install nginx
+        run: brew install nginx
       - name: Build and Run
         run: rake build[release]
       - name: Test
