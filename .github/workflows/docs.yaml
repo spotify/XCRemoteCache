@@ -9,7 +9,7 @@ jobs:
   docs:
     runs-on: macos-12
     env:
-      XCODE_VERSION: ${{ '14.2' }}
+      XCODE_VERSION: ${{ '14.3' }}
     steps:
       - uses: actions/checkout@v2
       - name: Select Xcode
