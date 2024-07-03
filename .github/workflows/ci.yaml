@@ -13,9 +13,9 @@ jobs:
           args: --strict
 
   macOS:
-    runs-on: macos-12
+    runs-on: macos-14
     env:
-      XCODE_VERSION: ${{ '14.3' }}
+      XCODE_VERSION: ${{ '14.3.1' }}
     steps:
       - name: Select Xcode
         run: "sudo xcode-select -s /Applications/Xcode_$XCODE_VERSION.app"
