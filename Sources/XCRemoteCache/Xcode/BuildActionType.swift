@@ -25,6 +25,8 @@ enum BuildActionType: String, Codable {
     case build
     /// An extra build, exclusive for indexing (Introduced in Xcode 13)
     case index = "indexbuild"
+    /// Archive build
+    case archive = "install"
     /// Unknown type, probably incompatible Xcode version used
     case unknown
 }

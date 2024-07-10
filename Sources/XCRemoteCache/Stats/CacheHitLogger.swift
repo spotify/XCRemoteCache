@@ -37,7 +37,7 @@ class ActionSpecificCacheHitLogger: CacheHitLogger {
         case .index:
             hitCounter = .indexingTargetHitCount
             missCounter = .indexingTargetMissCount
-        case .build:
+        case .build, .archive:
             hitCounter = .targetCacheHit
             missCounter = .targetCacheMiss
         case .unknown:
