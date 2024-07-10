@@ -91,6 +91,7 @@ class Prebuild {
             switch artifactPreparationResult {
             case .artifactExists(let artifactDir):
                 infoLog("Artifact exists locally at \(artifactDir)")
+                _ = try artifactsOrganizer.prepare(artifact: artifactDir)
                 try artifactsOrganizer.activate(extractedArtifact: artifactDir)
             case .preparedForArtifact(let artifactPackage):
                 infoLog("Downloading artifact to \(artifactPackage)")
