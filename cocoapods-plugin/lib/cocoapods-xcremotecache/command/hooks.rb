@@ -18,6 +18,7 @@ require 'open-uri'
 require 'yaml'
 require 'json'
 require 'pathname'
+require 'fileutils'
 
 
 module CocoapodsXCRemoteCacheModifier
@@ -275,7 +276,7 @@ module CocoapodsXCRemoteCacheModifier
 
         download_latest_xcrc_release(local_package_location)
 
-        if !system("unzip #{local_package_location} -d #{local_location}")
+        if !system("unzip", local_package_location, "-d", local_location)
           throw "Unzipping XCRemoteCache failed"
         end
       end
@@ -295,11 +296,11 @@ module CocoapodsXCRemoteCacheModifier
           throw "Downloading XCRemoteCache failed"
         end
 
-        URI.open(asset_url, "accept" => 'application/octet-stream') do |f|
-          File.open(local_package_location, "wb") do |file|
-            file.puts f.read
-          end
-        end
+        uri = URI(asset_url)
+        options = { 'accept' => 'application/octet-stream' }
+        # File is > 10KB so Tempfile will be returned
+        downloaded_file = uri.open(options)
+        FileUtils.cp(downloaded_file, local_package_location)
       end
 
       def self.add_cflags!(options, key, value, exclude_sdks_configurations)
