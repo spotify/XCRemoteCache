@@ -28,7 +28,7 @@ protocol SizeProvider {
     /// Returns size of the file taken on disk (real disk usage)
     /// - Parameter location: location to inspect
     /// - Returns: size of a file, or 0 if the location doesn't exist
-    /// - Throws: `SizeProviderError` when an error occured
+    /// - Throws: `SizeProviderError` when an error occurred
     func size(at location: URL) throws -> Int
 }
 
