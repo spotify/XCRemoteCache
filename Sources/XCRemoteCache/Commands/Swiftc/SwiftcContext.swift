@@ -107,11 +107,22 @@ public struct SwiftcContext {
         self.compilationFiles = compilationFiles
         // exampleWorkspaceFilePath has a format $TARGET_TEMP_DIR/Objects-normal/$ARCH/some.file
         // That may be subject to change for other Xcode versions
-        tempDir = URL(fileURLWithPath: exampleWorkspaceFilePath)
+        let environment = ProcessInfo.processInfo.environment
+
+        if let targetTempDir = environment["TARGET_TEMP_DIR"], !targetTempDir.isEmpty {
+            tempDir = URL(fileURLWithPath: targetTempDir)
+        } else {
+            tempDir = URL(fileURLWithPath: exampleWorkspaceFilePath)
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
-        arch = URL(fileURLWithPath: exampleWorkspaceFilePath).deletingLastPathComponent().lastPathComponent
+        }
+        
+        if let archComponent = target.split(separator: "-").first, !archComponent.isEmpty {
+            arch = String(archComponent)
+        } else {
+            arch = URL(fileURLWithPath: exampleWorkspaceFilePath).deletingLastPathComponent().lastPathComponent
+        }
 
         let srcRoot: URL = URL(fileURLWithPath: config.sourceRoot)
         let remoteCommitLocation = URL(fileURLWithPath: config.remoteCommitFile, relativeTo: srcRoot)

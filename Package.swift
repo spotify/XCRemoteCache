@@ -7,7 +7,7 @@ import PackageDescription
 let package = Package(
     name: "XCRemoteCache",
     platforms: [
-        .macOS(.v10_14),
+        .macOS(.v11),
     ],
     products: [
         .executable(name: "xcprebuild", targets: ["xcprebuild"]),
@@ -16,7 +16,7 @@ let package = Package(
         .package(url: "https://github.com/marmelroy/Zip.git", from: "2.1.2"),
         .package(url: "https://github.com/jpsim/Yams.git", from: "5.0.0"),
         .package(url: "https://github.com/apple/swift-argument-parser", from: "0.0.1"),
-        .package(url: "https://github.com/tuist/XcodeProj.git", from: "8.9.0"),
+        .package(url: "https://github.com/tuist/XcodeProj.git", from: "9.12.0"),
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
     ],
     targets: [

@@ -101,7 +101,7 @@ class PhaseCacheModeControllerTests: FileXCTestCase {
         try modeController.enable(allowedInputFiles: [], dependencies: [])
 
         let allDeps = try dependenciesWriter.wroteDependencies.unwrap().values.flatMap { $0 }
-        XCTAssertTrue(allDeps.contains("/var/db/xcode_select_link"))
+        XCTAssertTrue(allDeps.contains(PhaseCacheModeController.xcodeSelectLink.path))
     }
 
     func testDependsOnXcodeSelectLinkWhenDisabled() throws {
@@ -122,7 +122,7 @@ class PhaseCacheModeControllerTests: FileXCTestCase {
         try modeController.disable()
 
         let allDeps = try dependenciesWriter.wroteDependencies.unwrap().values.flatMap { $0 }
-        XCTAssertTrue(allDeps.contains("/var/db/xcode_select_link"))
+        XCTAssertTrue(allDeps.contains(PhaseCacheModeController.xcodeSelectLink.path))
     }
 
     func testForcedCachedPhaseFailToDisable() throws {

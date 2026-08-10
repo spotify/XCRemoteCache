@@ -47,11 +47,18 @@ class XCCreateUniversalBinary: XCLibtoolLogic {
         // TODO: find better (stable) technique to determine `$TARGET_TEMP_DIR`
         errorLog("\(firstInputURL.absoluteString)")
 
-        tempDir = firstInputURL
+        let environment = ProcessInfo.processInfo.environment
+
+        if let targetTempDir = environment["TARGET_TEMP_DIR"], !targetTempDir.isEmpty {
+            tempDir = URL(fileURLWithPath: targetTempDir)
+        } else {
+            tempDir = firstInputURL
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
+        }
+        
         self.firstInputURL = firstInputURL
         self.toolName = toolName
         self.fallbackCommand = fallbackCommand

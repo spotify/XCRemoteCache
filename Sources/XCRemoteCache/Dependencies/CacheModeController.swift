@@ -41,7 +41,14 @@ protocol CacheModeController {
 
 class PhaseCacheModeController: CacheModeController {
     /// Path to the symbolic link that changes if other xcode is selected with `xcode-select -s`
-    static let xcodeSelectLink: URL = URL(fileURLWithPath: "/var/db/xcode_select_link")
+    static var xcodeSelectLink: URL { 
+        let legacyPath = URL(fileURLWithPath: "/var/db/xcode_select_link")
+        let modernPath = URL(fileURLWithPath: "/var/select/developer_dir")
+        if (try? FileManager.default.destinationOfSymbolicLink(atPath: modernPath.path)) != nil {
+            return modernPath
+        }
+        return legacyPath
+    }
     private let mergeCommitFile: URL
     private let modeMarker: URL
     private let forceCached: Bool

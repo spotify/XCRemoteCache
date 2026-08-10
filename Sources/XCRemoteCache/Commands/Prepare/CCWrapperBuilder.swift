@@ -469,20 +469,9 @@ class TemplateBasedCCWrapperBuilder: CCWrapperBuilder {
                return execvp(clang_cmd, (char *const*) clang_args);
            }
 
-           // Verify all input arguments
-           if (dependency_file == NULL) {
-               fprintf(stderr, "error: missing %s input\\n", dependency_arg_name);
-               exit(1);
+           if (dependency_file == NULL || output_file == NULL || input_file == NULL) {
+               return execvp(clang_cmd, (char *const*) clang_args);
            }
-           if (output_file == NULL) {
-               fprintf(stderr, "error: missing %s input\\n", output_arg_name);
-               exit(1);
-           }
-           if (input_file == NULL) {
-               fprintf(stderr, "error: missing input file\\n");
-               exit(1);
-           }
-
 
            // Find tmp_dir
            #pragma GCC diagnostic push

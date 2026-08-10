@@ -74,7 +74,7 @@ class Prepare: PrepareLogic {
     /// Finds the best commit with generated artifacts to use
     func prepare() throws -> PrepareResult {
         do {
-            guard fileAccessor.fileExists(atPath: PhaseCacheModeController.xcodeSelectLink.path) else {
+            guard (try? FileManager.default.destinationOfSymbolicLink(atPath: PhaseCacheModeController.xcodeSelectLink.path)) != nil else {
                 throw PrepareError.missingXcodeSelectDirectory
             }
 

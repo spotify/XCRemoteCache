@@ -47,10 +47,17 @@ public class XCCreateBinary {
         self.dependencyInfo = URL(fileURLWithPath: dependencyInfo)
         // fileList is place in $TARGET_TEMP_DIR/Objects-normal/$ARCH/$TARGET_NAME.LinkFileList
         // TODO: find better (stable) technique to determine `$TARGET_TEMP_DIR`
-        tempDir = URL(fileURLWithPath: filelist)
+        let environment = ProcessInfo.processInfo.environment
+
+        if let targetTempDir = environment["TARGET_TEMP_DIR"], !targetTempDir.isEmpty {
+            tempDir = URL(fileURLWithPath: targetTempDir)
+        } else {
+            tempDir = URL(fileURLWithPath: filelist)
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
+        }
+        
         self.fallbackCommand = fallbackCommand
         self.stepDescription = stepDescription
     }

@@ -18,6 +18,7 @@
 // under the License.
 
 @testable import XCRemoteCache
+import XcodeProj
 import XCTest
 
 class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
@@ -53,7 +54,7 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
             options: []
         )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
-        let resultURL = try XCTUnwrap(result["XCRC_FAKE_SRCROOT"] as? String)
+        let resultURL = try XCTUnwrap(result["XCRC_FAKE_SRCROOT"]?.stringValue)
 
         XCTAssertEqual(resultURL, fakeRootURL.path)
     }
@@ -69,7 +70,7 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
             options: []
         )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
-        let resultURL: String = try XCTUnwrap(result["XCRC_FAKE_SRCROOT"] as? String)
+        let resultURL: String = try XCTUnwrap(result["XCRC_FAKE_SRCROOT"]?.stringValue)
 
         XCTAssertEqual(resultURL, fakeRootURL.path)
     }
@@ -85,7 +86,7 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
             options: []
         )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
-        let ldPlusPlus: String = try XCTUnwrap(result["LDPLUSPLUS"] as? String)
+        let ldPlusPlus: String = try XCTUnwrap(result["LDPLUSPLUS"]?.stringValue)
 
         XCTAssertEqual(ldPlusPlus, binaries.ldplusplus.path)
     }
@@ -100,7 +101,7 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
             options: []
         )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
-        let ldPlusPlusWatchOS: String = try XCTUnwrap(result["LDPLUSPLUS[sdk=watchOS*]"] as? String)
+        let ldPlusPlusWatchOS: String = try XCTUnwrap(result["LDPLUSPLUS[sdk=watchOS*]"]?.stringValue)
 
         XCTAssertEqual(ldPlusPlusWatchOS, "")
     }
@@ -115,7 +116,7 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
             options: []
         )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
-        let libtoolWatchOS: String = try XCTUnwrap(result["LIBTOOL[sdk=watchOS*]"] as? String)
+        let libtoolWatchOS: String = try XCTUnwrap(result["LIBTOOL[sdk=watchOS*]"]?.stringValue)
 
         XCTAssertEqual(libtoolWatchOS, "libtool")
     }
@@ -130,8 +131,8 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
             options: []
         )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
-        let ldPlusPlusWatchOS: String = try XCTUnwrap(result["LDPLUSPLUS[sdk=watchOS*]"] as? String)
-        let ldPlusPlusWatchSimulator: String = try XCTUnwrap(result["LDPLUSPLUS[sdk=watchsimulator*]"] as? String)
+        let ldPlusPlusWatchOS: String = try XCTUnwrap(result["LDPLUSPLUS[sdk=watchOS*]"]?.stringValue)
+        let ldPlusPlusWatchSimulator: String = try XCTUnwrap(result["LDPLUSPLUS[sdk=watchsimulator*]"]?.stringValue)
 
         XCTAssertEqual(ldPlusPlusWatchOS, "")
         XCTAssertEqual(ldPlusPlusWatchSimulator, "")
@@ -147,8 +148,8 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
             options: []
         )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
-        let disabledWatchOS: String = try XCTUnwrap(result["XCRC_DISABLED[sdk=watchOS*]"] as? String)
-        let disabledWatchSimulator: String = try XCTUnwrap(result["XCRC_DISABLED[sdk=watchsimulator*]"] as? String)
+        let disabledWatchOS: String = try XCTUnwrap(result["XCRC_DISABLED[sdk=watchOS*]"]?.stringValue)
+        let disabledWatchSimulator: String = try XCTUnwrap(result["XCRC_DISABLED[sdk=watchsimulator*]"]?.stringValue)
 
         XCTAssertEqual(disabledWatchOS, "YES")
         XCTAssertEqual(disabledWatchSimulator, "YES")
@@ -164,7 +165,7 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
             options: [.disableSwiftDriverIntegration]
         )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
-        let useSwiftIntegrationDriver: String = try XCTUnwrap(result["SWIFT_USE_INTEGRATED_DRIVER"] as? String)
+        let useSwiftIntegrationDriver: String = try XCTUnwrap(result["SWIFT_USE_INTEGRATED_DRIVER"]?.stringValue)
 
         XCTAssertEqual(useSwiftIntegrationDriver, "NO")
     }
@@ -179,7 +180,7 @@ class XcodeProjBuildSettingsIntegrateAppenderTests: XCTestCase {
             options: []
         )
         let result = appender.appendToBuildSettings(buildSettings: buildSettings, wrappers: binaries)
-        let useSwiftIntegrationDriver: String? = result["SWIFT_USE_INTEGRATED_DRIVER"] as? String
+        let useSwiftIntegrationDriver: String? = result["SWIFT_USE_INTEGRATED_DRIVER"]?.stringValue
 
         XCTAssertNil(useSwiftIntegrationDriver)
     }
