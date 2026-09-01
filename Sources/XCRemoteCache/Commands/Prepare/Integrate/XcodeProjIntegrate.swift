@@ -152,8 +152,8 @@ struct XcodeProjIntegrate: Integrate {
             do {
 
                 // Call xcprepare to probe if XCRemoteCache can be safely used
-                let args = ["--configuration"] + consumerEligibleConfigurations + ["--platform"] +
-                    consumerEligiblePlatforms
+                let args = consumerEligibleConfigurations.flatMap { ["--configuration", $0] }
+                    + consumerEligiblePlatforms.flatMap { ["--platform", $0] }
                 let yamlString = try shellGetStdout(
                     binaries.prepare.path,
                     args: args,
