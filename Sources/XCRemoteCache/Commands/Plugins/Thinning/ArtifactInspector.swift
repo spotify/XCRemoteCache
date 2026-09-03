@@ -20,7 +20,7 @@
 import Foundation
 
 enum ArtifactInspectorError: Error {
-    /// The unzipped artifact is malformed. Is misses *.swiftmodule file in "swiftmodule/{{arch}}" directory
+    /// The unzipped artifact is malformed. It misses *.swiftmodule file in "swiftmodule/{{arch}}" directory
     case missingSwiftmoduleFileInArtifact(artifact: URL)
 }
 

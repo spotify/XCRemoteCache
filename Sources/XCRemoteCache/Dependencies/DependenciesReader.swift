@@ -111,8 +111,8 @@ public class FileDependenciesReader: DependenciesReader {
     /// Parses the String to get the list of files
     /// It iterates over the String using its UTF8View since it is more performant (String type operates
     /// in a higher abstraction level and supports features that have a negative impact in the performance)
-    /// It supports escaping whitespace charaters, prefixed with "\\"
-    /// - Parameter string: string of whitespace charaters separated file paths
+    /// It supports escaping whitespace characters, prefixed with "\\"
+    /// - Parameter string: string of whitespace characters separated file paths
     /// - Returns: Array of all file paths
     func parseDependencyFileList(_ string: String) -> [String] {
         var result: [String] = []

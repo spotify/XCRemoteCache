@@ -22,7 +22,7 @@ import Foundation
 enum ThinningConsumerPostbuildPluginError: Error {
     /// The aggregation target meta misses a filekey for targets
     case missingArtifactKey(targetNames: [String])
-    /// The unzipped artifact is malformed. Is misses a binary file in a root directory
+    /// The unzipped artifact is malformed. It misses a binary file in a root directory
     case missingBinaryForArtifact(artifact: URL)
     /// Postbuild of some target(s) failed (potentially the unzipped artifacts is broken)
     case failed(underlyingErrors: [Error])

@@ -49,7 +49,7 @@ public class XCLDMain {
         }
         guard let outputInput = output, let filelistInput = filelist, let dependencyInfoInput = dependencyInfo else {
             let ldCommand = "clang"
-            print("Fallbacking to compilation using \(ldCommand).")
+            print("Falling back to compilation using \(ldCommand).")
 
             let args = ProcessInfo().arguments
             let paramList = [ldCommand] + args.dropFirst()

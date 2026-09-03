@@ -46,7 +46,7 @@ An object that is passed to the `xcremotecache` can contain all properties suppo
 | `xcrc_location` | The location of all XCRemoteCache binaries | `{podfile_dir}/XCRC` | ⬜️ |
 | `exclude_targets` | Comma-separated list of targets that shouldn't use XCRemoteCache | `[]`| ⬜️ |
 | `exclude_build_configurations` | Comma-separated list of configurations that shouldn't use XCRemoteCache | `[]`| ⬜️ |
-| `final_target` | A target name that is build at the end of the build chain. Relevant only for a 'producer' mode to mark a given sha as ready to use from cache | `Debug` | ⬜️ |
+| `final_target` | A target name that is built at the end of the build chain. Relevant only for a 'producer' mode to mark a given sha as ready to use from cache | `Debug` | ⬜️ |
 | `check_build_configuration` | A build configuration for which the remote cache availability is performed. Relevant only for a 'consumer' mode | `Debug` | ⬜️ |
 | `check_platform` | A platform for which the remote cache availability is performed. Relevant only for a 'consumer' mode | `iphonesimulator` | ⬜️
 | `modify_lldb_init` | Controls if the pod integration should modify `~/.lldbinit` | `true` | ⬜️ |

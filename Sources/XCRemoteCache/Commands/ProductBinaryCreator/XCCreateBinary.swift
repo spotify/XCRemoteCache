@@ -73,7 +73,7 @@ public class XCCreateBinary {
             config = try XCRemoteCacheConfigReader(srcRootPath: srcRoot.path, fileReader: fileManager)
                 .readConfiguration()
         } catch {
-            errorLog("\(stepDescription) initialization failed with error: \(error). Fallbacking to \(fallbackCommand)")
+            errorLog("\(stepDescription) initialization failed with error: \(error). Falling back to \(fallbackCommand)")
             fallbackToDefault()
         }
         let markerURL = tempDir.appendingPathComponent(config.modeMarkerPath)
@@ -96,7 +96,7 @@ public class XCCreateBinary {
             try fileManager.spt_forceLinkItem(at: cachedBinaryURL, to: output)
             try dependenciesWriter.enable(dependencies: markerReader.listFilesURLs(), outputs: [output])
         } catch {
-            errorLog("\(stepDescription) failed with error: \(error). Fallbacking to \(fallbackCommand)")
+            errorLog("\(stepDescription) failed with error: \(error). Falling back to \(fallbackCommand)")
             do {
                 try fileManager.removeItem(at: markerURL)
                 fallbackToDefault()

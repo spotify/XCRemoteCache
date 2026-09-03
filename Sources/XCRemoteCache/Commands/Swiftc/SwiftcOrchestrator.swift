@@ -68,12 +68,12 @@ class SwiftcOrchestrator {
     }
 
     private func fallbackToDefault(command: String = "swiftc") {
-        defaultLog("Fallbacking to compilation using \(command).")
+        defaultLog("Falling back to compilation using \(command).")
         shellOut.switchToExternalProcess(command: command, invocationArgs: invocationArgs)
     }
 
     private func fallbackToDefaultAndWait(command: String = "swiftc", args: [String]) throws {
-        defaultLog("Fallbacking to compilation using \(command).")
+        defaultLog("Falling back to compilation using \(command).")
         do {
             try shellOut.callExternalProcessAndWait(
                 command: command,

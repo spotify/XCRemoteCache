@@ -47,7 +47,7 @@ public struct PostbuildContext {
     var platform: String
     var productsDir: URL
     var moduleName: String?
-    /// Path to the *.swiftmodule directory (irrelevant when `module` is nil). Rrelative to `productsDir`
+    /// Path to the *.swiftmodule directory (irrelevant when `module` is nil). Relative to `productsDir`
     var modulesFolderPath: String
     var executablePath: String
     var srcRoot: URL
@@ -58,7 +58,7 @@ public struct PostbuildContext {
     /// Commit sha of the commit to use remote cache
     var remoteCommit: RemoteCommitInfo
     var recommendedCacheAddress: URL
-    /// All cache adresses to upload cache artifacts (for a producer)
+    /// All cache addresses to upload cache artifacts (for a producer)
     var cacheAddresses: [URL]
     /// Root directory where all statistics are stored
     var statsLocation: URL
@@ -75,7 +75,7 @@ public struct PostbuildContext {
     /// Location to the product bundle. Can be nil for libraries
     let bundleDir: URL?
     var derivedSourcesDir: URL
-    /// List of all targets to downloaded from the thinning aggregation target
+    /// List of all targets to be downloaded from the thinning aggregation target
     var thinnedTargets: [String]
     /// Action type: build, indexbuild etc
     var action: BuildActionType
