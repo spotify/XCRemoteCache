@@ -46,7 +46,7 @@ public class XCLipoMain {
         }
         let lipoCommand = "lipo"
         guard let output = output, !inputs.isEmpty, create else {
-            print("Fallbacking to compilation using \(lipoCommand).")
+            print("Falling back to compilation using \(lipoCommand).")
 
             let args = ProcessInfo().arguments
             let paramList = [lipoCommand] + args.dropFirst()

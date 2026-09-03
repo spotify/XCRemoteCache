@@ -24,17 +24,17 @@ import XCRemoteCache
 /// produces empty output files (.o). Just like in xcswiftc, compilation dependencies
 /// (.d) files are copied from the prebuild marker file which includes all relevant files
 /// Fallbacks to a standard `swift-frontend` when the
-/// ramote cache is not applicable (e.g. modified sources)
+/// remote cache is not applicable (e.g. modified sources)
 public class XCSwiftcFrontendMain {
     // swiftlint:disable:next function_body_length cyclomatic_complexity
     public func main() {
         let env = ProcessInfo.processInfo.environment
         // Do not invoke raw swift-frontend because that would lead to the infinite loop
-        // swift-frontent -> xcswift-frontent -> swift-frontent
+        // swift-frontend -> xcswift-frontend -> swift-frontend
         //
-        // Note: Returning the `swiftc` executaion here because it is possible to pass all arguments
+        // Note: Returning the `swiftc` execution here because it is possible to pass all arguments
         // from swift-frontend to `swiftc` and swiftc will be able to redirect to swift-frontend
-        // (because the first argument is `-frontend`). If that is not a case (might change in
+        // (because the first argument is `-frontend`). If that is not the case (might change in
         // future swift compiler versions), invoke swift-frontend from the Xcode, but that introduces
         // a limitation that disallows custom toolchains in Xcode:
         // $DEVELOPER_DIR/Toolchains/XcodeDefault.xctoolchain/usr/bin/{ ProcessInfo().processName}

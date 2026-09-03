@@ -59,7 +59,7 @@ task :build, [:configuration, :arch, :sdks, :is_archive] do |task, args|
 
     # Path of the executable looks like: `.build/(debug|release)/XCRemoteCache`
     build_path_base = File.join(DERIVED_DATA_DIR, args.configuration)
-    # swift-frontent integration requires that the SWIFT_EXEC is `swiftc` so create
+    # swift-frontend integration requires that the SWIFT_EXEC is `swiftc` so create
     # a symbolic link between swiftc->xcswiftc and swift-frontend->xcswift-frontend
     system("cd #{build_path_base} && ln -s xcswiftc swiftc")
     system("cd #{build_path_base} && ln -s xcswift-frontend swift-frontend")

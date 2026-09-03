@@ -28,7 +28,7 @@ enum ThinningCreatorPluginError: Error {
 
 /// Plugin that includes fileKeys of all cached targets in a target meta
 /// If scans all directories in the DerivedData to find targets that recently prepared and uploaded artifacts to the
-/// remote cache storage. It is important to enabled that plugin only for a target that is build as a last step of the
+/// remote cache storage. It is important to enable that plugin only for a target that is built as a last step of the
 /// building process (so it can find all relevant build products in DerivedData) for each "configuration+arch" pair
 /// Warning! This plugin assumes that producer's DerivedData are always cleaned before a build
 class ThinningCreatorPlugin: ArtifactCreatorPlugin {
@@ -38,7 +38,7 @@ class ThinningCreatorPlugin: ArtifactCreatorPlugin {
 
     /// Default Initializer
     /// - Parameter targetTempDir: Location of current target-specific temp dir (TARGET_TEMP_DIR)
-    /// - Parameter modeMarkerPath: path of maker file that informs if a given target can reuse remote artifacts
+    /// - Parameter modeMarkerPath: path of marker file that informs if a given target can reuse remote artifacts
     /// - Parameter dirScanner: scanner to access disk and read files and directories hierarchy
     init(targetTempDir: URL, modeMarkerPath: String, dirScanner: DirScanner) {
         self.targetTempDir = targetTempDir

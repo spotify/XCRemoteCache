@@ -66,7 +66,7 @@ class XCCreateUniversalBinary: XCLibtoolLogic {
             config = try XCRemoteCacheConfigReader(srcRootPath: srcRoot.path, fileReader: fileManager)
                 .readConfiguration()
         } catch {
-            errorLog("\(toolName) initialization failed with error: \(error). Fallbacking to \(fallbackCommand)")
+            errorLog("\(toolName) initialization failed with error: \(error). Falling back to \(fallbackCommand)")
             fallbackToDefault()
         }
 
@@ -85,7 +85,7 @@ class XCCreateUniversalBinary: XCLibtoolLogic {
             // that these are already an universal binary
             try fileManager.spt_forceLinkItem(at: firstInputURL, to: output)
         } catch {
-            errorLog("\(toolName) failed with error: \(error). Fallbacking to \(fallbackCommand)")
+            errorLog("\(toolName) failed with error: \(error). Falling back to \(fallbackCommand)")
             do {
                 try fileManager.removeItem(at: markerURL)
                 fallbackToDefault()
